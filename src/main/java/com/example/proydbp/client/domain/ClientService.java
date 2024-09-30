@@ -2,6 +2,7 @@ package com.example.proydbp.client.domain;
 
 import com.example.proydbp.client.dto.ClientDto;
 import com.example.proydbp.client.infrastructure.ClientRepository;
+import com.example.proydbp.user.domain.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +28,11 @@ public class ClientService {
     public String saveClientDto(ClientDto clientDto) {
         Client client = new Client();
         client.setFirstName(clientDto.getFirstName());
+        client.setLastName(clientDto.getLastName());
         client.setEmail(clientDto.getEmail());
+        client.setPassword(clientDto.getPassword());
         client.setPhoneNumber(clientDto.getPhoneNumber());
+        client.setRole(Role.CLIENT);
         clientRepository.save(client);
 
         return clientDto.toString();
