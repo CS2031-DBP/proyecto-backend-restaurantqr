@@ -16,8 +16,9 @@ public class Client extends User {
     @Column(name = "preferred_contact_method")
     private String preferredContactMethod;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "membership_level")
-    private String membershipLevel;
+    private Level level;
 
     @Column(name = "address")
     private String address;
