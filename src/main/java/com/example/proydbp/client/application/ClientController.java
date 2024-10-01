@@ -24,7 +24,7 @@ public class ClientController {
 
     @PostMapping
     public ResponseEntity<String> saveClientDto(@RequestBody ClientDto clientDto) {
-        if(clientService.clientExists(clientDto)){
+        if (clientService.clientExists(clientDto)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         String uri = clientService.saveClientDto(clientDto);
@@ -47,7 +47,7 @@ public class ClientController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
-        if (!clientService.clientExists(id)) {
+        if (clientService.clientExists(id)) {
             return ResponseEntity.notFound().build();
         }
         clientService.deleteClient(id);
@@ -56,7 +56,7 @@ public class ClientController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateClient(@PathVariable Long id, @RequestBody ClientDto clientDto) {
-        if (!clientService.clientExists(id)) {
+        if (clientService.clientExists(id)) {
             return ResponseEntity.notFound().build();
         }
         clientService.updateClient(id, clientDto);
