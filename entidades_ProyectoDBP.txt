@@ -92,7 +92,7 @@ tableNumber: Número de la mesa asignada para la reserva.
 status: Estado de la reserva (ej: pendiente, confirmada, cancelada).
 specialRequests: Solicitudes especiales del cliente para la reserva (ej: preferencia de mesa, requerimientos dietéticos).
 
-
+///
 6. OrderItem
 
 Representa los productos dentro de un pedido.
@@ -100,7 +100,9 @@ Atributos:
 id: Identificador único del ítem.
 product: Producto solicitado (ver entidad Product).
 quantity: Cantidad de este producto.
-customization: Personalizaciones o comentarios (ej: sin sal).
+customization: Personalizaciones o comentarios (ej: sin sal).5
+
+////
 
 7. Product
 
