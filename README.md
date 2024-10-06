@@ -59,13 +59,140 @@ Es relevante solucionar este problema porque permite agilizar el proceso de pedi
 ![Diagrama de Entidades](./path_to_diagram.png)
 
 ### Descripción de Entidades
-- **User**: Usuario abstracto que puede ser cliente o empleado.
-- **Client**: Cliente que realiza pedidos y deja evaluaciones.
-- **Employee**: Mesero que recibe calificaciones de los clientes.
-- **Order**: Representa un pedido realizado por un cliente.
-- **OrderItem**: Producto individual dentro de un pedido.
-- **Product**: Platos o bebidas del menú.
-- **Rating**: Evaluaciones realizadas por los clientes sobre el servicio recibido.
+#### 1. User (Abstracta)
+Representa cualquier tipo de usuario del sistema (cliente o empleado).
+
+**Atributos**:
+- `id`: Identificador único.
+- `name`: Nombre.
+- `email`: Correo electrónico.
+- `password`: Contraseña para autenticación.
+- `role`: Rol del usuario (ej: cliente, mesero, administrador).
+
+---
+
+#### 2. Client (Hereda de User)
+Representa a los clientes del restaurante.
+
+**Atributos adicionales**:
+- `loyaltyPoints`: Puntos de lealtad acumulados por el cliente.
+- `preferences`: Preferencias del cliente (ej: sin gluten, vegetariano).
+- `orderHistory`: Historial de pedidos realizados.
+
+---
+
+#### 3. Employee (Hereda de User)
+Representa a los empleados, principalmente meseros.
+
+**Atributos adicionales**:
+- `position`: Cargo del empleado (ej: mesero).
+- `ratings`: Evaluaciones recibidas de los clientes.
+- `performanceScore`: Puntaje de desempeño basado en evaluaciones.
+
+---
+
+#### 4. Table
+Representa las mesas del restaurante.
+
+**Atributos**:
+- `id`: Identificador único de la mesa.
+- `qrCode`: Código QR asociado a la mesa (para escanear y acceder al menú).
+- `location`: Ubicación de la mesa dentro del restaurante.
+- `capacity`: Capacidad de personas que pueden sentarse en la mesa.
+- `isAvailable`: Indica si la mesa está disponible.
+
+---
+
+#### 5. Order
+Representa los pedidos realizados por los clientes.
+
+**Atributos**:
+- `id`: Identificador único del pedido.
+- `client`: Cliente que realizó el pedido (relación con Client).
+- `orderDate`: Fecha en la que se realizó el pedido.
+- `orderTime`: Hora en la que se realizó el pedido.
+- `orderItems`: Lista de ítems del menú pedidos (relación con OrderItem).
+- `totalPrice`: Precio total del pedido.
+- `orderType`: Tipo de pedido (`OrderType` enum: en establecimiento, reserva, delivery).
+- `status`: Estado del pedido (ej: pendiente, en preparación, completado).
+- `specialInstructions`: Instrucciones especiales para el pedido (ej: sin gluten, extra salsa).
+
+---
+
+#### 6. Delivery
+Representa los pedidos que son entregados a domicilio.
+
+**Atributos**:
+- `id`: Identificador único de la entrega.
+- `client`: Cliente que solicitó el pedido (relación con Client).
+- `deliveryAddress`: Dirección donde se entregará el pedido.
+- `estimatedDeliveryTime`: Tiempo estimado de entrega.
+- `deliveryFee`: Costo del servicio de entrega.
+- `status`: Estado del pedido (ej: en preparación, en camino, entregado).
+- `order`: Pedido relacionado con la entrega (relación con Order).
+- `deliveryPerson`: Empleado que realiza la entrega (relación con Employee).
+  
+---
+
+#### 7. Reservation
+Representa las reservas realizadas por los clientes.
+
+**Atributos**:
+- `id`: Identificador único de la reserva.
+- `client`: Cliente que realizó la reserva (relación con Client).
+- `reservationDate`: Fecha en la que se realizará la reserva.
+- `reservationTime`: Hora específica de la reserva.
+- `numOfPeople`: Número de personas para la reserva.
+- `tableNumber`: Número de la mesa asignada para la reserva.
+- `status`: Estado de la reserva (ej: pendiente, confirmada, cancelada).
+- `specialRequests`: Solicitudes especiales del cliente para la reserva (ej: preferencia de mesa, requerimientos dietéticos).
+  
+---
+
+#### 8. OrderItem
+Representa los productos dentro de un pedido.
+
+**Atributos**:
+- `id`: Identificador único del ítem.
+- `product`: Producto solicitado (relación con Product).
+- `quantity`: Cantidad de este producto.
+- `customization`: Personalizaciones o comentarios (ej: sin sal).
+
+---
+
+#### 9. Product
+Representa los productos (platos o bebidas) del menú.
+
+**Atributos**:
+- `id`: Identificador único del producto.
+- `name`: Nombre del producto.
+- `description`: Descripción del producto.
+- `price`: Precio del producto.
+- `category`: Categoría del producto (ej: entrada, plato principal, bebida).
+- `isAvailable`: Disponibilidad del producto.
+
+---
+
+#### 10. Rating
+Representa la evaluación del servicio prestado por el mesero.
+
+**Atributos**:
+- `id`: Identificador único de la evaluación.
+- `employee`: Mesero evaluado (relación con Employee).
+- `client`: Cliente que realiza la evaluación (relación con Client).
+- `score`: Puntuación (de 0 a 5 estrellas).
+- `feedback`: Comentarios adicionales del cliente.
+- `date`: Fecha de la evaluación.
+
+---
+
+#### 11. Admin
+Representa al administrador del restaurante.
+
+**Atributos adicionales**:
+
+- `accessLevel`: Nivel de acceso del administrador (ej: gestionar empleados, ver reportes).
+
 
 ## Testing y Manejo de Errores
 
