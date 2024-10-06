@@ -3,9 +3,10 @@
 ## CS 2031 Desarrollo Basado en Plataforma
 
 **Integrantes:**
-- [Nombre 1]
-- [Nombre 2]
-- [Nombre 3]
+- Aguinaga Pizarro, Piero Alessandro
+- Muñoz Paucar, Fernando Jose
+- Tabraj Morales, Sebastián
+- Tinco Aliaga, César Abelardo
 
 ## Índice
 - [Introducción](#introducción)
@@ -22,20 +23,20 @@
 ## Introducción
 
 ### Contexto
-La experiencia en restaurantes está evolucionando con la digitalización de los procesos. Este proyecto responde a la necesidad de mejorar la eficiencia en la toma de pedidos y la interacción entre los clientes y los meseros. Aunque el mesero sigue desempeñando un papel crucial, el sistema busca facilitar el acceso al menú y optimizar el proceso de pedidos. Además, se incluye un método automatizado de evaluación del servicio mediante códigos QR.
+La experiencia en restaurantes está evolucionando con la digitalización de los procesos. Este proyecto responde a la necesidad de mejorar la eficiencia en la toma de pedidos y la interacción entre los clientes y los meseros. Aunque el mesero sigue desempeñando un papel crucial, desde recibir a los clientes hasta entregar los pedidos y resolver dudas, el sistema busca facilitar el acceso al menú y optimizar el proceso de pedidos. Además, se incluye un método automatizado de evaluación del servicio mediante códigos QR, lo que permite a los administradores obtener retroalimentación precisa para mejorar la atención al cliente y premiar el buen desempeño de los meseros.
 
 ### Objetivos del Proyecto
-- Facilitar a los clientes la visualización del menú y la realización de pedidos mediante el escaneo de un código QR.
-- Proporcionar una vía para que los clientes califiquen el servicio de los meseros mediante un segundo código QR en la boleta.
-- Otorgar al administrador herramientas para la gestión del desempeño de los meseros, incentivando buenas prácticas basadas en las evaluaciones de los clientes.
+- Facilitar a los clientes la visualización del menú y la realización de pedidos mediante el escaneo de un código QR en la mesa, sin reemplazar el rol del mesero, quien continuará recepcionando a los clientes, entregando los pedidos y atendiéndolos en sus necesidades adicionales.
+- Proporcionar una vía para que los clientes califiquen el servicio de los meseros al finalizar su consumo, mediante un segundo código QR que estará en la boleta, permitiendo a los administradores obtener comentarios y calificaciones de manera rápida y efectiva.
+- Otorgar al administrador herramientas para la gestión del desempeño de los meseros, basadas en los comentarios y calificaciones de los clientes, para incentivar buenas prácticas mediante bonificaciones o menciones especiales.
 
 ## Identificación del Problema o Necesidad
 
 ### Descripción del Problema
-La toma de pedidos en restaurantes suele ser un proceso manual y propenso a errores, lo que puede generar demoras y confusiones. A su vez, la retroalimentación sobre la calidad del servicio es limitada y, muchas veces, imprecisa.
+El sistema busca resolver la necesidad de eficiencia y precisión en la toma de pedidos, a la vez que mantiene el contacto personal entre el mesero y el cliente. La intervención del mesero sigue siendo clave, ya que es quien recibe a los clientes, ofrece la atención durante su estancia y entrega los pedidos. Al mismo tiempo, la implementación de un sistema de evaluación mediante códigos QR permite al administrador recopilar comentarios precisos sobre el desempeño de cada mesero, incentivando la mejora continua y asegurando una experiencia de calidad para los clientes.
 
 ### Justificación
-Es necesario mejorar la eficiencia del proceso de pedidos sin eliminar la interacción con los meseros, y permitir una evaluación precisa del servicio para mejorar la experiencia del cliente y la gestión del personal.
+Es relevante solucionar este problema porque permite agilizar el proceso de pedidos, reduciendo errores y tiempos de espera, lo que incrementa la satisfacción del cliente. Además, el sistema de evaluación fomenta una cultura de mejora continua en los empleados, lo que beneficia tanto al restaurante como a los meseros.
 
 ## Descripción de la Solución
 
@@ -47,7 +48,7 @@ Es necesario mejorar la eficiencia del proceso de pedidos sin eliminar la intera
 5. **Panel de control para el administrador**: El administrador puede gestionar las evaluaciones y calificaciones de los meseros.
 
 ### Tecnologías Utilizadas
-- **Lenguajes de programación**: JavaScript (Node.js para el backend), HTML, CSS.
+- **Lenguajes de programación**: Java
 - **Frameworks**: Express.js para la creación de API, Bootstrap para el frontend.
 - **Bases de datos**: MySQL para almacenamiento de datos.
 - **API externas**: Google Maps API para la localización de clientes en pedidos a domicilio.
