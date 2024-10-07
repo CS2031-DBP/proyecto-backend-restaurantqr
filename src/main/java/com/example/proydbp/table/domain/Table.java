@@ -5,11 +5,13 @@ import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.reservation.domain.Reservation;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class Table {
 
     @Id
