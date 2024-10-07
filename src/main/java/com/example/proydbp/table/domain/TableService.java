@@ -37,6 +37,7 @@ public class TableService {
         return tableRepository.save(newTable);
     }
 
+
     public Table updateTable(Long id, TableDto tableDto) {
         Table existingTable = getTableById(id);
         existingTable.setQrCode(tableDto.getQrCode());

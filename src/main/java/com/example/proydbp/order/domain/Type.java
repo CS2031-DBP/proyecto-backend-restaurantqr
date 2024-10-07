@@ -1,5 +1,5 @@
 package com.example.proydbp.order.domain;
 
-public enum OrderType {
+public enum Type {
     ON_SITE, RESERVATION, DELIVERY
 }
