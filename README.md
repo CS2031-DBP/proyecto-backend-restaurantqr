@@ -68,6 +68,14 @@ Representa cualquier tipo de usuario del sistema (cliente o empleado).
 - `email`: Correo electrónico.
 - `password`: Contraseña para autenticación.
 - `role`: Rol del usuario (ej: cliente, mesero, administrador).
+- 
+**Métodos de clase**:
+- `String getUsername()`: Extrae el email con el que se registró el usuario.
+- `boolean isAccountNonExpired()`: Verifica si la cuenta no está vencida.
+- `boolean isAccountNonLocked()`: Verifica si la cuenta no está baneada.
+- `boolean isCredentialsNonExpired()`: Verifica si la credencial no está vencida.
+- `boolean isEnabled()`: Verifica si la cuenta está habilitada.
+
 
 ---
 
@@ -78,6 +86,16 @@ Representa a los clientes del restaurante.
 - `loyaltyPoints`: Puntos de lealtad acumulados por el cliente.
 - `preferences`: Preferencias del cliente (ej: sin gluten, vegetariano).
 - `orderHistory`: Historial de pedidos realizados.
+
+**Métodos del endpoint "/cliente"**:
+- `GET(/{id}) getCliente(id)`: (roles permitidos: ADMIN) Devuelve el clienteResponseDTO de la id, exepciones: ClienteNotFound.
+- `POST() createCliente(clienteRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo cliente, exepciones: ClienteAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteCliente(id)`: (roles permitidos: ADMIN) Elimina un cliente con la id, exepciones:  ClienteNotFound.
+- `PATCH(/{id}) updateCliente(PatchClienteDTO)`: (roles permitidos: ADMIN) Actualiza un cliente con la id, exepciones:  ClienteNotFound, IllegalArgumentException.
+- `GET({/me}) getCliente()`: (roles permitidos: DRIVER) Devuelve el clienteResponseDTO del usuario autenticado, exepciones: ClienteNotFound.
+- `DELETE(/me) deleteCliente()`: (roles permitidos: DRIVER) Elimina el cliente autenticado, exepciones:  ClienteNotFound.
+- `PATCH(/me) updateCliente(PatchClienteDTO)`: (roles permitidos: DRIVER) Actualiza un cliente autenticado, exepciones:  ClienteNotFound, IllegalArgumentException.
+  
 
 ---
 
