@@ -286,9 +286,15 @@ Representa al administrador del restaurante.
 ## Testing y Manejo de Errores
 
 ### Niveles de Testing Realizados
-- **Pruebas Unitarias**: Para verificar la funcionalidad de cada componente del sistema.
-- **Pruebas de Integración**: Para asegurar que los módulos interactúan correctamente.
-- **Pruebas de Sistema**: Validación de que el sistema completo cumple con los requisitos.
+**Pruebas Unitarias**: Para verificar la funcionalidad de cada componente del sistema: 
+- Respuesta de Endpoints
+- Métodos de los Service
+- Permisos de roles
+- Exepciones ante errores 
+**Pruebas de Integración**: Para asegurar que los módulos interactúan correctamente:
+- Procesos básicos del negocio 
+**Pruebas de Sistema**: Validación de que el sistema completo cumple con los requisitos:
+- Simulación de situaciones 
 
 ### Resultados
 Se detectaron y corrigieron errores en la integración del carrito de compras y el panel de control del administrador. El manejo de excepciones garantiza una correcta experiencia de usuario.
