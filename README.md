@@ -87,15 +87,18 @@ Representa a los clientes del restaurante.
 - `preferences`: Preferencias del cliente (ej: sin gluten, vegetariano).
 - `orderHistory`: Historial de pedidos realizados.
 
+
 **Métodos del endpoint "/cliente"**:
 - `GET(/{id}) getCliente(id)`: (roles permitidos: ADMIN) Devuelve el clienteResponseDTO de la id, exepciones: ClienteNotFound.
+- `GET() getAllClientes()`: (roles permitidos: ADMIN) Devuelve el clienteResponseDTO de todos los clientes.
 - `POST() createCliente(clienteRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo cliente, exepciones: ClienteAlredyExist, IllegalArgumentException.
 - `DELETE(/{id}) deleteCliente(id)`: (roles permitidos: ADMIN) Elimina un cliente con la id, exepciones:  ClienteNotFound.
 - `PATCH(/{id}) updateCliente(PatchClienteDTO)`: (roles permitidos: ADMIN) Actualiza un cliente con la id, exepciones:  ClienteNotFound, IllegalArgumentException.
-- `GET({/me}) getCliente()`: (roles permitidos: DRIVER) Devuelve el clienteResponseDTO del usuario autenticado, exepciones: ClienteNotFound.
-- `DELETE(/me) deleteCliente()`: (roles permitidos: DRIVER) Elimina el cliente autenticado, exepciones:  ClienteNotFound.
-- `PATCH(/me) updateCliente(PatchClienteDTO)`: (roles permitidos: DRIVER) Actualiza un cliente autenticado, exepciones:  ClienteNotFound, IllegalArgumentException.
-  
+- `GET({/me}) getCliente()`: (roles permitidos: CLIENTE) Devuelve el clienteResponseDTO del usuario autenticado, exepciones: ClienteNotFound.
+- `DELETE(/me) deleteCliente()`: (roles permitidos: CLIENTE) Elimina el cliente autenticado, exepciones:  ClienteNotFound.
+- `PATCH(/me) updateCliente(PatchClienteDTO)`: (roles permitidos: CLIENTE) Actualiza un cliente autenticado, exepciones:  ClienteNotFound, IllegalArgumentException.
+- - `GET(/me/pedido) getPedidoCliente()`: (roles permitidos: CLIENTE) Devuelve el pedidoResponseDTO del pedido actual(pedido más reciente del historial) del usuario autenticado, exepciones: ClienteNotFound.
+
 
 ---
 
@@ -106,6 +109,17 @@ Representa a los empleados, principalmente meseros.
 - `position`: Cargo del empleado (ej: mesero).
 - `ratings`: Evaluaciones recibidas de los clientes.
 - `performanceScore`: Puntaje de desempeño basado en evaluaciones.
+
+**Métodos del endpoint "/employee"**:
+- `GET(/{id}) getEmployee(id)`: (roles permitidos: ADMIN) Devuelve el employeeResponseDTO de la id, exepciones: EmployeeNotFound.
+- `GET() getAllEmployees()`: (roles permitidos: ADMIN) Devuelve el employeeResponseDTO de todos los clientes.
+- `POST() createEmployee(employeeRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo employee, exepciones: EmployeeAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteEmployee(id)`: (roles permitidos: ADMIN) Elimina un employee con la id, exepciones:  EmployeeNotFound.
+- `PATCH(/{id}) updateEmployee(PatchEmployeeDTO)`: (roles permitidos: ADMIN) Actualiza un cliente con la id, exepciones:  EmployeeNotFound, IllegalArgumentException.
+- `GET({/me}) getEmployee()`: (roles permitidos: EMPLOYEE) Devuelve el employeeResponseDTO del usuario autenticado, exepciones: EmployeeNotFound.
+- `DELETE(/me) deleteEmployee()`: (roles permitidos: EMPLOYEE) Elimina el employee autenticado, exepciones:  EmployeeNotFound.
+- `PATCH(/me) updateEmployee(PatchEmployeeDTO)`: (roles permitidos: EMPLOYEE) Actualiza un cliente autenticado, exepciones:  EmployeeNotFound, IllegalArgumentException.
+
 
 ---
 
@@ -118,6 +132,15 @@ Representa las mesas del restaurante.
 - `location`: Ubicación de la mesa dentro del restaurante.
 - `capacity`: Capacidad de personas que pueden sentarse en la mesa.
 - `isAvailable`: Indica si la mesa está disponible.
+
+**Métodos del endpoint "/table"**:
+- `GET(/{id}) getTable(id)`: (roles permitidos: ADMIN) Devuelve el tableResponseDTO de la id, exepciones: TableNotFound.
+- `GET() getAllTable()`: (roles permitidos: ADMIN) Devuelve el tableResponseDTO de todas las mesas.
+- `POST() createTable(tableRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo table, exepciones: TableAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteTable(id)`: (roles permitidos: ADMIN) Elimina un employee con la id, exepciones:  TableNotFound.
+- `PATCH(/{id}) updateTable(PatchTableDTO)`: (roles permitidos: ADMIN) Actualiza un cliente con la id, exepciones:  TableNotFound, IllegalArgumentException.
+- `PATCH(/changestatus/{id}) changeTableStatus()`: (roles permitidos: EMPLOYEE) Commnuta el estado de "isAvailable" de la mesa, exepciones:  TableNotFound.
+-  `GET(/availableTables) getAvalilableTables()`: (roles permitidos: ADMIN) Devuelve el número de mesa de todas las mesas disponibles en ese momento.
 
 ---
 
@@ -135,6 +158,14 @@ Representa los pedidos realizados por los clientes.
 - `status`: Estado del pedido (ej: pendiente, en preparación, completado).
 - `specialInstructions`: Instrucciones especiales para el pedido (ej: sin gluten, extra salsa).
 
+**Métodos del endpoint "/order"**:
+- `GET(/{id}) getOrder(id)`: (roles permitidos: ADMIN) Devuelve el orderResponseDTO de la id, exepciones: OrderNotFound.
+- `GET() getAllOrders()`: (roles permitidos: ADMIN) Devuelve el orderResponseDTO de todas la ordenes.
+- `POST() createOrder(orderRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo order, exepciones: OrderAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteOrder(id)`: (roles permitidos: ADMIN) Elimina una order con la id, exepciones:  OrderNotFound.
+- `PATCH(/{id}) updateOrder(PatchOrderDTO)`: (roles permitidos: ADMIN) Actualiza una mesa con la id, exepciones:  OrderNotFound, IllegalArgumentException.
+- `PATCH(/changestatus/{id}) endOrder()`: (roles permitidos: EMPLOYEE) Cambia el estado de la orden a finalizada y cambia el estado de la mesa o disponibilidad del repartidor, exepciones:  OrderNotFound.
+
 ---
 
 #### 6. Delivery
@@ -149,7 +180,15 @@ Representa los pedidos que son entregados a domicilio.
 - `status`: Estado del pedido (ej: en preparación, en camino, entregado).
 - `order`: Pedido relacionado con la entrega (relación con Order).
 - `deliveryPerson`: Empleado que realiza la entrega (relación con Employee).
-  
+
+**Métodos del endpoint "/delivery"**:
+- `GET(/{id}) getDelivery(id)`: (roles permitidos: ADMIN) Devuelve el deliveryResponseDTO de la id, exepciones: DeliveryNotFound.
+- `GET() getAllDeliverys()`: (roles permitidos: ADMIN) Devuelve el deliveryResponseDTO de todas la ordenes.
+- `POST() createDelivery(deliveryRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo delivert, exepciones: DeliveryAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteDelivery(id)`: (roles permitidos: ADMIN) Elimina un delivery con la id, exepciones:  DeliveryrNotFound.
+- `PATCH(/{id}) updateDelivery(PatchDeliveryDTO)`: (roles permitidos: ADMIN) Actualiza un delivery con la id, exepciones:  DeliveryNotFound, IllegalArgumentException.
+- `PATCH(/changestatus/{id}) endDelivery()`: (roles permitidos: EMPLOYEE) Cambia el estado de la orden a finalizada y cambia el estado de la disponibilidad del repartidor, exepciones: DeliveryNotFound.
+
 ---
 
 #### 7. Reservation
@@ -164,7 +203,15 @@ Representa las reservas realizadas por los clientes.
 - `tableNumber`: Número de la mesa asignada para la reserva.
 - `status`: Estado de la reserva (ej: pendiente, confirmada, cancelada).
 - `specialRequests`: Solicitudes especiales del cliente para la reserva (ej: preferencia de mesa, requerimientos dietéticos).
-  
+
+**Métodos del endpoint "/reservation"**:
+- `GET(/{id}) getReservation(id)`: (roles permitidos: ADMIN) Devuelve el reservationResponseDTO de la id, exepciones: ReservationNotFound.
+- `GET() getAllReservations()`: (roles permitidos: ADMIN) Devuelve el reservationResponseDTO de todas la ordenes.
+- `POST() createReservation(reservationRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo reservation, exepciones: ReservationAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteReservation(id)`: (roles permitidos: ADMIN) Elimina un reservation con la id, exepciones:  ReservationNotFound.
+- `PATCH(/{id}) updateReservation(PatchReservationDTO)`: (roles permitidos: ADMIN) Actualiza un reservation con la id, exepciones:  ReservationNotFound, IllegalArgumentException.
+- `PATCH(/changestatus/{id}) endReservation()`: (roles permitidos: EMPLOYEE) Finaliza la reservacion, exepciones: ReservationNotFound.
+
 ---
 
 #### 8. OrderItem
@@ -175,6 +222,14 @@ Representa los productos dentro de un pedido.
 - `product`: Producto solicitado (relación con Product).
 - `quantity`: Cantidad de este producto.
 - `customization`: Personalizaciones o comentarios (ej: sin sal).
+- 
+**Métodos del endpoint "/orderItem"**:
+- `GET(/{id}) getOrderItem(id)`: (roles permitidos: ADMIN) Devuelve el orderItemResponseDTO de la id, exepciones: OrderItemNotFound.
+- `GET() getAllOrderItems()`: (roles permitidos: ADMIN) Devuelve el orderItemResponseDTO de todas las OrderItem.
+- `POST() createOrderItem(orderItemRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo orderItem, exepciones: OrderItemAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteOrderItem(id)`: (roles permitidos: ADMIN) Elimina un OrderItem con la id, exepciones:  OrderItemNotFound.
+- `PATCH(/{id}) updateOrderItem(PatchOrderItemDTO)`: (roles permitidos: ADMIN) Actualiza un orderItem con la id, exepciones:  OrderItemNotFound, IllegalArgumentException.
+- `PATCH(/{id}/{idProducto}) agregarProducto(id,idProducto)`: (roles permitidos: ADMIN) Actualiza un order item añadiendo un producto, exepciones:  ProductoNotFound, IllegalArgumentException.
 
 ---
 
@@ -189,6 +244,14 @@ Representa los productos (platos o bebidas) del menú.
 - `category`: Categoría del producto (ej: entrada, plato principal, bebida).
 - `isAvailable`: Disponibilidad del producto.
 
+**Métodos del endpoint "/product"**:
+- `GET(/{id}) getProduct(id)`: (roles permitidos: ADMIN) Devuelve el productResponseDTO de la id, exepciones: ProductItemNotFound.
+- `GET() getAllProduct()`: (roles permitidos: ADMIN) Devuelve el productResponseDTO de todas los product.
+- `POST() createProduct(productRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo product, exepciones: ProductAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteProductItem(id)`: (roles permitidos: ADMIN) Elimina un product con la id, exepciones:  ProductItemNotFound.
+- `PATCH(/{id}) updateProduct(PatchProductDTO)`: (roles permitidos: ADMIN) Actualiza un product con la id, exepciones:  ProductItemNotFound, IllegalArgumentException.
+
+
 ---
 
 #### 10. Rating
@@ -201,6 +264,14 @@ Representa la evaluación del servicio prestado por el mesero.
 - `score`: Puntuación (de 0 a 5 estrellas).
 - `feedback`: Comentarios adicionales del cliente.
 - `date`: Fecha de la evaluación.
+
+**Métodos del endpoint "/rating"**:
+- `GET(/{id}) getRating(id)`: (roles permitidos: ADMIN) Devuelve el ratingResponseDTO de la id, exepciones: RatingItemNotFound.
+- `GET() getAllRatings()`: (roles permitidos: ADMIN) Devuelve el ratingResponseDTO de todas los Ratings.
+- `POST() createRating(ratingRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo Rating, exepciones: RatingAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteRatingItem(id)`: (roles permitidos: ADMIN) Elimina un Rating con la id, exepciones:  RatingItemNotFound.
+- `PATCH(/{id}) updateRating(PatchRatingDTO)`: (roles permitidos: ADMIN) Actualiza un Rating con la id, exepciones:  RatingItemNotFound, IllegalArgumentException.
+
 
 ---
 
