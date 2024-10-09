@@ -40,12 +40,40 @@ Es relevante solucionar este problema porque permite agilizar el proceso de pedi
 
 ## Descripción de la Solución
 
-### Funcionalidades Implementadas
+### Actores del Negocio
+1. **Manager**: Encargo de gestión de personal, atención al cliente, gestión de inventarios y manejo de caja. 
+2. **Mesero**:  Encargado de la atención personal al cliente en el local. 
+3. **Repartidor**: Encargado de la entrega de pedidos por delivery. 
+4. **Cliente registrado**: Cliente con una cuenta creada en la aplicación del restaurante. 
+5. **Cliente general** : Cliente de "al paso" que no está registrado en la aplicación del restaurante. 
+6. **Chef** : Recibe ordenes y las prepara.   
+
+
+### Entidades del Negocio
+1. **Usuario**
+2. **Manager**
+3. **Cliente registrado**
+4. **Repartidor**
+5. **Mesero**
+6. **Mesa** 
+7. **Orden**
+8. **Reserva**
+9. **Delivery**
+10. **PedidoLocal**
+11. **Producto**
+12. **Combos**
+13. **ReseñaMozo**
+14. **ReseñaDelivery**
+
+
+### Casos de uso del Negocio
 1. **QR en la mesa para acceso al menú y pedidos**: Los clientes pueden escanear un código QR para acceder al menú y realizar pedidos de forma digital.
 2. **Carrito de compras virtual**: Los clientes pueden agregar productos al carrito, modificarlos y personalizar sus pedidos.
 3. **QR personalizado para meseros**: Un código QR específico para cada mesero se incluye en la boleta, lo que permite una evaluación rápida y directa.
 4. **Sistema de evaluación del servicio**: Los clientes pueden calificar el servicio del mesero mediante un sistema de evaluación con estrellas.
 5. **Panel de control para el administrador**: El administrador puede gestionar las evaluaciones y calificaciones de los meseros.
+
+
 
 ### Tecnologías Utilizadas
 - **Lenguajes de programación**: Java
