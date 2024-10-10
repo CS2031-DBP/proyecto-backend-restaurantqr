@@ -51,19 +51,18 @@ Es relevante solucionar este problema porque permite agilizar el proceso de pedi
 
 ### Entidades del Negocio
 1. **Usuario**
-2. **Manager**
-3. **Cliente registrado**
-4. **Repartidor**
-5. **Mesero**
-6. **Mesa** 
-7. **Orden**
-8. **Reserva**
-9. **Delivery**
-10. **PedidoLocal**
-11. **Producto**
-12. **Combos**
-13. **ReseñaMozo**
-14. **ReseñaDelivery**
+2. **Cliente**
+3. **Repartidor**
+4. **Mesero**
+5. **Mesa** 
+6. **Orden**
+7. **Reserva**
+8. **Delivery**
+9. **PedidoLocal**
+10. **Producto**
+11. **Combo**
+12. **ReseñaMozo**
+13. **ReseñaDelivery**
 
 
 ### Casos de uso del Negocio
@@ -88,32 +87,27 @@ Es relevante solucionar este problema porque permite agilizar el proceso de pedi
 
 ### Descripción de Entidades
 #### 1. User (Abstracta)
-Representa cualquier tipo de usuario del sistema (cliente o empleado).
+Clase padre para los usuarios del sistema, a su vez implementa la clase UserDetails.
 
 **Atributos**:
 - `id`: Identificador único.
 - `name`: Nombre.
 - `email`: Correo electrónico.
 - `password`: Contraseña para autenticación.
-- `role`: Rol del usuario (ej: cliente, mesero, administrador).
-- 
-**Métodos de clase**:
-- `String getUsername()`: Extrae el email con el que se registró el usuario.
-- `boolean isAccountNonExpired()`: Verifica si la cuenta no está vencida.
-- `boolean isAccountNonLocked()`: Verifica si la cuenta no está baneada.
-- `boolean isCredentialsNonExpired()`: Verifica si la credencial no está vencida.
-- `boolean isEnabled()`: Verifica si la cuenta está habilitada.
-
-
+- `role`: Rol del usuario (ADMIN, REPARTIDOR, MESERO)
 ---
 
 #### 2. Client (Hereda de User)
-Representa a los clientes del restaurante.
+Representa a los clientes registrados del restaurante.
 
-**Atributos adicionales**:
+**Atributos**:
 - `loyaltyPoints`: Puntos de lealtad acumulados por el cliente.
-- `preferences`: Preferencias del cliente (ej: sin gluten, vegetariano).
-- `orderHistory`: Historial de pedidos realizados.
+- `pedidosLocales`: Lista de pedidos realizados en el restaurante
+- `deliverys`: Lista de deliverys realizados por el cliente
+- `reservas` : Lista de reservas realizadas por el cliente
+- `reviewsMesero`: Lista de reviews realizadas por el cliente a meseros
+- `reviewDelivery`: Lista de reviews realizadas por el cliente a repartidores
+- `rango`: Rango basado en loyalty points(BRONCE, SILVER, GOLD, PLATINUM)
 
 
 **Métodos del endpoint "/cliente"**:
@@ -125,18 +119,24 @@ Representa a los clientes del restaurante.
 - `GET({/me}) getCliente()`: (roles permitidos: CLIENTE) Devuelve el clienteResponseDTO del usuario autenticado, exepciones: ClienteNotFound.
 - `DELETE(/me) deleteCliente()`: (roles permitidos: CLIENTE) Elimina el cliente autenticado, exepciones:  ClienteNotFound.
 - `PATCH(/me) updateCliente(PatchClienteDTO)`: (roles permitidos: CLIENTE) Actualiza un cliente autenticado, exepciones:  ClienteNotFound, IllegalArgumentException.
-- - `GET(/me/pedido) getPedidoCliente()`: (roles permitidos: CLIENTE) Devuelve el pedidoResponseDTO del pedido actual(pedido más reciente del historial) del usuario autenticado, exepciones: ClienteNotFound.
+- `GET(/me/pedidoLocal) getPedidoCliente()`: (roles permitidos: CLIENTE) Devuelve el pedidoResponseDTO del pedidoLocal actual(pedido más reciente del historial) del usuario autenticado, exepciones: ClienteNotFound.
+- `GET(/me/delivery) getDelivery()`: (roles permitidos: CLIENTE) Devuelve el pedidoResponseDTO del delivery actual(pedido más reciente del historial) del usuario autenticado, exepciones: ClienteNotFound.
+- `GET(/me/reserva) getReserva()`: (roles permitidos: CLIENTE) Devuelve el pedidoResponseDTO del Reserva actual(pedido más reciente del historial) del usuario autenticado, exepciones: ClienteNotFound.
 
+**Anotaciones**
+- Cada vez que se cree un usuario nuevo, llegará un correo nuevo de confirmación. 
+- Cada vez que se cree un Delivery, llegará un correo de confirmación.  
+- Cada vez que se suba de rango, llegará un correo felicitando al usuario. 
 
 ---
+#### 3. Mesero (Hereda de User)
+Representa a los meseros que atienden el restaurante
 
-#### 3. Employee (Hereda de User)
-Representa a los empleados, principalmente meseros.
+**Atributos**:
+- `pedidosLocales`: Lista de pedidos locales del mesero
+- `reviewsMesero`: Lista de reviews recibas
+- `ratingScore`: Promedio de puntaje de las evaluaciones recibidas por los clientes.
 
-**Atributos adicionales**:
-- `position`: Cargo del empleado (ej: mesero).
-- `ratings`: Evaluaciones recibidas de los clientes.
-- `performanceScore`: Puntaje de desempeño basado en evaluaciones.
 
 **Métodos del endpoint "/employee"**:
 - `GET(/{id}) getEmployee(id)`: (roles permitidos: ADMIN) Devuelve el employeeResponseDTO de la id, exepciones: EmployeeNotFound.
@@ -144,20 +144,45 @@ Representa a los empleados, principalmente meseros.
 - `POST() createEmployee(employeeRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo employee, exepciones: EmployeeAlredyExist, IllegalArgumentException.
 - `DELETE(/{id}) deleteEmployee(id)`: (roles permitidos: ADMIN) Elimina un employee con la id, exepciones:  EmployeeNotFound.
 - `PATCH(/{id}) updateEmployee(PatchEmployeeDTO)`: (roles permitidos: ADMIN) Actualiza un cliente con la id, exepciones:  EmployeeNotFound, IllegalArgumentException.
-- `GET({/me}) getEmployee()`: (roles permitidos: EMPLOYEE) Devuelve el employeeResponseDTO del usuario autenticado, exepciones: EmployeeNotFound.
-- `DELETE(/me) deleteEmployee()`: (roles permitidos: EMPLOYEE) Elimina el employee autenticado, exepciones:  EmployeeNotFound.
-- `PATCH(/me) updateEmployee(PatchEmployeeDTO)`: (roles permitidos: EMPLOYEE) Actualiza un cliente autenticado, exepciones:  EmployeeNotFound, IllegalArgumentException.
 
+**Anotaciones**
+- Cada vez que se asigna un pedido a un Mesero, se manda un correo al mesero asignado. 
+- Si el ratingScore del mesero es bajo o alto, se manda un correo felicitando o advirtiendo al mesero, también se manda un correo al administrador.  
 
 ---
 
-#### 4. Table
+#### 4. Repartidor (Hereda de User)
+Representa a los Repartidors que atienden el restaurante
+
+
+**Atributos**:
+- `deliverys`: Lista de deliverys del Repartidor
+- `reviewsRepartidor`: Lista de reviews recibas
+- `ratingScore`: Promedio de puntaje de las evaluaciones recibidas por los clientes.
+
+
+**Métodos del endpoint "/repartidor"**:
+- `GET(/{id}) getRepartidor(id)`: (roles permitidos: ADMIN) Devuelve el repartidorResponseDTO de la id, exepciones: RepartidorNotFound.
+- `GET() getAllRepartidors()`: (roles permitidos: ADMIN) Devuelve el repartidorResponseDTO de todos los clientes.
+- `POST() createRepartidor(repartidorRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo repartidor, exepciones: RepartidorAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteRepartidor(id)`: (roles permitidos: ADMIN) Elimina un repartidor con la id, exepciones:  RepartidorNotFound.
+- `PATCH(/{id}) updateRepartidor(PatchRepartidorDTO)`: (roles permitidos: ADMIN) Actualiza un cliente con la id, exepciones:  RepartidorNotFound, IllegalArgumentException.
+
+
+**Anotaciones**
+- Cada vez que se asigna un pedido a un Repartidor, se manda un correo al Repartidor asignado.
+- Si el ratingScore del Repartidor es bajo o alto, se manda un correo felicitando o advirtiendo al Repartidor, también se manda un correo al administrador.  
+
+---
+
+
+#### 5. Mesa
 Representa las mesas del restaurante.
 
 **Atributos**:
 - `id`: Identificador único de la mesa.
-- `qrCode`: Código QR asociado a la mesa (para escanear y acceder al menú).
-- `location`: Ubicación de la mesa dentro del restaurante.
+- `qr`: Código QR asociado a la mesa (para escanear y acceder al menú).
+- `numero`: Numero de la mesa en el restaurante.
 - `capacity`: Capacidad de personas que pueden sentarse en la mesa.
 - `isAvailable`: Indica si la mesa está disponible.
 
@@ -172,19 +197,15 @@ Representa las mesas del restaurante.
 
 ---
 
-#### 5. Order
+#### 5. Orden
 Representa los pedidos realizados por los clientes.
 
 **Atributos**:
 - `id`: Identificador único del pedido.
-- `client`: Cliente que realizó el pedido (relación con Client).
-- `orderDate`: Fecha en la que se realizó el pedido.
-- `orderTime`: Hora en la que se realizó el pedido.
-- `orderItems`: Lista de ítems del menú pedidos (relación con OrderItem).
-- `totalPrice`: Precio total del pedido.
-- `orderType`: Tipo de pedido (`OrderType` enum: en establecimiento, reserva, delivery).
-- `status`: Estado del pedido (ej: pendiente, en preparación, completado).
-- `specialInstructions`: Instrucciones especiales para el pedido (ej: sin gluten, extra salsa).
+- `precio`: Precio total del pedido.
+- `productos`: Lista de productos individuales pedidos. 
+- `combos`: Lista de combos individuales pedidos. 
+- `detalle`: Instrucciones especiales para el pedido (ej: sin gluten, extra salsa).
 
 **Métodos del endpoint "/order"**:
 - `GET(/{id}) getOrder(id)`: (roles permitidos: ADMIN) Devuelve el orderResponseDTO de la id, exepciones: OrderNotFound.
@@ -201,13 +222,15 @@ Representa los pedidos que son entregados a domicilio.
 
 **Atributos**:
 - `id`: Identificador único de la entrega.
-- `client`: Cliente que solicitó el pedido (relación con Client).
-- `deliveryAddress`: Dirección donde se entregará el pedido.
-- `estimatedDeliveryTime`: Tiempo estimado de entrega.
-- `deliveryFee`: Costo del servicio de entrega.
-- `status`: Estado del pedido (ej: en preparación, en camino, entregado).
+- `cliente`: Cliente que solicitó el pedido (relación con Client).
+- `direccion`: Dirección donde se entregará el pedido.
+- `costoDelivery`: Costo del servicio de entrega.
+- `fecha`: Fecha de creación del delivery.
+- `hora`: Hora de creación del delivery.
+- `estado`: Estado del pedido (RECIBIDO, EN PREPARACION, ENTREGADO).
 - `order`: Pedido relacionado con la entrega (relación con Order).
-- `deliveryPerson`: Empleado que realiza la entrega (relación con Employee).
+- `repartidor`: Empleado que realiza la entrega (relación con Employee).
+- 'precio': Precio total
 
 **Métodos del endpoint "/delivery"**:
 - `GET(/{id}) getDelivery(id)`: (roles permitidos: ADMIN) Devuelve el deliveryResponseDTO de la id, exepciones: DeliveryNotFound.
@@ -218,6 +241,30 @@ Representa los pedidos que son entregados a domicilio.
 - `PATCH(/changestatus/{id}) endDelivery()`: (roles permitidos: EMPLOYEE) Cambia el estado de la orden a finalizada y cambia el estado de la disponibilidad del repartidor, exepciones: DeliveryNotFound.
 
 ---
+
+#### 6. PedidoLocal
+Representa los pedidos realizados en el local
+**Atributos**:
+- `id`: Identificador único de la entrega.
+- `ordenes`: Lista de ordenes pedidas por la mesa.
+- `mesero`: Empleado que realiza la entrega (relación con Employee).
+- `fecha`: Fecha de creación del delivery.
+- `hora`: Hora de creación del delivery.
+- `estado`: Estado del pedido (RECIBIDO, EN PREPARACION, ENTREGADO).
+- `orden`: Pedido relacionado con la entrega (relación con Orden).
+- 'precio': Precio total
+- 'tipoPago': Pago en efectivo o con qr
+
+**Métodos del endpoint "/pedidoLocal"**:
+- `GET(/{id}) getPedidoLocal(id)`: (roles permitidos: ADMIN) Devuelve el pedidoLocalResponseDTO de la id, exepciones: PedidoLocalNotFound.
+- `GET() getAllPedidoLocals()`: (roles permitidos: ADMIN) Devuelve el pedidoLocalResponseDTO de todas la ordenes.
+- `POST() createPedidoLocal(pedidoLocalRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo delivert, exepciones: PedidoLocalAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deletePedidoLocal(id)`: (roles permitidos: ADMIN) Elimina un pedidoLocal con la id, exepciones:  PedidoLocalrNotFound.
+- `PATCH(/{id}) updatePedidoLocal(PatchPedidoLocalDTO)`: (roles permitidos: ADMIN) Actualiza un pedidoLocal con la id, exepciones:  PedidoLocalNotFound, IllegalArgumentException.
+- `PATCH(/changestatus/{id}) endPedidoLocal()`: (roles permitidos: EMPLOYEE) Cambia el estado de la orden a finalizada y cambia el estado de la disponibilidad del repartidor, exepciones: PedidoLocalNotFound.
+
+---
+
 
 #### 7. Reservation
 Representa las reservas realizadas por los clientes.
@@ -266,10 +313,10 @@ Representa los productos (platos o bebidas) del menú.
 
 **Atributos**:
 - `id`: Identificador único del producto.
-- `name`: Nombre del producto.
-- `description`: Descripción del producto.
-- `price`: Precio del producto.
-- `category`: Categoría del producto (ej: entrada, plato principal, bebida).
+- `nombre`: Nombre del producto.
+- `descripcion`: Descripción del producto.
+- `precio`: Precio del producto.
+- `category`: Categoría del producto (entrada, plato principal, bebida).
 - `isAvailable`: Disponibilidad del producto.
 
 **Métodos del endpoint "/product"**:
@@ -279,37 +326,74 @@ Representa los productos (platos o bebidas) del menú.
 - `DELETE(/{id}) deleteProductItem(id)`: (roles permitidos: ADMIN) Elimina un product con la id, exepciones:  ProductItemNotFound.
 - `PATCH(/{id}) updateProduct(PatchProductDTO)`: (roles permitidos: ADMIN) Actualiza un product con la id, exepciones:  ProductItemNotFound, IllegalArgumentException.
 
+---
+
+#### 10. Combo
+Representa los combos del menú.
+
+**Atributos**:
+- `id`: Identificador único del combo.
+- `productos`: Productos incluidos en el combo.
+- `descripcion`: Descripción del combo.
+- `precio`: Precio del combo.
+- `category`: Categoría del combo según rango del cliente.
+- `isAvailable`: Disponibilidad del combo.
+
+
+**Métodos del endpoint "/combo"**:
+- `GET(/{id}) getCombo(id)`: (roles permitidos: ADMIN) Devuelve el comboResponseDTO de la id, exepciones: ComboItemNotFound.
+- `GET() getAllCombo()`: (roles permitidos: ADMIN) Devuelve el comboResponseDTO de todas los combo.
+- `POST() createCombo(comboRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo combo, exepciones: ComboAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteComboItem(id)`: (roles permitidos: ADMIN) Elimina un combo con la id, exepciones:  ComboItemNotFound.
+- `PATCH(/{id}) updateCombo(PatchComboDTO)`: (roles permitidos: ADMIN) Actualiza un combo con la id, exepciones:  ComboItemNotFound, IllegalArgumentException.
 
 ---
 
-#### 10. Rating
+#### 11. ReviewMesero
 Representa la evaluación del servicio prestado por el mesero.
+
 
 **Atributos**:
 - `id`: Identificador único de la evaluación.
-- `employee`: Mesero evaluado (relación con Employee).
-- `client`: Cliente que realiza la evaluación (relación con Client).
-- `score`: Puntuación (de 0 a 5 estrellas).
-- `feedback`: Comentarios adicionales del cliente.
+- `mesero`: Mesero evaluado (relación con Employee).
+- `rating`: Puntuación (de 0 a 5 estrellas).
+- `PedidoLocal`: Pedido asociado.
 - `date`: Fecha de la evaluación.
 
-**Métodos del endpoint "/rating"**:
-- `GET(/{id}) getRating(id)`: (roles permitidos: ADMIN) Devuelve el ratingResponseDTO de la id, exepciones: RatingItemNotFound.
-- `GET() getAllRatings()`: (roles permitidos: ADMIN) Devuelve el ratingResponseDTO de todas los Ratings.
-- `POST() createRating(ratingRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo Rating, exepciones: RatingAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteRatingItem(id)`: (roles permitidos: ADMIN) Elimina un Rating con la id, exepciones:  RatingItemNotFound.
-- `PATCH(/{id}) updateRating(PatchRatingDTO)`: (roles permitidos: ADMIN) Actualiza un Rating con la id, exepciones:  RatingItemNotFound, IllegalArgumentException.
 
+**Métodos del endpoint "/reviewMesero"**:
+- `GET(/{id}) getReviewMesero(id)`: (roles permitidos: ADMIN) Devuelve el reviewMeseroResponseDTO de la id, exepciones: ReviewMeseroItemNotFound.
+- `GET() getAllReviewMeseros()`: (roles permitidos: ADMIN) Devuelve el reviewMeseroResponseDTO de todas los ReviewMeseros.
+- `POST() createReviewMesero(reviewMeseroRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo ReviewMesero, exepciones: ReviewMeseroAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteReviewMeseroItem(id)`: (roles permitidos: ADMIN) Elimina un ReviewMesero con la id, exepciones:  ReviewMeseroItemNotFound.
+- `PATCH(/{id}) updateReviewMesero(PatchReviewMeseroDTO)`: (roles permitidos: ADMIN) Actualiza un ReviewMesero con la id, exepciones:  ReviewMeseroItemNotFound, IllegalArgumentException.
 
 ---
 
-#### 11. Admin
-Representa al administrador del restaurante.
 
-**Atributos adicionales**:
 
-- `accessLevel`: Nivel de acceso del administrador (ej: gestionar empleados, ver reportes).
+#### 12. ReviewDelivery
+Representa la evaluación del servicio prestado por el mesero.
 
+
+**Atributos**:
+- `id`: Identificador único de la evaluación.
+- `repartidor`: Repartidor evaluado (relación con Employee).
+- `client`: Cliente que realiza la evaluación (relación con Client).
+- `rating`: Puntuación (de 0 a 5 estrellas).
+- `comentarios`: Comentarios adicionales del cliente.
+- `delivery`: Asociación al delivery.
+- `date`: Fecha de la evaluación.
+
+
+**Métodos del endpoint "/reviewDelivery"**:
+- `GET(/{id}) getReviewDelivery(id)`: (roles permitidos: ADMIN) Devuelve el reviewDeliveryResponseDTO de la id, exepciones: ReviewDeliveryItemNotFound.
+- `GET() getAllReviewDeliverys()`: (roles permitidos: ADMIN) Devuelve el reviewDeliveryResponseDTO de todas los ReviewDeliverys.
+- `POST() createReviewDelivery(reviewDeliveryRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo ReviewDelivery, exepciones: ReviewDeliveryAlredyExist, IllegalArgumentException.
+- `DELETE(/{id}) deleteReviewDeliveryItem(id)`: (roles permitidos: ADMIN) Elimina un ReviewDelivery con la id, exepciones:  ReviewDeliveryItemNotFound.
+- `PATCH(/{id}) updateReviewDelivery(PatchReviewDeliveryDTO)`: (roles permitidos: ADMIN) Actualiza un ReviewDelivery con la id, exepciones:  ReviewDeliveryItemNotFound, IllegalArgumentException.
+
+---
 
 ## Testing y Manejo de Errores
 
