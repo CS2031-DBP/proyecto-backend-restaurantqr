@@ -111,22 +111,27 @@ Representa a los clientes registrados del restaurante.
 
 
 **Métodos del endpoint "/cliente"**:
-- `GET(/{id}) getCliente(id)`: (roles permitidos: ADMIN) Devuelve el clienteResponseDTO de la id, exepciones: ClienteNotFound.
-- `GET() getAllClientes()`: (roles permitidos: ADMIN) Devuelve el clienteResponseDTO de todos los clientes.
-- `POST() createCliente(clienteRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo cliente, exepciones: ClienteAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteCliente(id)`: (roles permitidos: ADMIN) Elimina un cliente con la id, exepciones:  ClienteNotFound.
-- `PATCH(/{id}) updateCliente(PatchClienteDTO)`: (roles permitidos: ADMIN) Actualiza un cliente con la id, exepciones:  ClienteNotFound, IllegalArgumentException.
-- `GET({/me}) getCliente()`: (roles permitidos: CLIENTE) Devuelve el clienteResponseDTO del usuario autenticado, exepciones: ClienteNotFound.
-- `DELETE(/me) deleteCliente()`: (roles permitidos: CLIENTE) Elimina el cliente autenticado, exepciones:  ClienteNotFound.
-- `PATCH(/me) updateCliente(PatchClienteDTO)`: (roles permitidos: CLIENTE) Actualiza un cliente autenticado, exepciones:  ClienteNotFound, IllegalArgumentException.
-- `GET(/me/pedidoLocal) getPedidoCliente()`: (roles permitidos: CLIENTE) Devuelve el pedidoResponseDTO del pedidoLocal actual(pedido más reciente del historial) del usuario autenticado, exepciones: ClienteNotFound.
-- `GET(/me/delivery) getDelivery()`: (roles permitidos: CLIENTE) Devuelve el pedidoResponseDTO del delivery actual(pedido más reciente del historial) del usuario autenticado, exepciones: ClienteNotFound.
-- `GET(/me/reserva) getReserva()`: (roles permitidos: CLIENTE) Devuelve el pedidoResponseDTO del Reserva actual(pedido más reciente del historial) del usuario autenticado, exepciones: ClienteNotFound.
 
-**Anotaciones**
-- Cada vez que se cree un usuario nuevo, llegará un correo nuevo de confirmación. 
-- Cada vez que se cree un Delivery, llegará un correo de confirmación.  
-- Cada vez que se suba de rango, llegará un correo felicitando al usuario. 
+
+| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                                 | **Excepciones**                                  | **Métodos de Service**                      | **Eventos**                                               |
+|----------------------|----------------------------|----------------------|---------------------------------------------------------------------------------|-------------------------------------------------|---------------------------------------------|------------------------------------------------------------|
+| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `clienteResponseDTO` del cliente por su id.                         | `ClienteNotFound`                               | `findClienteById(Long id)`                  | ``                                   |
+| `GET`                | `/`                        | `ADMIN`              | Devuelve el `clienteResponseDTO` de todos los clientes.                         | -                                               | `findAllClientes()`                         | ``                                 |
+| `POST`               | `/signup`                  | -                    | Crea un nuevo cliente con `clienteRequestDTO`.                                  | `ClienteAlredyExist`, `IllegalArgument` | `createCliente(ClienteRequestDTO dto)`      | `Manda correo de confirmación de cuenta`                                       |
+| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina un cliente por su id.                                                   | `ClienteNotFound`                               | `deleteCliente(Long id)`                    | ``                                    |
+| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza un cliente por su id con `patchClienteDTO`.                           | `ClienteNotFound`, `IllegalArgument`    | `updateCliente(Long id, PatchClienteDTO dto)`| ``                                  |
+| `GET`                | `/me`                      | `CLIENTE`            | Devuelve el `clienteResponseDTO` del usuario autenticado.                       | `ClienteNotFound`                               | `getAuthenticatedCliente()`                 | ``                        |
+| `DELETE`             | `/me`                      | `CLIENTE`            | Elimina el cliente autenticado.                                                 | `ClienteNotFound`                               | `deleteAuthenticatedCliente()`              | ``                         |
+| `PATCH`              | `/me`                      | `CLIENTE`            | Actualiza el cliente autenticado con `PatchClienteDTO`.                         | `ClienteNotFound`, `IllegalArgument`    | `updateAuthenticatedCliente(PatchClienteDTO dto)` | ``                       |
+| `GET`                | `/me/pedidoLocal`          | `CLIENTE`            | Devuelve el `pedidoResponseDTO` del pedido local en proceso del usuario.      | `ClienteNotFound`                               | `getActualPedidoLocal()`                    | ``                               |
+| `GET`                | `/me/delivery`             | `CLIENTE`            | Devuelve el `pedidoResponseDTO` del delivery en proceso del usuario.          | `ClienteNotFound`                               | `getActualDelivery()`                       | ``                                  |
+| `GET`                | `/me/reserva`              | `CLIENTE`            | Devuelve el `pedidoResponseDTO` de la reserva en proceso del usuario.         | `ClienteNotFound`                               | `getActualtReserva()`                        | ``                                   |
+
+
+**Métodos adicionales del service
+| **Método**           | **Descripción**                   | 
+|----------------------|-----------------------------------|
+| `updateLoyaltyPoints ` | `Agrega loyalty points y en caso cumpla las condiciones, cambia el rango del cliente`|
 
 ---
 #### 3. Mesero (Hereda de User)
@@ -138,12 +143,27 @@ Representa a los meseros que atienden el restaurante
 - `ratingScore`: Promedio de puntaje de las evaluaciones recibidas por los clientes.
 
 
-**Métodos del endpoint "/employee"**:
-- `GET(/{id}) getEmployee(id)`: (roles permitidos: ADMIN) Devuelve el employeeResponseDTO de la id, exepciones: EmployeeNotFound.
-- `GET() getAllEmployees()`: (roles permitidos: ADMIN) Devuelve el employeeResponseDTO de todos los clientes.
-- `POST() createEmployee(employeeRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo employee, exepciones: EmployeeAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteEmployee(id)`: (roles permitidos: ADMIN) Elimina un employee con la id, exepciones:  EmployeeNotFound.
-- `PATCH(/{id}) updateEmployee(PatchEmployeeDTO)`: (roles permitidos: ADMIN) Actualiza un cliente con la id, exepciones:  EmployeeNotFound, IllegalArgumentException.
+## Endpoints y Métodos
+
+| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
+|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
+| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `MeseroResponseDTO` del empleado por su id.                     | `EmployeeNotFound`                               | `findEmployeeById(Long id)`                      | ``                                 |
+| `GET`                | `/`                        | `ADMIN`              | Devuelve el `MeseroResponseDTO` de todos los empleados.                     | -                                               | `findAllEmployees()`                             | ``                               |
+| `POST`               | `/`                        | `ADMIN`              | Crea un nuevo empleado con `employeeRequestDTO`.                              | `EmployeeAlreadyExist`, `IllegalArgument`| `createEmployee(EmployeeRequestDTO dto)`         | ``                                     |
+| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina un empleado por su id.                                                | `EmployeeNotFound`                               | `deleteEmployee(Long id)`                        | ``                                  |
+| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza un empleado por su id con `PatchMeseroDTO`.                       | `EmployeeNotFound`, `IllegalArgument`    | `updateEmployee(Long id, PatchEmployeeDTO dto)` | ``                                |
+| `GET`                | `/me`                 | `MESERO`             | Devuelve MeseroResponseDTO del mesero autenticado.                     | `EmployeeNotFound`                               | `findEmployeeById(Long id)`                      | ``                                 |
+| `GET`                | `/me/pedidosLocalesActuales`  | `MESERO`             | Devuelve la lista de pedidoLocalResponseDTO con el estado "LISTO" y "RECIBIDO". | `EmployeeNotFound`                               | `findPedidosLocalesActuales(Long id)`                      | ``   |                              
+| `PATCH`              | `me/{idPedidoLocal/encamino}`| `MESERO`           | Cambia el estado de la entrega a Listo. | `DeliveryNotFound`                | `pedidoLocalListo(Long id)`                  | `EstadoDeliveryFinalizadoEvent`                            |
+| `PATCH`              | `me/{idPedidoLocal}/entregado`| `MESERO`           | Cambia el estado de la entrega a Entregado . | `DeliveryNotFound`              | `pedidoLocalEntregado(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
+
+
+**Métodos adicionales del service
+| **Método**           | **Descripción**                   | 
+|----------------------|-----------------------------------|
+| `updateRatingScore()`  |`Obtiene el promedio de los ratings de la review del mesero y actualiza el campo`|
+| `asignarMesero()`  |`Verifica la cantidad de Pedidos Locales que tiene cada mesero y asigna al que tenga menor cantidad`|
+
 
 **Anotaciones**
 - Cada vez que se asigna un pedido a un Mesero, se manda un correo al mesero asignado. 
@@ -161,12 +181,25 @@ Representa a los Repartidors que atienden el restaurante
 - `ratingScore`: Promedio de puntaje de las evaluaciones recibidas por los clientes.
 
 
-**Métodos del endpoint "/repartidor"**:
-- `GET(/{id}) getRepartidor(id)`: (roles permitidos: ADMIN) Devuelve el repartidorResponseDTO de la id, exepciones: RepartidorNotFound.
-- `GET() getAllRepartidors()`: (roles permitidos: ADMIN) Devuelve el repartidorResponseDTO de todos los clientes.
-- `POST() createRepartidor(repartidorRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo repartidor, exepciones: RepartidorAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteRepartidor(id)`: (roles permitidos: ADMIN) Elimina un repartidor con la id, exepciones:  RepartidorNotFound.
-- `PATCH(/{id}) updateRepartidor(PatchRepartidorDTO)`: (roles permitidos: ADMIN) Actualiza un cliente con la id, exepciones:  RepartidorNotFound, IllegalArgumentException.
+## Endpoints y Métodos
+
+| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
+|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
+| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `repartidorResponseDTO` del repartidor por su id.                 | `RepartidorNotFound`                             | `findRepartidorById(Long id)`                    | `RepartidorConsultadoEvent`                               |
+| `GET`                | `/`                        | `ADMIN`              | Devuelve el `repartidorResponseDTO` de todos los repartidores.                | -                                               | `findAllRepartidors()`                           | `RepartidorsConsultadosEvent`                             |
+| `POST`               | `/`                        | `ADMIN`              | Crea un nuevo repartidor con `repartidorRequestDTO`.                          | `RepartidorAlreadyExist`, `IllegalArgumentException`| `createRepartidor(RepartidorRequestDTO dto)`     | `RepartidorCreadoEvent`                                    |
+| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina un repartidor por su id.                                              | `RepartidorNotFound`                             | `deleteRepartidor(Long id)`                      | `RepartidorEliminadoEvent`                                 |
+| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza un repartidor por su id con `PatchRepartidorDTO`.                   | `RepartidorNotFound`, `IllegalArgumentException`  | `updateRepartidor(Long id, PatchRepartidorDTO dto)` | `RepartidorActualizadoEvent`  |                             
+| `GET`                | `/me`                 | `REPARTIDOR`             | Devuelve DeliveryResponseDTO del mesero autenticado.                     | `EmployeeNotFound`                               | `findEmployeeById(Long id)`                      | ``                                 |
+| `GET`                | `/me/deliverysActuales`  | `REPARTIDOR`             | Devuelve la lista de DeliveryResponseDTO con el estado "LISTO". | `EmployeeNotFound`                               | `findDeliverysActuales(Long id)`                  | ``                                 |
+| `PATCH`              | `me/{idDelivery/encamino}`| `REPARTIDOR`           | Cambia el estado de la entrega a En camino. | `DeliveryNotFound`                               | `endDelivery(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
+| `PATCH`              | `me/{idDelivery}/entregado`| `REPARTIDOR`           | Cambia el estado de la entrega a Entregado . | `DeliveryNotFound`                               | `endDelivery(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
+
+**Métodos adicionales del service
+| **Método**           | **Descripción**                   | 
+|----------------------|-----------------------------------|
+| `updateRatingScore()`  |`Obtiene el promedio de los ratings de la review del repartidor y actualiza el campo`|
+| `asignarRepartidor()`  |`Verifica la cantidad de deliverys que tiene cada repartidor y asigna al que tenga menor cantidad`|
 
 
 **Anotaciones**
@@ -186,14 +219,24 @@ Representa las mesas del restaurante.
 - `capacity`: Capacidad de personas que pueden sentarse en la mesa.
 - `isAvailable`: Indica si la mesa está disponible.
 
-**Métodos del endpoint "/table"**:
-- `GET(/{id}) getTable(id)`: (roles permitidos: ADMIN) Devuelve el tableResponseDTO de la id, exepciones: TableNotFound.
-- `GET() getAllTable()`: (roles permitidos: ADMIN) Devuelve el tableResponseDTO de todas las mesas.
-- `POST() createTable(tableRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo table, exepciones: TableAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteTable(id)`: (roles permitidos: ADMIN) Elimina un employee con la id, exepciones:  TableNotFound.
-- `PATCH(/{id}) updateTable(PatchTableDTO)`: (roles permitidos: ADMIN) Actualiza un cliente con la id, exepciones:  TableNotFound, IllegalArgumentException.
-- `PATCH(/changestatus/{id}) changeTableStatus()`: (roles permitidos: EMPLOYEE) Commnuta el estado de "isAvailable" de la mesa, exepciones:  TableNotFound.
--  `GET(/availableTables) getAvalilableTables()`: (roles permitidos: ADMIN) Devuelve el número de mesa de todas las mesas disponibles en ese momento.
+## Endpoints y Métodos
+
+| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
+|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
+| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `tableResponseDTO` de la mesa por su id.                          | `TableNotFound`                                 | `findTableById(Long id)`                        | `TableConsultadaEvent`                                    |
+| `GET`                | `/`                        | `ADMIN`              | Devuelve el `tableResponseDTO` de todas las mesas.                            | -                                               | `findAllTables()`                              | `TablesConsultadasEvent`                                  |
+| `POST`               | `/`                        | `ADMIN`              | Crea una nueva mesa con `tableRequestDTO`.                                    | `TableAlreadyExist`, `IllegalArgumentException`  | `createTable(TableRequestDTO dto)`             | `TableCreadaEvent`                                       |
+| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina una mesa por su id.                                                   | `TableNotFound`                                 | `deleteTable(Long id)`                         | `TableEliminadaEvent`                                    |
+| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza una mesa por su id con `PatchTableDTO`.                             | `TableNotFound`, `IllegalArgumentException`      | `updateTable(Long id, PatchTableDTO dto)`      | `TableActualizadaEvent`                                  |
+| `GET`                | `/availableTables`         | 'MESERO'     | Devuelve el número de mesa de todas las mesas disponibles(ni reservadas ni ocupadas) en ese momento.     | -                                               | `getAvailableTables()`                         | `MesasDisponiblesConsultadasEvent`|                        
+
+
+
+**Métodos adicionales del service
+| **Método**           | **Descripción**                   | 
+|----------------------|-----------------------------------|
+| `changeStatus()`  |`Conmuta la disponibilidad de la mesa`|
+
 
 ---
 
@@ -204,16 +247,18 @@ Representa los pedidos realizados por los clientes.
 - `id`: Identificador único del pedido.
 - `precio`: Precio total del pedido.
 - `productos`: Lista de productos individuales pedidos. 
-- `combos`: Lista de combos individuales pedidos. 
 - `detalle`: Instrucciones especiales para el pedido (ej: sin gluten, extra salsa).
 
 **Métodos del endpoint "/order"**:
-- `GET(/{id}) getOrder(id)`: (roles permitidos: ADMIN) Devuelve el orderResponseDTO de la id, exepciones: OrderNotFound.
-- `GET() getAllOrders()`: (roles permitidos: ADMIN) Devuelve el orderResponseDTO de todas la ordenes.
-- `POST() createOrder(orderRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo order, exepciones: OrderAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteOrder(id)`: (roles permitidos: ADMIN) Elimina una order con la id, exepciones:  OrderNotFound.
-- `PATCH(/{id}) updateOrder(PatchOrderDTO)`: (roles permitidos: ADMIN) Actualiza una mesa con la id, exepciones:  OrderNotFound, IllegalArgumentException.
-- `PATCH(/changestatus/{id}) endOrder()`: (roles permitidos: EMPLOYEE) Cambia el estado de la orden a finalizada y cambia el estado de la mesa o disponibilidad del repartidor, exepciones:  OrderNotFound.
+
+| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
+|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
+| `GET`                | `/{id}`                    | `CLIENTE`              | Devuelve el `OrdenResponseDTO` de la orden por su id.                        | `OrderNotFound`                                 | `findOrderById(Long id)`                        | `OrderConsultadaEvent`                                   |
+| `GET`                | `/`                        | `ADMIN`              | Devuelve el `OrderResponseDTO` de todas las órdenes.                         | -                                               | `findAllOrders()`                               | `OrdersConsultadasEvent`                                 |
+| `POST`               | `/`                        | `ADMIN`              | Crea una nueva orden con `orderRequestDTO`.                                  | `OrderAlreadyExist`, `IllegalArgumentException`  | `createOrder(OrderRequestDTO dto)`             | `OrderCreadaEvent`                                      |
+| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina una orden por su id.                                                 | `OrderNotFound`                                 | `deleteOrder(Long id)`                          | `OrderEliminadaEvent`                                   |
+| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza una orden por su id con `PatchOrderDTO`.                           | `OrderNotFound`, `IllegalArgumentException`      | `updateOrder(Long id, PatchOrderDTO dto)`      | `OrderActualizadaEvent`                                  |
+| `PATCH`              | `/{idOrden}/{idProducto}/{cantidad}`  | `CLIENTE``MESERO`    | Agrega un producto a la orden.                           | `OrderNotFound`, `IllegalArgumentException`      | `addProducto(Long id, Long idProducto, cantidad)`      | `OrderActualizadaEvent`                                  |
 
 ---
 
@@ -233,16 +278,20 @@ Representa los pedidos que son entregados a domicilio.
 - 'precio': Precio total
 
 **Métodos del endpoint "/delivery"**:
-- `GET(/{id}) getDelivery(id)`: (roles permitidos: ADMIN) Devuelve el deliveryResponseDTO de la id, exepciones: DeliveryNotFound.
-- `GET() getAllDeliverys()`: (roles permitidos: ADMIN) Devuelve el deliveryResponseDTO de todas la ordenes.
-- `POST() createDelivery(deliveryRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo delivert, exepciones: DeliveryAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteDelivery(id)`: (roles permitidos: ADMIN) Elimina un delivery con la id, exepciones:  DeliveryrNotFound.
-- `PATCH(/{id}) updateDelivery(PatchDeliveryDTO)`: (roles permitidos: ADMIN) Actualiza un delivery con la id, exepciones:  DeliveryNotFound, IllegalArgumentException.
-- `PATCH(/changestatus/{id}) endDelivery()`: (roles permitidos: EMPLOYEE) Cambia el estado de la orden a finalizada y cambia el estado de la disponibilidad del repartidor, exepciones: DeliveryNotFound.
+| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
+|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
+| `GET`                | `/{id}`                    | `ADMIN` | Devuelve el `deliveryResponseDTO` de la entrega por su id.                   | `DeliveryNotFound`                               | `findDeliveryById(Long id)`                     | `DeliveryConsultadaEvent`                                |
+| `GET`                | `/`                        | `ADMIN`               | Devuelve el `deliveryResponseDTO` de todas las entregas.                     | -                                               | `findAllDeliveries()`                            | `DeliveriesConsultadasEvent`                              |
+| `POST`               | `/`                        | `CLIENTE`            | Crea una nueva entrega con `deliveryRequestDTO`.                              | `DeliveryAlreadyExist`, `IllegalArgumentException`| `createDelivery(DeliveryRequestDTO dto)`        | `DeliveryCreadaEvent`                                     |
+| `DELETE`             | `/{id}`                    | `CLIENTE``REPARTIDOR`| Elimina una entrega por su id.                                               | `DeliveryNotFound`                               | `deleteDelivery(Long id)`                        | `DeliveryEliminadaEvent`                                  |
+| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza una entrega por su id con `PatchDeliveryDTO`.                       | `DeliveryNotFound`, `IllegalArgumentException`    | `updateDelivery(Long id, PatchDeliveryDTO dto)` | `DeliveryActualizadaEvent`                                 |
+| `PATCH`              | `/cocinando/{id}`| `CHEF`           | Cambia el estado de la entrega en preparacion. | `DeliveryNotFound`                               | `endDelivery(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
+| `PATCH`              | `/listo/{id}`| `CHEF`           | Cambia el estado de la entrega a listo. | `DeliveryNotFound`                               | `endDelivery(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
+| `GET`                | `/deliverysRecibidos`                        | `CHEF`              | Devuelve el `DeliveryResponseDTO` de todos los deliverys recibidos en la aplicación.                         | -                                               | `findDeliverysRecibidos()`                               | `OrdersConsultadasEvent`                                 |
 
 ---
 
-#### 6. PedidoLocal
+#### 7. PedidoLocal
 Representa los pedidos realizados en el local
 **Atributos**:
 - `id`: Identificador único de la entrega.
@@ -255,18 +304,21 @@ Representa los pedidos realizados en el local
 - 'precio': Precio total
 - 'tipoPago': Pago en efectivo o con qr
 
-**Métodos del endpoint "/pedidoLocal"**:
-- `GET(/{id}) getPedidoLocal(id)`: (roles permitidos: ADMIN) Devuelve el pedidoLocalResponseDTO de la id, exepciones: PedidoLocalNotFound.
-- `GET() getAllPedidoLocals()`: (roles permitidos: ADMIN) Devuelve el pedidoLocalResponseDTO de todas la ordenes.
-- `POST() createPedidoLocal(pedidoLocalRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo delivert, exepciones: PedidoLocalAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deletePedidoLocal(id)`: (roles permitidos: ADMIN) Elimina un pedidoLocal con la id, exepciones:  PedidoLocalrNotFound.
-- `PATCH(/{id}) updatePedidoLocal(PatchPedidoLocalDTO)`: (roles permitidos: ADMIN) Actualiza un pedidoLocal con la id, exepciones:  PedidoLocalNotFound, IllegalArgumentException.
-- `PATCH(/changestatus/{id}) endPedidoLocal()`: (roles permitidos: EMPLOYEE) Cambia el estado de la orden a finalizada y cambia el estado de la disponibilidad del repartidor, exepciones: PedidoLocalNotFound.
+| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
+|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
+| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `pedidoLocalResponseDTO` del pedido local por su id.             | `PedidoLocalNotFound`                            | `findPedidoLocalById(Long id)`                  | `PedidoLocalConsultadoEvent`                              |
+| `GET`                | `/`                        | `ADMIN`              | Devuelve el `pedidoLocalResponseDTO` de todos los pedidos locales.           | -                                               | `findAllPedidoLocals()`                         | `PedidoLocalsConsultadosEvent`                            |
+| `POST`               | `/`                        | `ADMIN`              | Crea un nuevo pedido local con `pedidoLocalRequestDTO`.                       | `PedidoLocalAlreadyExist`, `IllegalArgumentException` | `createPedidoLocal(PedidoLocalRequestDTO dto)`  | `PedidoLocalCreadoEvent`                                  |
+| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina un pedido local por su id.                                           | `PedidoLocalNotFound`                            | `deletePedidoLocal(Long id)`                     | `PedidoLocalEliminadoEvent`                               |
+| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza un pedido local por su id con `PatchPedidoLocalDTO`.               | `PedidoLocalNotFound`, `IllegalArgumentException` | `updatePedidoLocal(Long id, PatchPedidoLocalDTO dto)` | `PedidoLocalActualizadoEvent`                             |
+| `PATCH`              | `/cocinando/{id}`| `CHEF`           | Cambia el estado de la entrega en preparacion. | `PedidoLocalNotFound`                               | `cocinandoPedidoLocal(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
+| `PATCH`              | `/listo/{id}`| `CHEF`           | Cambia el estado de la entrega a listo. | `PedidoLocalNotFound`                               | `listoPedidoLocal(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
+| `GET`                | `/pedidosLocalesRecibidos`                        | `CHEF`              | Devuelve el `PedidoLocalResponseDTO` de todos los pedidos locales recibidos en la aplicación.                         | -                                               | `findPedidosLocalesRecibidos()`                               | `OrdersConsultadasEvent`                                 |
 
 ---
 
 
-#### 7. Reservation
+#### 8. Reservation
 Representa las reservas realizadas por los clientes.
 
 **Atributos**:
@@ -280,31 +332,14 @@ Representa las reservas realizadas por los clientes.
 - `specialRequests`: Solicitudes especiales del cliente para la reserva (ej: preferencia de mesa, requerimientos dietéticos).
 
 **Métodos del endpoint "/reservation"**:
-- `GET(/{id}) getReservation(id)`: (roles permitidos: ADMIN) Devuelve el reservationResponseDTO de la id, exepciones: ReservationNotFound.
-- `GET() getAllReservations()`: (roles permitidos: ADMIN) Devuelve el reservationResponseDTO de todas la ordenes.
-- `POST() createReservation(reservationRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo reservation, exepciones: ReservationAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteReservation(id)`: (roles permitidos: ADMIN) Elimina un reservation con la id, exepciones:  ReservationNotFound.
-- `PATCH(/{id}) updateReservation(PatchReservationDTO)`: (roles permitidos: ADMIN) Actualiza un reservation con la id, exepciones:  ReservationNotFound, IllegalArgumentException.
-- `PATCH(/changestatus/{id}) endReservation()`: (roles permitidos: EMPLOYEE) Finaliza la reservacion, exepciones: ReservationNotFound.
-
----
-
-#### 8. OrderItem
-Representa los productos dentro de un pedido.
-
-**Atributos**:
-- `id`: Identificador único del ítem.
-- `product`: Producto solicitado (relación con Product).
-- `quantity`: Cantidad de este producto.
-- `customization`: Personalizaciones o comentarios (ej: sin sal).
-- 
-**Métodos del endpoint "/orderItem"**:
-- `GET(/{id}) getOrderItem(id)`: (roles permitidos: ADMIN) Devuelve el orderItemResponseDTO de la id, exepciones: OrderItemNotFound.
-- `GET() getAllOrderItems()`: (roles permitidos: ADMIN) Devuelve el orderItemResponseDTO de todas las OrderItem.
-- `POST() createOrderItem(orderItemRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo orderItem, exepciones: OrderItemAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteOrderItem(id)`: (roles permitidos: ADMIN) Elimina un OrderItem con la id, exepciones:  OrderItemNotFound.
-- `PATCH(/{id}) updateOrderItem(PatchOrderItemDTO)`: (roles permitidos: ADMIN) Actualiza un orderItem con la id, exepciones:  OrderItemNotFound, IllegalArgumentException.
-- `PATCH(/{id}/{idProducto}) agregarProducto(id,idProducto)`: (roles permitidos: ADMIN) Actualiza un order item añadiendo un producto, exepciones:  ProductoNotFound, IllegalArgumentException.
+| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
+|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
+| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `reservationResponseDTO` de la reservación por su id.            | `ReservationNotFound`                            | `findReservationById(Long id)`                 | `ReservationConsultadaEvent`                              |
+| `GET`                | `/`                        | `ADMIN`              | Devuelve el `reservationResponseDTO` de todas las reservaciones.             | -                                               | `findAllReservations()`                        | `ReservationsConsultadasEvent`                            |
+| `POST`               | `/`                        | `ADMIN`              | Crea una nueva reservación con `reservationRequestDTO`.                       | `ReservationAlreadyExist`, `IllegalArgumentException` | `createReservation(ReservationRequestDTO dto)` | `ReservationCreadaEvent`                                  |
+| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina una reservación por su id.                                           | `ReservationNotFound`                            | `deleteReservation(Long id)`                    | `ReservationEliminadaEvent`                               |
+| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza una reservación por su id con `PatchReservationDTO`.               | `ReservationNotFound`, `IllegalArgumentException` | `updateReservation(Long id, PatchReservationDTO dto)` | `ReservationActualizadaEvent`                             |
+| `PATCH`              | `/changestatus/{id}`       | `MESERO`           | Finaliza la reservación.                                                     | `ReservationNotFound`                            | `endReservation(Long id)`                       | `ReservationFinalizadaEvent`                              |
 
 ---
 
@@ -320,36 +355,18 @@ Representa los productos (platos o bebidas) del menú.
 - `isAvailable`: Disponibilidad del producto.
 
 **Métodos del endpoint "/product"**:
-- `GET(/{id}) getProduct(id)`: (roles permitidos: ADMIN) Devuelve el productResponseDTO de la id, exepciones: ProductItemNotFound.
-- `GET() getAllProduct()`: (roles permitidos: ADMIN) Devuelve el productResponseDTO de todas los product.
-- `POST() createProduct(productRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo product, exepciones: ProductAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteProductItem(id)`: (roles permitidos: ADMIN) Elimina un product con la id, exepciones:  ProductItemNotFound.
-- `PATCH(/{id}) updateProduct(PatchProductDTO)`: (roles permitidos: ADMIN) Actualiza un product con la id, exepciones:  ProductItemNotFound, IllegalArgumentException.
+| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
+|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
+| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `productResponseDTO` del producto por su id.                     | `ProductItemNotFound`                            | `findProductById(Long id)`                    | `ProductConsultadoEvent`                                  |
+| `GET`                | `/`                        | `ADMIN`              | Devuelve el `productResponseDTO` de todos los productos.                     | -                                               | `findAllProducts()`                           | `ProductsConsultadosEvent`                                |
+| `POST`               | `/`                        | `ADMIN`              | Crea un nuevo producto con `productRequestDTO`.                               | `ProductAlreadyExist`, `IllegalArgumentException`| `createProduct(ProductRequestDTO dto)`         | `ProductCreadoEvent`                                      |
+| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina un producto por su id.                                               | `ProductItemNotFound`                            | `deleteProduct(Long id)`                       | `ProductEliminadoEvent`                                   |
+| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza un producto por su id con `PatchProductDTO`.                       | `ProductItemNotFound`, `IllegalArgumentException`| `updateProduct(Long id, PatchProductDTO dto)`  | `ProductActualizadoEvent`                                |
 
 ---
 
-#### 10. Combo
-Representa los combos del menú.
 
-**Atributos**:
-- `id`: Identificador único del combo.
-- `productos`: Productos incluidos en el combo.
-- `descripcion`: Descripción del combo.
-- `precio`: Precio del combo.
-- `category`: Categoría del combo según rango del cliente.
-- `isAvailable`: Disponibilidad del combo.
-
-
-**Métodos del endpoint "/combo"**:
-- `GET(/{id}) getCombo(id)`: (roles permitidos: ADMIN) Devuelve el comboResponseDTO de la id, exepciones: ComboItemNotFound.
-- `GET() getAllCombo()`: (roles permitidos: ADMIN) Devuelve el comboResponseDTO de todas los combo.
-- `POST() createCombo(comboRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo combo, exepciones: ComboAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteComboItem(id)`: (roles permitidos: ADMIN) Elimina un combo con la id, exepciones:  ComboItemNotFound.
-- `PATCH(/{id}) updateCombo(PatchComboDTO)`: (roles permitidos: ADMIN) Actualiza un combo con la id, exepciones:  ComboItemNotFound, IllegalArgumentException.
-
----
-
-#### 11. ReviewMesero
+#### 10. ReviewMesero
 Representa la evaluación del servicio prestado por el mesero.
 
 
@@ -362,17 +379,19 @@ Representa la evaluación del servicio prestado por el mesero.
 
 
 **Métodos del endpoint "/reviewMesero"**:
-- `GET(/{id}) getReviewMesero(id)`: (roles permitidos: ADMIN) Devuelve el reviewMeseroResponseDTO de la id, exepciones: ReviewMeseroItemNotFound.
-- `GET() getAllReviewMeseros()`: (roles permitidos: ADMIN) Devuelve el reviewMeseroResponseDTO de todas los ReviewMeseros.
-- `POST() createReviewMesero(reviewMeseroRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo ReviewMesero, exepciones: ReviewMeseroAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteReviewMeseroItem(id)`: (roles permitidos: ADMIN) Elimina un ReviewMesero con la id, exepciones:  ReviewMeseroItemNotFound.
-- `PATCH(/{id}) updateReviewMesero(PatchReviewMeseroDTO)`: (roles permitidos: ADMIN) Actualiza un ReviewMesero con la id, exepciones:  ReviewMeseroItemNotFound, IllegalArgumentException.
+| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
+|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
+| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `reviewMeseroResponseDTO` de la reseña del mesero por su id.     | `ReviewMeseroItemNotFound`                        | `findReviewMeseroById(Long id)`                | `ReviewMeseroConsultadaEvent`                             |
+| `GET`                | `/`                        | `ADMIN`              | Devuelve el `reviewMeseroResponseDTO` de todas las reseñas de meseros.       | -                                               | `findAllReviewMeseros()`                       | `ReviewMeserosConsultadasEvent`                           |
+| `POST`               | `/`                        | `ADMIN`              | Crea una nueva reseña de mesero con `reviewMeseroRequestDTO`.                 | `ReviewMeseroAlreadyExist`, `IllegalArgumentException` | `createReviewMesero(ReviewMeseroRequestDTO dto)`| `ReviewMeseroCreadaEvent`                                 |
+| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina una reseña de mesero por su id.                                      | `ReviewMeseroItemNotFound`                        | `deleteReviewMesero(Long id)`                  | `ReviewMeseroEliminadaEvent`                              |
+| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza una reseña de mesero por su id con `PatchReviewMeseroDTO`.         | `ReviewMeseroItemNotFound`, `IllegalArgumentException`| `updateReviewMesero(Long id, PatchReviewMeseroDTO dto)`| `ReviewMeseroActualizadaEvent`                             |
 
 ---
 
 
 
-#### 12. ReviewDelivery
+#### 11. ReviewDelivery
 Representa la evaluación del servicio prestado por el mesero.
 
 
@@ -387,11 +406,14 @@ Representa la evaluación del servicio prestado por el mesero.
 
 
 **Métodos del endpoint "/reviewDelivery"**:
-- `GET(/{id}) getReviewDelivery(id)`: (roles permitidos: ADMIN) Devuelve el reviewDeliveryResponseDTO de la id, exepciones: ReviewDeliveryItemNotFound.
-- `GET() getAllReviewDeliverys()`: (roles permitidos: ADMIN) Devuelve el reviewDeliveryResponseDTO de todas los ReviewDeliverys.
-- `POST() createReviewDelivery(reviewDeliveryRequestDTO)`: (roles permitidos: ADMIN) Crea un nuevo ReviewDelivery, exepciones: ReviewDeliveryAlredyExist, IllegalArgumentException.
-- `DELETE(/{id}) deleteReviewDeliveryItem(id)`: (roles permitidos: ADMIN) Elimina un ReviewDelivery con la id, exepciones:  ReviewDeliveryItemNotFound.
-- `PATCH(/{id}) updateReviewDelivery(PatchReviewDeliveryDTO)`: (roles permitidos: ADMIN) Actualiza un ReviewDelivery con la id, exepciones:  ReviewDeliveryItemNotFound, IllegalArgumentException.
+
+| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
+|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
+| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `reviewDeliveryResponseDTO` de la reseña del repartidor por su id.| `ReviewDeliveryItemNotFound`                      | `findReviewDeliveryById(Long id)`              | `ReviewDeliveryConsultadaEvent`                           |
+| `GET`                | `/`                        | `ADMIN`              | Devuelve el `reviewDeliveryResponseDTO` de todas las reseñas de repartidores. | -                                               | `findAllReviewDeliverys()`                     | `ReviewDeliverysConsultadasEvent`                         |
+| `POST`               | `/`                        | `ADMIN`              | Crea una nueva reseña de repartidor con `reviewDeliveryRequestDTO`.           | `ReviewDeliveryAlreadyExist`, `IllegalArgumentException` | `createReviewDelivery(ReviewDeliveryRequestDTO dto)`| `ReviewDeliveryCreadaEvent`                                |
+| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina una reseña de repartidor por su id.                                   | `ReviewDeliveryItemNotFound`                      | `deleteReviewDelivery(Long id)`                | `ReviewDeliveryEliminadaEvent`                            |
+| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza una reseña de repartidor por su id con `PatchReviewDeliveryDTO`.    | `ReviewDeliveryItemNotFound`, `IllegalArgumentException` | `updateReviewDelivery(Long id, PatchReviewDeliveryDTO dto)`| `ReviewDeliveryActualizadaEvent`                            |
 
 ---
 
@@ -408,7 +430,7 @@ Representa la evaluación del servicio prestado por el mesero.
 
 2. **Pruebas de Integración**
    - Aseguran que los diferentes módulos interactúan correctamente entre sí.
-     - Procesos fundamentales del negocio
+   - Procesos fundamentales del negocio
 
 3. **Pruebas de Sistema**
    - Validan que el sistema completo cumpla con los requisitos funcionales y no funcionales.
