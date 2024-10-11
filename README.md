@@ -42,27 +42,26 @@ Es relevante solucionar este problema porque permite agilizar el proceso de pedi
 
 ### Actores del Negocio
 1. **Manager**: Encargo de gestión de personal, atención al cliente, gestión de inventarios y manejo de caja. 
-2. **Mesero**:  Encargado de la atención personal al cliente en el local. 
+2. **Mesero**: Encargado de la atención personal al cliente en el local. 
 3. **Repartidor**: Encargado de la entrega de pedidos por delivery. 
 4. **Cliente registrado**: Cliente con una cuenta creada en la aplicación del restaurante. 
-5. **Cliente general** : Cliente de "al paso" que no está registrado en la aplicación del restaurante. 
-6. **Chef** : Recibe ordenes y las prepara.   
+5. **Cliente general**: Cliente de "al paso" que no está registrado en la aplicación del restaurante. 
+6. **Chef**: Recibe órdenes y las prepara.   
 
 
 ### Entidades del Negocio
-1. **Usuario**
-2. **Cliente**
+1. **User**
+2. **Client**
 3. **Repartidor**
 4. **Mesero**
 5. **Mesa** 
 6. **Orden**
-7. **Reserva**
+7. **Reservation**
 8. **Delivery**
 9. **PedidoLocal**
-10. **Producto**
-11. **Combo**
-12. **ReseñaMozo**
-13. **ReseñaDelivery**
+10. **Product**
+11. **ReviewMesero**
+12. **ReviewDelivery**
 
 
 ### Casos de uso del Negocio
@@ -77,7 +76,7 @@ Es relevante solucionar este problema porque permite agilizar el proceso de pedi
 ### Tecnologías Utilizadas
 - **Lenguajes de programación**: Java
 - **Frameworks**: Express.js para la creación de API, Bootstrap para el frontend.
-- **Bases de datos**: MySQL para almacenamiento de datos.
+- **Bases de datos**: PostgreSQL para almacenamiento de datos.
 - **API externas**: Google Maps API para la localización de clientes en pedidos a domicilio.
 
 ## Modelo de Entidades
@@ -263,7 +262,7 @@ Representa las mesas del restaurante.
 
 ---
 
-#### 5. Orden
+#### 6. Orden
 Representa los pedidos realizados por los clientes.
 
 **Atributos**:
@@ -290,7 +289,7 @@ Representa los pedidos realizados por los clientes.
 
 ---
 
-#### 6. Delivery
+#### 7. Delivery
 Representa los pedidos que son entregados a domicilio.
 
 **Atributos**:
@@ -324,7 +323,7 @@ Representa los pedidos que son entregados a domicilio.
 
 ---
 
-#### 7. PedidoLocal
+#### 8. PedidoLocal
 Representa los pedidos realizados en el local
 
 **Atributos**:
@@ -357,7 +356,7 @@ Representa los pedidos realizados en el local
 ---
 
 
-#### 8. Reservation
+#### 9. Reservation
 Representa las reservas realizadas por los clientes.
 
 **Atributos**:
@@ -387,7 +386,7 @@ Representa las reservas realizadas por los clientes.
 
 ---
 
-#### 9. Product
+#### 10. Product
 Representa los productos (platos o bebidas) del menú.
 
 **Atributos**:
@@ -418,7 +417,7 @@ Representa los productos (platos o bebidas) del menú.
 ---
 
 
-#### 10. ReviewMesero
+#### 11. ReviewMesero
 Representa la evaluación del servicio prestado por el mesero.
 
 **Atributos**:
@@ -447,7 +446,7 @@ Representa la evaluación del servicio prestado por el mesero.
 
 
 
-#### 11. ReviewDelivery
+#### 12. ReviewDelivery
 Representa la evaluación del servicio prestado por el mesero.
 
 **Atributos**:
