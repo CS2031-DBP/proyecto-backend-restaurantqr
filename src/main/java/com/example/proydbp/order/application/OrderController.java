@@ -1,13 +1,12 @@
 package com.example.proydbp.order.application;
 
-import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.order.domain.OrderService;
-import com.example.proydbp.order.domain.Type;
-import com.example.proydbp.order.dto.OrderDto;
-import com.example.proydbp.reservation.domain.Status;
+import com.example.proydbp.order.dto.OrderRequestDto;
+import com.example.proydbp.order.dto.OrderResponseDto;
+import com.example.proydbp.order.dto.PatchOrderDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,46 +20,45 @@ public class OrderController {
     @Autowired
     public OrderController(OrderService orderService) {this.orderService = orderService;}
 
-    @GetMapping
-    public List<Order> getAllOrders() {
-        return orderService.findAll();
-    }
-
+    @PreAuthorize("hasRole('CLIENT')")
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
-        Order order = orderService.findById(id);
-        return ResponseEntity.ok(order);
+    public ResponseEntity<OrderResponseDto> findOrderById(@PathVariable Long id) {
+        OrderResponseDto orderResponseDto = orderService.findOrderById(id);
+        return ResponseEntity.ok(orderResponseDto);
     }
 
-    @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody OrderDto orderDto) {
-        Order createdOrder = orderService.save(orderDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
+    public ResponseEntity<List<OrderResponseDto>> findAllOrders() {
+        List<OrderResponseDto> orders = orderService.findAllOrders();
+        return ResponseEntity.ok(orders);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody OrderDto orderDto) {
-        Order updatedOrder = orderService.update(id, orderDto);
-        return ResponseEntity.ok(updatedOrder);
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/")
+    public ResponseEntity<OrderResponseDto> createOrder(@RequestBody OrderRequestDto orderRequestDto) {
+        OrderResponseDto createdOrder = orderService.createOrder(orderRequestDto);
+        return ResponseEntity.ok(createdOrder);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-        orderService.delete(id);
+        orderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }
 
-    // PATCH: Actualizar el estado del pedido
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<Order> updateOrderStatus(@PathVariable Long id, @RequestBody String status) {
-        Order order = orderService.findById(id);
-        order.setStatus(Status.valueOf(status));
-        return ResponseEntity.ok(orderService.save(order));
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}")
+    public ResponseEntity<OrderResponseDto> updateOrder(@PathVariable Long id, @RequestBody PatchOrderDto patchOrderDto) {
+        OrderResponseDto updatedOrder = orderService.updateOrder(id, patchOrderDto);
+        return ResponseEntity.ok(updatedOrder);
     }
 
-    // Obtener todos los pedidos por tipo (ON_SITE, RESERVATION, DELIVERY)
-    @GetMapping("/type/{orderType}")
-    public List<OrderDto> getOrdersByType(@PathVariable Type orderType) {
-        return orderService.findByOrderType(orderType);
+    @PreAuthorize("hasRole('CLIENT') or hasRole('MESERO')")
+    @PatchMapping("/{idOrden}/{idProducto}/{cantidad}")
+    public ResponseEntity<Void> addProducto(@PathVariable Long idOrden, @PathVariable Long idProducto, @PathVariable Integer cantidad) {
+        orderService.addProducto(idOrden, idProducto, cantidad);
+        return ResponseEntity.ok().build();
     }
 }

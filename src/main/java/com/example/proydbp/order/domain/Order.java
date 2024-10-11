@@ -1,15 +1,12 @@
 package com.example.proydbp.order.domain;
 
-import com.example.proydbp.client.domain.Client;
-import com.example.proydbp.order_item.domain.OrderItem;
-import com.example.proydbp.reservation.domain.Status;
-import com.example.proydbp.table.domain.Table;
+import com.example.proydbp.delivery.domain.Delivery;
+import com.example.proydbp.pedido_local.domain.PedidoLocal;
+import com.example.proydbp.product.domain.Product;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -20,27 +17,18 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "client_id")
-    private Client client;
+    private BigDecimal price;
 
-    private LocalDate orderDate;
-    private LocalTime orderTime;
+    private String details;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderItem> orderItems;
+    private List<Product> products;
 
-    private BigDecimal totalPrice;
-
-    @Enumerated(EnumType.STRING)
-    private Type orderType;
-
-    @Enumerated(EnumType.STRING)
-    private Status status;
-
-    private String specialInstructions;
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    private Delivery delivery;
 
     @ManyToOne
-    @JoinColumn(name = "table_id")
-    private Table table;
+    @JoinColumn(name = "pedido_local_id")
+    private PedidoLocal pedidoLocal;
+
 }
