@@ -90,24 +90,28 @@ Es relevante solucionar este problema porque permite agilizar el proceso de pedi
 Clase padre para los usuarios del sistema, a su vez implementa la clase UserDetails.
 
 **Atributos**:
-- `id`: Identificador único.
-- `name`: Nombre.
-- `email`: Correo electrónico.
-- `password`: Contraseña para autenticación.
-- `role`: Rol del usuario (ADMIN, REPARTIDOR, MESERO)
+| **Atributo**  | **Tipo de Variable** | **Descripción**                                  | **Criterios Limitantes**                                |
+|---------------|----------------------|--------------------------------------------------|---------------------------------------------------------|
+| `id`          | `Long`               | Identificador único del usuario.                 | Debe ser único, generado automáticamente.               |
+| `name`        | `String`             | Nombre del usuario.                              | Máximo 100 caracteres. No puede estar vacío.            |
+| `email`       | `String`             | Correo electrónico del usuario.                  | Formato válido de correo. Debe ser único.               |
+| `password`    | `String`             | Contraseña para la autenticación del usuario.     | Mínimo 8 caracteres. Debe estar encriptada.             |
+| `role`        | `Enum` (ADMIN, REPARTIDOR, MESERO) | Rol del usuario dentro del sistema.             | Valores permitidos: `ADMIN`, `REPARTIDOR`, `MESERO`.    |
 ---
 
 #### 2. Client (Hereda de User)
 Representa a los clientes registrados del restaurante.
 
-**Atributos**:
-- `loyaltyPoints`: Puntos de lealtad acumulados por el cliente.
-- `pedidosLocales`: Lista de pedidos realizados en el restaurante
-- `deliverys`: Lista de deliverys realizados por el cliente
-- `reservas` : Lista de reservas realizadas por el cliente
-- `reviewsMesero`: Lista de reviews realizadas por el cliente a meseros
-- `reviewDelivery`: Lista de reviews realizadas por el cliente a repartidores
-- `rango`: Rango basado en loyalty points(BRONCE, SILVER, GOLD, PLATINUM)
+| **Atributo**       | **Tipo de Variable**     | **Descripción**                                                 | **Criterios Limitantes**                                      |
+|--------------------|--------------------------|-----------------------------------------------------------------|---------------------------------------------------------------|
+| `loyaltyPoints`     | `Integer`                | Puntos de lealtad acumulados por el cliente.                    | No negativo. Puede tener límites de acuerdo con el sistema de lealtad. |
+| `pedidosLocales`    | `List<PedidoLocal>`      | Lista de pedidos realizados en el restaurante por el cliente.    | Puede ser una lista vacía.                                    |
+| `deliverys`         | `List<Delivery>`         | Lista de pedidos de delivery realizados por el cliente.          | Puede ser una lista vacía.                                    |
+| `reservas`          | `List<Reserva>`          | Lista de reservas realizadas por el cliente.                    | Puede ser una lista vacía.                                    |
+| `reviewsMesero`     | `List<ReviewMesero>`     | Lista de reviews realizadas por el cliente a meseros.            | Puede ser una lista vacía.                                    |
+| `reviewDelivery`    | `List<ReviewDelivery>`   | Lista de reviews realizadas por el cliente a repartidores.       | Puede ser una lista vacía.                                    |
+| `rango`             | `Enum` (BRONCE, SILVER, GOLD, PLATINUM) | Rango basado en puntos de lealtad del cliente.     | Valores permitidos: `BRONCE`, `SILVER`, `GOLD`, `PLATINUM`.   |
+
 
 
 **Métodos del endpoint "/cliente"**:
@@ -138,9 +142,11 @@ Representa a los clientes registrados del restaurante.
 Representa a los meseros que atienden el restaurante
 
 **Atributos**:
-- `pedidosLocales`: Lista de pedidos locales del mesero
-- `reviewsMesero`: Lista de reviews recibas
-- `ratingScore`: Promedio de puntaje de las evaluaciones recibidas por los clientes.
+| **Atributo**       | **Tipo de Variable**     | **Descripción**                                               | **Criterios Limitantes**                                    |
+|--------------------|--------------------------|---------------------------------------------------------------|-------------------------------------------------------------|
+| `pedidosLocales`    | `List<PedidoLocal>`      | Lista de pedidos locales que ha gestionado el mesero.          | Puede ser una lista vacía.                                  |
+| `reviewsMesero`     | `List<ReviewMesero>`     | Lista de reviews recibidas por el mesero.                      | Puede ser una lista vacía.                                  |
+| `ratingScore`       | `Double`                 | Promedio de puntaje de las evaluaciones recibidas por clientes.| Rango entre 0.0 y 5.0, con dos decimales de precisión.       |
 
 
 ## Endpoints y Métodos
@@ -176,9 +182,11 @@ Representa a los Repartidors que atienden el restaurante
 
 
 **Atributos**:
-- `deliverys`: Lista de deliverys del Repartidor
-- `reviewsRepartidor`: Lista de reviews recibas
-- `ratingScore`: Promedio de puntaje de las evaluaciones recibidas por los clientes.
+| **Atributo**        | **Tipo de Variable**     | **Descripción**                                               | **Criterios Limitantes**                                    |
+|---------------------|--------------------------|---------------------------------------------------------------|-------------------------------------------------------------|
+| `deliverys`          | `List<Delivery>`         | Lista de entregas (deliverys) que ha gestionado el repartidor. | Puede ser una lista vacía.                                  |
+| `reviewsRepartidor`  | `List<ReviewDelivery>`   | Lista de reviews recibidas por el repartidor.                  | Puede ser una lista vacía.                                  |
+| `ratingScore`        | `Double`                 | Promedio de puntaje de las evaluaciones recibidas por clientes.| Rango entre 0.0 y 5.0, con dos decimales de precisión.       |
 
 
 ## Endpoints y Métodos
@@ -213,11 +221,14 @@ Representa a los Repartidors que atienden el restaurante
 Representa las mesas del restaurante.
 
 **Atributos**:
-- `id`: Identificador único de la mesa.
-- `qr`: Código QR asociado a la mesa (para escanear y acceder al menú).
-- `numero`: Numero de la mesa en el restaurante.
-- `capacity`: Capacidad de personas que pueden sentarse en la mesa.
-- `isAvailable`: Indica si la mesa está disponible.
+| **Atributo**     | **Tipo de Variable**     | **Descripción**                                                         | **Criterios Limitantes**                                        |
+|------------------|--------------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------|
+| `id`             | `Long`                   | Identificador único de la mesa.                                          | Debe ser único y generado automáticamente.                      |
+| `qr`             | `String`                 | Código QR asociado a la mesa para acceder al menú.                       | Longitud máxima de 255 caracteres.                              |
+| `numero`         | `Integer`                | Número de la mesa en el restaurante.                                     | Debe ser único en el contexto del restaurante.                  |
+| `capacity`       | `Integer`                | Capacidad máxima de personas que pueden sentarse en la mesa.             | Valor mayor a 0.                                                |
+| `isAvailable`    | `Boolean`                | Indica si la mesa está disponible (true = disponible, false = ocupada).  | No tiene limitantes, es un valor booleano.                      |
+
 
 ## Endpoints y Métodos
 
@@ -244,10 +255,13 @@ Representa las mesas del restaurante.
 Representa los pedidos realizados por los clientes.
 
 **Atributos**:
-- `id`: Identificador único del pedido.
-- `precio`: Precio total del pedido.
-- `productos`: Lista de productos individuales pedidos. 
-- `detalle`: Instrucciones especiales para el pedido (ej: sin gluten, extra salsa).
+| **Atributo**    | **Tipo de Variable**     | **Descripción**                                                         | **Criterios Limitantes**                                        |
+|------------------|--------------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------|
+| `id`             | `Long`                   | Identificador único del pedido.                                         | Debe ser único y generado automáticamente.                      |
+| `precio`         | `Double`                 | Precio total del pedido.                                                | Debe ser un valor mayor o igual a 0.0.                         |
+| `productos`      | `List<Producto>`         | Lista de productos individuales incluidos en el pedido.                 | Puede ser una lista vacía, pero no debe contener elementos nulos. |
+| `detalle`        | `String`                 | Instrucciones especiales para el pedido (ej: sin gluten, extra salsa). | Longitud máxima de 500 caracteres.                              |
+
 
 **Métodos del endpoint "/order"**:
 
@@ -266,16 +280,19 @@ Representa los pedidos realizados por los clientes.
 Representa los pedidos que son entregados a domicilio.
 
 **Atributos**:
-- `id`: Identificador único de la entrega.
-- `cliente`: Cliente que solicitó el pedido (relación con Client).
-- `direccion`: Dirección donde se entregará el pedido.
-- `costoDelivery`: Costo del servicio de entrega.
-- `fecha`: Fecha de creación del delivery.
-- `hora`: Hora de creación del delivery.
-- `estado`: Estado del pedido (RECIBIDO, EN PREPARACION, ENTREGADO).
-- `order`: Pedido relacionado con la entrega (relación con Order).
-- `repartidor`: Empleado que realiza la entrega (relación con Employee).
-- 'precio': Precio total
+| **Atributo**        | **Tipo de Variable**        | **Descripción**                                                        | **Criterios Limitantes**                                        |
+|---------------------|-----------------------------|------------------------------------------------------------------------|-----------------------------------------------------------------|
+| `id`                | `Long`                      | Identificador único de la entrega.                                     | Debe ser único y generado automáticamente.                      |
+| `cliente`           | `Cliente`                   | Cliente que solicitó el pedido (relación con la entidad Cliente).     | No puede ser nulo; debe existir un cliente asociado.            |
+| `direccion`         | `String`                    | Dirección donde se entregará el pedido.                                | Longitud máxima de 255 caracteres; no puede estar vacía.       |
+| `costoDelivery`     | `Double`                    | Costo del servicio de entrega.                                         | Debe ser un valor mayor o igual a 0.0.                         |
+| `fecha`             | `LocalDate`                | Fecha de creación de la entrega.                                       | No puede ser nula; debe representar una fecha válida.           |
+| `hora`              | `LocalTime`                | Hora de creación de la entrega.                                        | No puede ser nula; debe representar una hora válida.            |
+| `estado`            | `enum`                   | Estado del pedido (RECIBIDO, EN PREPARACION, ENTREGADO).              | Debe ser uno de los valores permitidos: RECIBIDO, EN PREPARACION, ENTREGADO. |
+| `order`             | `Order`                     | Pedido relacionado con la entrega (relación con la entidad Order).    | No puede ser nulo; debe existir un pedido asociado.             |
+| `repartidor`       | `Repartidor`                 | Empleado que realiza la entrega (relación con la entidad Employee).    | No puede ser nulo; debe existir un repartidor asociado.         |
+| `precio`            | `Double`                    | Precio total del pedido entregado.                                      | Debe ser un valor mayor o igual a 0.0.                         |
+
 
 **Métodos del endpoint "/delivery"**:
 | **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
@@ -294,15 +311,18 @@ Representa los pedidos que son entregados a domicilio.
 #### 7. PedidoLocal
 Representa los pedidos realizados en el local
 **Atributos**:
-- `id`: Identificador único de la entrega.
-- `ordenes`: Lista de ordenes pedidas por la mesa.
-- `mesero`: Empleado que realiza la entrega (relación con Employee).
-- `fecha`: Fecha de creación del delivery.
-- `hora`: Hora de creación del delivery.
-- `estado`: Estado del pedido (RECIBIDO, EN PREPARACION, ENTREGADO).
-- `orden`: Pedido relacionado con la entrega (relación con Orden).
-- 'precio': Precio total
-- 'tipoPago': Pago en efectivo o con qr
+| **Atributo**        | **Tipo de Variable**        | **Descripción**                                                        | **Criterios Limitantes**                                        |
+|---------------------|-----------------------------|------------------------------------------------------------------------|-----------------------------------------------------------------|
+| `id`                | `Long`                      | Identificador único de la entrega de mesa.                            | Debe ser único y generado automáticamente.                      |
+| `ordenes`           | `List<Order>`               | Lista de órdenes pedidas por la mesa.                                 | No puede ser nula; debe contener al menos una orden.           |
+| `mesero`            | `Employee`                  | Empleado que realiza la entrega (relación con la entidad Employee).   | No puede ser nulo; debe existir un mesero asociado.            |
+| `fecha`             | `LocalDate`                 | Fecha de creación de la entrega.                                      | No puede ser nula; debe representar una fecha válida.          |
+| `hora`              | `LocalTime`                 | Hora de creación de la entrega.                                       | No puede ser nula; debe representar una hora válida.           |
+| `estado`            | `String`                    | Estado del pedido (RECIBIDO, EN PREPARACION, ENTREGADO).             | Debe ser uno de los valores permitidos: RECIBIDO, EN PREPARACION, ENTREGADO. |
+| `orden`             | `Order`                     | Pedido relacionado con la entrega (relación con la entidad Order).    | No puede ser nulo; debe existir un pedido asociado.            |
+| `precio`            | `Double`                    | Precio total de la entrega.                                           | Debe ser un valor mayor o igual a 0.0.                        |
+| `tipoPago`          | `String`                    | Método de pago utilizado (efectivo o QR).                            | Debe ser uno de los valores permitidos: EFECTIVO, QR.         |
+
 
 | **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
 |----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
@@ -322,14 +342,17 @@ Representa los pedidos realizados en el local
 Representa las reservas realizadas por los clientes.
 
 **Atributos**:
-- `id`: Identificador único de la reserva.
-- `client`: Cliente que realizó la reserva (relación con Client).
-- `reservationDate`: Fecha en la que se realizará la reserva.
-- `reservationTime`: Hora específica de la reserva.
-- `numOfPeople`: Número de personas para la reserva.
-- `tableNumber`: Número de la mesa asignada para la reserva.
-- `status`: Estado de la reserva (ej: pendiente, confirmada, cancelada).
-- `specialRequests`: Solicitudes especiales del cliente para la reserva (ej: preferencia de mesa, requerimientos dietéticos).
+| **Atributo**          | **Tipo de Variable**        | **Descripción**                                                         | **Criterios Limitantes**                                       |
+|-----------------------|-----------------------------|-------------------------------------------------------------------------|---------------------------------------------------------------|
+| `id`                  | `Long`                      | Identificador único de la reserva.                                     | Debe ser único y generado automáticamente.                     |
+| `client`              | `Client`                    | Cliente que realizó la reserva (relación con la entidad Client).      | No puede ser nulo; debe existir un cliente asociado.          |
+| `reservationDate`     | `LocalDate`                 | Fecha en la que se realizará la reserva.                               | No puede ser nula; debe representar una fecha futura válida.  |
+| `reservationTime`     | `LocalTime`                 | Hora específica de la reserva.                                          | No puede ser nula; debe representar una hora válida.          |
+| `numOfPeople`         | `Integer`                   | Número de personas para la reserva.                                     | Debe ser mayor que 0.                                         |
+| `tableNumber`         | `Integer`                   | Número de la mesa asignada para la reserva.                            | Debe ser un valor positivo; debe estar disponible.           |
+| `status`              | `String`                    | Estado de la reserva (ej: pendiente, confirmada, cancelada).          | Debe ser uno de los valores permitidos: PENDIENTE, CONFIRMADA, CANCELADA. |
+| `specialRequests`      | `String`                    | Solicitudes especiales del cliente para la reserva.                    | Puede ser nulo; si se proporciona, no debe exceder 255 caracteres. |
+
 
 **Métodos del endpoint "/reservation"**:
 | **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
@@ -347,12 +370,15 @@ Representa las reservas realizadas por los clientes.
 Representa los productos (platos o bebidas) del menú.
 
 **Atributos**:
-- `id`: Identificador único del producto.
-- `nombre`: Nombre del producto.
-- `descripcion`: Descripción del producto.
-- `precio`: Precio del producto.
-- `category`: Categoría del producto (entrada, plato principal, bebida).
-- `isAvailable`: Disponibilidad del producto.
+| **Atributo**          | **Tipo de Variable**        | **Descripción**                                                        | **Criterios Limitantes**                                       |
+|-----------------------|-----------------------------|------------------------------------------------------------------------|---------------------------------------------------------------|
+| `id`                  | `Long`                      | Identificador único del producto.                                      | Debe ser único y generado automáticamente.                     |
+| `nombre`              | `String`                    | Nombre del producto.                                                  | No puede ser nulo; debe tener un tamaño mínimo de 1 carácter y un máximo de 100 caracteres. |
+| `descripcion`         | `String`                    | Descripción del producto.                                             | Puede ser nulo; si se proporciona, no debe exceder 255 caracteres. |
+| `precio`              | `BigDecimal`                | Precio del producto.                                                 | Debe ser un valor positivo; no puede ser nulo.                 |
+| `category`            | `String`                    | Categoría del producto (entrada, plato principal, bebida).           | No puede ser nulo; debe ser uno de los valores permitidos: ENTRADA, PLATO PRINCIPAL, BEBIDA. |
+| `isAvailable`         | `Boolean`                   | Disponibilidad del producto.                                          | No puede ser nulo; indica si el producto está disponible (true) o no (false). |
+
 
 **Métodos del endpoint "/product"**:
 | **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
@@ -371,11 +397,14 @@ Representa la evaluación del servicio prestado por el mesero.
 
 
 **Atributos**:
-- `id`: Identificador único de la evaluación.
-- `mesero`: Mesero evaluado (relación con Employee).
-- `rating`: Puntuación (de 0 a 5 estrellas).
-- `PedidoLocal`: Pedido asociado.
-- `date`: Fecha de la evaluación.
+| **Atributo**          | **Tipo de Variable**        | **Descripción**                                                        | **Criterios Limitantes**                                       |
+|-----------------------|-----------------------------|------------------------------------------------------------------------|---------------------------------------------------------------|
+| `id`                  | `Long`                      | Identificador único de la evaluación.                                  | Debe ser único y generado automáticamente.                     |
+| `mesero`              | `Employee`                  | Mesero evaluado (relación con Employee).                              | No puede ser nulo; debe referirse a un mesero existente.      |
+| `rating`              | `Integer`                   | Puntuación de la evaluación (de 0 a 5 estrellas).                     | No puede ser nulo; debe estar en el rango de 0 a 5.           |
+| `pedidoLocal`         | `Order`                     | Pedido asociado a la evaluación.                                      | No puede ser nulo; debe referirse a un pedido existente.       |
+| `date`                | `LocalDateTime`             | Fecha y hora de la evaluación.                                        | No puede ser nulo; debe ser la fecha y hora actual o anterior. |
+
 
 
 **Métodos del endpoint "/reviewMesero"**:
@@ -396,13 +425,16 @@ Representa la evaluación del servicio prestado por el mesero.
 
 
 **Atributos**:
-- `id`: Identificador único de la evaluación.
-- `repartidor`: Repartidor evaluado (relación con Employee).
-- `client`: Cliente que realiza la evaluación (relación con Client).
-- `rating`: Puntuación (de 0 a 5 estrellas).
-- `comentarios`: Comentarios adicionales del cliente.
-- `delivery`: Asociación al delivery.
-- `date`: Fecha de la evaluación.
+| **Atributo**          | **Tipo de Variable**        | **Descripción**                                                        | **Criterios Limitantes**                                       |
+|-----------------------|-----------------------------|------------------------------------------------------------------------|---------------------------------------------------------------|
+| `id`                  | `Long`                      | Identificador único de la evaluación.                                  | Debe ser único y generado automáticamente.                     |
+| `repartidor`          | `Employee`                  | Repartidor evaluado (relación con Employee).                          | No puede ser nulo; debe referirse a un repartidor existente.  |
+| `client`              | `Client`                    | Cliente que realiza la evaluación (relación con Client).              | No puede ser nulo; debe referirse a un cliente existente.     |
+| `rating`              | `Integer`                   | Puntuación de la evaluación (de 0 a 5 estrellas).                     | No puede ser nulo; debe estar en el rango de 0 a 5.           |
+| `comentarios`         | `String`                    | Comentarios adicionales del cliente sobre el servicio.                | Opcional; puede ser nulo, pero debe tener un límite de longitud. |
+| `delivery`            | `Delivery`                  | Asociación al delivery relacionado.                                    | No puede ser nulo; debe referirse a un delivery existente.     |
+| `date`                | `LocalDateTime`            | Fecha y hora de la evaluación.                                        | No puede ser nulo; debe ser la fecha y hora actual o anterior. |
+
 
 
 **Métodos del endpoint "/reviewDelivery"**:
