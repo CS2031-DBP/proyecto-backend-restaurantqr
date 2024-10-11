@@ -86,133 +86,143 @@ Es relevante solucionar este problema porque permite agilizar el proceso de pedi
 ![Diagrama de Entidades](./path_to_diagram.png)
 
 ### Descripción de Entidades
+
 #### 1. User (Abstracta)
 Clase padre para los usuarios del sistema, a su vez implementa la clase UserDetails.
 
 **Atributos**:
-| **Atributo**  | **Tipo de Variable** | **Descripción**                                  | **Criterios Limitantes**                                |
-|---------------|----------------------|--------------------------------------------------|---------------------------------------------------------|
-| `id`          | `Long`               | Identificador único del usuario.                 | Debe ser único, generado automáticamente.               |
-| `name`        | `String`             | Nombre del usuario.                              | Máximo 100 caracteres. No puede estar vacío.            |
-| `email`       | `String`             | Correo electrónico del usuario.                  | Formato válido de correo. Debe ser único.               |
-| `password`    | `String`             | Contraseña para la autenticación del usuario.     | Mínimo 8 caracteres. Debe estar encriptada.             |
-| `role`        | `Enum` (ADMIN, REPARTIDOR, MESERO) | Rol del usuario dentro del sistema.             | Valores permitidos: `ADMIN`, `REPARTIDOR`, `MESERO`.    |
+
+| **Atributo**  | **Tipo de Variable** | **Descripción**                                   | **Criterios Limitantes**                                     |
+|---------------|----------------------|---------------------------------------------------|--------------------------------------------------------------|
+| `id`          | `Long`               | Identificador único del usuario.                  | Debe ser único, generado automáticamente.                    |
+| `name`        | `String`             | Nombre del usuario.                               | Máximo 100 caracteres. No puede estar vacío.                 |
+| `email`       | `String`             | Correo electrónico del usuario.                   | Formato válido de correo. Debe ser único.                    |
+| `password`    | `String`             | Contraseña para la autenticación del usuario.     | Mínimo 8 caracteres. Debe estar encriptada.                  |
+| `role`        | `Enum`               | Rol del usuario dentro del sistema.               | Valores permitidos: `ADMIN`, `REPARTIDOR`, `MESERO`, `CHEF`. |
+
 ---
 
 #### 2. Client (Hereda de User)
 Representa a los clientes registrados del restaurante.
 
-| **Atributo**       | **Tipo de Variable**     | **Descripción**                                                 | **Criterios Limitantes**                                      |
-|--------------------|--------------------------|-----------------------------------------------------------------|---------------------------------------------------------------|
-| `loyaltyPoints`     | `Integer`                | Puntos de lealtad acumulados por el cliente.                    | No negativo. Puede tener límites de acuerdo con el sistema de lealtad. |
-| `pedidosLocales`    | `List<PedidoLocal>`      | Lista de pedidos realizados en el restaurante por el cliente.    | Puede ser una lista vacía.                                    |
-| `deliverys`         | `List<Delivery>`         | Lista de pedidos de delivery realizados por el cliente.          | Puede ser una lista vacía.                                    |
-| `reservas`          | `List<Reserva>`          | Lista de reservas realizadas por el cliente.                    | Puede ser una lista vacía.                                    |
-| `reviewsMesero`     | `List<ReviewMesero>`     | Lista de reviews realizadas por el cliente a meseros.            | Puede ser una lista vacía.                                    |
-| `reviewDelivery`    | `List<ReviewDelivery>`   | Lista de reviews realizadas por el cliente a repartidores.       | Puede ser una lista vacía.                                    |
-| `rango`             | `Enum` (BRONCE, SILVER, GOLD, PLATINUM) | Rango basado en puntos de lealtad del cliente.     | Valores permitidos: `BRONCE`, `SILVER`, `GOLD`, `PLATINUM`.   |
+| **Atributo**        | **Tipo de Variable**   | **Descripción**                                               | **Criterios Limitantes**                                               |
+|---------------------|------------------------|---------------------------------------------------------------|------------------------------------------------------------------------|
+| `loyaltyPoints`     | `Integer`              | Puntos de lealtad acumulados por el cliente.                  | No negativo. Puede tener límites de acuerdo con el sistema de lealtad. |
+| `pedidosLocales`    | `List<PedidoLocal>`    | Lista de pedidos realizados en el restaurante por el cliente. | Puede ser una lista vacía.                                             |
+| `deliverys`         | `List<Delivery>`       | Lista de pedidos de delivery realizados por el cliente.       | Puede ser una lista vacía.                                             |
+| `reservas`          | `List<Reserva>`        | Lista de reservas realizadas por el cliente.                  | Puede ser una lista vacía.                                             |
+| `reviewsMesero`     | `List<ReviewMesero>`   | Lista de reviews realizadas por el cliente a meseros.         | Puede ser una lista vacía.                                             |
+| `reviewDelivery`    | `List<ReviewDelivery>` | Lista de reviews realizadas por el cliente a repartidores.    | Puede ser una lista vacía.                                             |
+| `rango`             | `Enum`                 | Rango basado en puntos de lealtad del cliente.                | Valores permitidos: `BRONCE`, `SILVER`, `GOLD`, `PLATINUM`.            |
 
 
 
-**Métodos del endpoint "/cliente"**:
+**Métodos del endpoint `/cliente`**:
+
+| **Método**           | **Ruta**          | **Roles Permitidos** | **Descripción**                                                          | **Excepciones**                                         | **Métodos de Service**                            | 
+|----------------------|-------------------|----------------------|--------------------------------------------------------------------------|---------------------------------------------------------|---------------------------------------------------|
+| `GET`                | `/{id}`           | `ADMIN`              | Devuelve el `ClienteResponseDto` del cliente por su id.                  | `UsernameNotFoundException`                             | `findClienteById(Long id)`                        |
+| `GET`                | `/`               | `ADMIN`              | Devuelve el `ClienteResponseDto` de todos los clientes.                  | -                                                       | `findAllClientes()`                               |
+| `POST`               | `/`               | -                    | Crea un nuevo cliente con `ClienteRequestDto`.                           | `IllegalArgumentException`                              | `createCliente(ClienteRequestDto dto)`            |
+| `DELETE`             | `/{id}`           | `ADMIN`              | Elimina un cliente por su id.                                            | `UsernameNotFoundException`                             | `deleteCliente(Long id)`                          |
+| `PATCH`              | `/{id}`           | `ADMIN`              | Actualiza un cliente por su id con `PatchClienteDto`.                    | `UsernameNotFoundException`, `IllegalArgumentException` | `updateCliente(Long id, PatchClienteDto dto)`     |
+| `GET`                | `/me`             | `CLIENTE`            | Devuelve el `ClienteResponseDto` del usuario autenticado.                | `UsernameNotFoundException`                             | `getAuthenticatedCliente()`                       |
+| `DELETE`             | `/me`             | `CLIENTE`            | Elimina el cliente autenticado.                                          | `UsernameNotFoundException`                             | `deleteAuthenticatedCliente()`                    |
+| `PATCH`              | `/me`             | `CLIENTE`            | Actualiza el cliente autenticado con `PatchClienteDto`.                  | `UsernameNotFoundException`, `IllegalArgumentException` | `updateAuthenticatedCliente(PatchClienteDto dto)` |
+| `GET`                | `/me/pedidoLocal` | `CLIENTE`            | Devuelve el `PedidoResponseDto` del pedido local en proceso del usuario. | `UsernameNotFoundException`                             | `getActualPedidoLocal()`                          |
+| `GET`                | `/me/delivery`    | `CLIENTE`            | Devuelve el `PedidoResponseDto` del delivery en proceso del usuario.     | `UsernameNotFoundException`                             | `getActualDelivery()`                             | 
+| `GET`                | `/me/reserva`     | `CLIENTE`            | Devuelve el `PedidoResponseDto` de la reserva en proceso del usuario.    | `UsernameNotFoundException`                             | `getActualtReserva()`                             |
 
 
-| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                                 | **Excepciones**                                  | **Métodos de Service**                      | **Eventos**                                               |
-|----------------------|----------------------------|----------------------|---------------------------------------------------------------------------------|-------------------------------------------------|---------------------------------------------|------------------------------------------------------------|
-| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `clienteResponseDTO` del cliente por su id.                         | `ClienteNotFound`                               | `findClienteById(Long id)`                  | ``                                   |
-| `GET`                | `/`                        | `ADMIN`              | Devuelve el `clienteResponseDTO` de todos los clientes.                         | -                                               | `findAllClientes()`                         | ``                                 |
-| `POST`               | `/signup`                  | -                    | Crea un nuevo cliente con `clienteRequestDTO`.                                  | `ClienteAlredyExist`, `IllegalArgument` | `createCliente(ClienteRequestDTO dto)`      | `Manda correo de confirmación de cuenta`                                       |
-| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina un cliente por su id.                                                   | `ClienteNotFound`                               | `deleteCliente(Long id)`                    | ``                                    |
-| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza un cliente por su id con `patchClienteDTO`.                           | `ClienteNotFound`, `IllegalArgument`    | `updateCliente(Long id, PatchClienteDTO dto)`| ``                                  |
-| `GET`                | `/me`                      | `CLIENTE`            | Devuelve el `clienteResponseDTO` del usuario autenticado.                       | `ClienteNotFound`                               | `getAuthenticatedCliente()`                 | ``                        |
-| `DELETE`             | `/me`                      | `CLIENTE`            | Elimina el cliente autenticado.                                                 | `ClienteNotFound`                               | `deleteAuthenticatedCliente()`              | ``                         |
-| `PATCH`              | `/me`                      | `CLIENTE`            | Actualiza el cliente autenticado con `PatchClienteDTO`.                         | `ClienteNotFound`, `IllegalArgument`    | `updateAuthenticatedCliente(PatchClienteDTO dto)` | ``                       |
-| `GET`                | `/me/pedidoLocal`          | `CLIENTE`            | Devuelve el `pedidoResponseDTO` del pedido local en proceso del usuario.      | `ClienteNotFound`                               | `getActualPedidoLocal()`                    | ``                               |
-| `GET`                | `/me/delivery`             | `CLIENTE`            | Devuelve el `pedidoResponseDTO` del delivery en proceso del usuario.          | `ClienteNotFound`                               | `getActualDelivery()`                       | ``                                  |
-| `GET`                | `/me/reserva`              | `CLIENTE`            | Devuelve el `pedidoResponseDTO` de la reserva en proceso del usuario.         | `ClienteNotFound`                               | `getActualtReserva()`                        | ``                                   |
+**Métodos adicionales del service:**
 
+| **Método**            | **Descripción**                                                                        | 
+|-----------------------|----------------------------------------------------------------------------------------|
+| `updateLoyaltyPoints` | Agrega `loyalty points` y en caso cumpla las condiciones, cambia el rango del cliente. |
 
-**Métodos adicionales del service
-| **Método**           | **Descripción**                   | 
-|----------------------|-----------------------------------|
-| `updateLoyaltyPoints ` | `Agrega loyalty points y en caso cumpla las condiciones, cambia el rango del cliente`|
 
 ---
+
 #### 3. Mesero (Hereda de User)
 Representa a los meseros que atienden el restaurante
 
 **Atributos**:
-| **Atributo**       | **Tipo de Variable**     | **Descripción**                                               | **Criterios Limitantes**                                    |
-|--------------------|--------------------------|---------------------------------------------------------------|-------------------------------------------------------------|
-| `pedidosLocales`    | `List<PedidoLocal>`      | Lista de pedidos locales que ha gestionado el mesero.          | Puede ser una lista vacía.                                  |
-| `reviewsMesero`     | `List<ReviewMesero>`     | Lista de reviews recibidas por el mesero.                      | Puede ser una lista vacía.                                  |
-| `ratingScore`       | `Double`                 | Promedio de puntaje de las evaluaciones recibidas por clientes.| Rango entre 0.0 y 5.0, con dos decimales de precisión.       |
+
+| **Atributo**        | **Tipo de Variable**     | **Descripción**                                                 | **Criterios Limitantes**                                      |
+|---------------------|--------------------------|-----------------------------------------------------------------|---------------------------------------------------------------|
+| `pedidosLocales`    | `List<PedidoLocal>`      | Lista de pedidos locales que ha gestionado el mesero.           | Puede ser una lista vacía.                                    |
+| `reviewsMesero`     | `List<ReviewMesero>`     | Lista de reviews recibidas por el mesero.                       | Puede ser una lista vacía.                                    |
+| `ratingScore`       | `Double`                 | Promedio de puntaje de las evaluaciones recibidas por clientes. | Rango entre 0.0 y 5.0, con dos decimales de precisión.        |
 
 
-## Endpoints y Métodos
+**Métodos del endpoint `/mesero`**:
 
-| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
-|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
-| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `MeseroResponseDTO` del empleado por su id.                     | `EmployeeNotFound`                               | `findEmployeeById(Long id)`                      | ``                                 |
-| `GET`                | `/`                        | `ADMIN`              | Devuelve el `MeseroResponseDTO` de todos los empleados.                     | -                                               | `findAllEmployees()`                             | ``                               |
-| `POST`               | `/`                        | `ADMIN`              | Crea un nuevo empleado con `employeeRequestDTO`.                              | `EmployeeAlreadyExist`, `IllegalArgument`| `createEmployee(EmployeeRequestDTO dto)`         | ``                                     |
-| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina un empleado por su id.                                                | `EmployeeNotFound`                               | `deleteEmployee(Long id)`                        | ``                                  |
-| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza un empleado por su id con `PatchMeseroDTO`.                       | `EmployeeNotFound`, `IllegalArgument`    | `updateEmployee(Long id, PatchEmployeeDTO dto)` | ``                                |
-| `GET`                | `/me`                 | `MESERO`             | Devuelve MeseroResponseDTO del mesero autenticado.                     | `EmployeeNotFound`                               | `findEmployeeById(Long id)`                      | ``                                 |
-| `GET`                | `/me/pedidosLocalesActuales`  | `MESERO`             | Devuelve la lista de pedidoLocalResponseDTO con el estado "LISTO" y "RECIBIDO". | `EmployeeNotFound`                               | `findPedidosLocalesActuales(Long id)`                      | ``   |                              
-| `PATCH`              | `me/{idPedidoLocal/encamino}`| `MESERO`           | Cambia el estado de la entrega a Listo. | `DeliveryNotFound`                | `pedidoLocalListo(Long id)`                  | `EstadoDeliveryFinalizadoEvent`                            |
-| `PATCH`              | `me/{idPedidoLocal}/entregado`| `MESERO`           | Cambia el estado de la entrega a Entregado . | `DeliveryNotFound`              | `pedidoLocalEntregado(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
+| **Método**       | **Ruta**                       | **Roles Permitidos**     | **Descripción**                                                                 | **Excepciones**                                         | **Métodos de Service**                      |
+|------------------|--------------------------------|--------------------------|---------------------------------------------------------------------------------|---------------------------------------------------------|---------------------------------------------|
+| `GET`            | `/{id}`                        | `ADMIN`                  | Devuelve el `MeseroResponseDto` del empleado por su id.                         | `UsernameNotFoundException`                             | `findMeseroById(Long id)`                   |
+| `GET`            | `/`                            | `ADMIN`                  | Devuelve el `MeseroResponseDto` de todos los empleados.                         | -                                                       | `findAllMeseros()`                          |
+| `POST`           | `/`                            | `ADMIN`                  | Crea un nuevo empleado con `MeseroRequestDto`.                                  | `IllegalArgumentException`                              | `createMesero(MeseroRequestDto dto)`        |
+| `DELETE`         | `/{id}`                        | `ADMIN`                  | Elimina un empleado por su id.                                                  | `UsernameNotFoundException`                             | `deleteMesero(Long id)`                     |
+| `PATCH`          | `/{id}`                        | `ADMIN`                  | Actualiza un empleado por su id con `PatchMeseroDto`.                           | `UsernameNotFoundException`, `IllegalArgumentException` | `updateMesero(Long id, PatchMeseroDto dto)` |
+| `GET`            | `/me`                          | `MESERO`                 | Devuelve `MeseroResponseDto` del mesero autenticado.                            | `UsernameNotFoundException`                             | `findMeseroById(Long id)`                   |
+| `GET`            | `/me/pedidosLocalesActuales`   | `MESERO`                 | Devuelve la lista de PedidoLocalResponseDto con el estado `LISTO` y `RECIBIDO`. | `UsernameNotFoundException`                             | `findPedidosLocalesActuales(Long id)`       |                             
+| `PATCH`          | `me/{idPedidoLocal}/encamino`  | `MESERO`                 | Cambia el estado de la entrega a Listo.                                         | `ResourceNotFoundException`                             | `pedidoLocalListo(Long id)`                 |
+| `PATCH`          | `me/{idPedidoLocal}/entregado` | `MESERO`                 | Cambia el estado de la entrega a Entregado .                                    | `ResourceNotFoundException`                             | `pedidoLocalEntregado(Long id)`             | 
 
 
-**Métodos adicionales del service
-| **Método**           | **Descripción**                   | 
-|----------------------|-----------------------------------|
-| `updateRatingScore()`  |`Obtiene el promedio de los ratings de la review del mesero y actualiza el campo`|
-| `asignarMesero()`  |`Verifica la cantidad de Pedidos Locales que tiene cada mesero y asigna al que tenga menor cantidad`|
+**Métodos adicionales del service:**
+
+| **Método**            | **Descripción**                                                                                     | 
+|-----------------------|-----------------------------------------------------------------------------------------------------|
+| `updateRatingScore()` | Obtiene el promedio de los ratings de la review del mesero y actualiza el campo.                    |
+| `asignarMesero()`     | Verifica la cantidad de Pedidos Locales que tiene cada mesero y asigna al que tenga menor cantidad. |
 
 
 **Anotaciones**
-- Cada vez que se asigna un pedido a un Mesero, se manda un correo al mesero asignado. 
-- Si el ratingScore del mesero es bajo o alto, se manda un correo felicitando o advirtiendo al mesero, también se manda un correo al administrador.  
+- Cada vez que se asigna un pedido a un `Mesero`, se manda un correo al mesero asignado. 
+- Si el `ratingScore` del `Mesero` es bajo o alto, se manda un correo felicitando o advirtiendo al `Mesero`, también se manda un correo al administrador.  
 
 ---
 
 #### 4. Repartidor (Hereda de User)
-Representa a los Repartidors que atienden el restaurante
+Representa a los Repartidores que atienden el restaurante
 
 
 **Atributos**:
-| **Atributo**        | **Tipo de Variable**     | **Descripción**                                               | **Criterios Limitantes**                                    |
-|---------------------|--------------------------|---------------------------------------------------------------|-------------------------------------------------------------|
-| `deliverys`          | `List<Delivery>`         | Lista de entregas (deliverys) que ha gestionado el repartidor. | Puede ser una lista vacía.                                  |
-| `reviewsRepartidor`  | `List<ReviewDelivery>`   | Lista de reviews recibidas por el repartidor.                  | Puede ser una lista vacía.                                  |
-| `ratingScore`        | `Double`                 | Promedio de puntaje de las evaluaciones recibidas por clientes.| Rango entre 0.0 y 5.0, con dos decimales de precisión.       |
+
+| **Atributo**         | **Tipo de Variable**     | **Descripción**                                                 | **Criterios Limitantes**                                      |
+|----------------------|--------------------------|-----------------------------------------------------------------|---------------------------------------------------------------|
+| `deliverys`          | `List<Delivery>`         | Lista de entregas (deliverys) que ha gestionado el repartidor.  | Puede ser una lista vacía.                                    |
+| `reviewsRepartidor`  | `List<ReviewDelivery>`   | Lista de reviews recibidas por el repartidor.                   | Puede ser una lista vacía.                                    |
+| `ratingScore`        | `Double`                 | Promedio de puntaje de las evaluaciones recibidas por clientes. | Rango entre 0.0 y 5.0, con dos decimales de precisión.        |
 
 
-## Endpoints y Métodos
+**Métodos del endpoint `/repartidor`**:
 
-| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
-|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
-| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `repartidorResponseDTO` del repartidor por su id.                 | `RepartidorNotFound`                             | `findRepartidorById(Long id)`                    | `RepartidorConsultadoEvent`                               |
-| `GET`                | `/`                        | `ADMIN`              | Devuelve el `repartidorResponseDTO` de todos los repartidores.                | -                                               | `findAllRepartidors()`                           | `RepartidorsConsultadosEvent`                             |
-| `POST`               | `/`                        | `ADMIN`              | Crea un nuevo repartidor con `repartidorRequestDTO`.                          | `RepartidorAlreadyExist`, `IllegalArgumentException`| `createRepartidor(RepartidorRequestDTO dto)`     | `RepartidorCreadoEvent`                                    |
-| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina un repartidor por su id.                                              | `RepartidorNotFound`                             | `deleteRepartidor(Long id)`                      | `RepartidorEliminadoEvent`                                 |
-| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza un repartidor por su id con `PatchRepartidorDTO`.                   | `RepartidorNotFound`, `IllegalArgumentException`  | `updateRepartidor(Long id, PatchRepartidorDTO dto)` | `RepartidorActualizadoEvent`  |                             
-| `GET`                | `/me`                 | `REPARTIDOR`             | Devuelve DeliveryResponseDTO del mesero autenticado.                     | `EmployeeNotFound`                               | `findEmployeeById(Long id)`                      | ``                                 |
-| `GET`                | `/me/deliverysActuales`  | `REPARTIDOR`             | Devuelve la lista de DeliveryResponseDTO con el estado "LISTO". | `EmployeeNotFound`                               | `findDeliverysActuales(Long id)`                  | ``                                 |
-| `PATCH`              | `me/{idDelivery/encamino}`| `REPARTIDOR`           | Cambia el estado de la entrega a En camino. | `DeliveryNotFound`                               | `endDelivery(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
-| `PATCH`              | `me/{idDelivery}/entregado`| `REPARTIDOR`           | Cambia el estado de la entrega a Entregado . | `DeliveryNotFound`                               | `endDelivery(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
+| **Método**           | **Ruta**                     | **Roles Permitidos** | **Descripción**                                                      | **Excepciones**                                         | **Métodos de Service**                              |
+|----------------------|------------------------------|----------------------|----------------------------------------------------------------------|---------------------------------------------------------|-----------------------------------------------------|
+| `GET`                | `/{id}`                      | `ADMIN`              | Devuelve el `RepartidorResponseDto` del repartidor por su id.        | `UsernameNotFoundException`                             | `findRepartidorById(Long id)`                       |
+| `GET`                | `/`                          | `ADMIN`              | Devuelve el `RepartidorResponseDto` de todos los repartidores.       | -                                                       | `findAllRepartidors()`                              |
+| `POST`               | `/`                          | `ADMIN`              | Crea un nuevo repartidor con `RepartidorRequestDto`.                 | `IllegalArgumentException`                              | `createRepartidor(RepartidorRequestDto dto)`        |
+| `DELETE`             | `/{id}`                      | `ADMIN`              | Elimina un repartidor por su id.                                     | `UsernameNotFoundException`                             | `deleteRepartidor(Long id)`                         |
+| `PATCH`              | `/{id}`                      | `ADMIN`              | Actualiza un repartidor por su id con `PatchRepartidorDto`.          | `UsernameNotFoundException`, `IllegalArgumentException` | `updateRepartidor(Long id, PatchRepartidorDto dto)` |                            
+| `GET`                | `/me`                        | `REPARTIDOR`         | Devuelve DeliveryResponseDto del mesero autenticado.                 | `UsernameNotFoundException`                             | `findRepartidorById(Long id)`                       |
+| `GET`                | `/me/deliverysActuales`      | `REPARTIDOR`         | Devuelve la lista de DeliveryResponseDto con el estado "LISTO".      | `UsernameNotFoundException`                             | `findDeliverysActuales(Long id)`                    |
+| `PATCH`              | `/me/{idDelivery}/encamino`  | `REPARTIDOR`         | Cambia el estado de la entrega a En camino.                          | `ResourceNotFoundException`                             | `endDelivery(Long id)`                              |
+| `PATCH`              | `/me/{idDelivery}/entregado` | `REPARTIDOR`         | Cambia el estado de la entrega a Entregado .                         | `ResourceNotFoundException`                             | `endDelivery(Long id)`                              |
 
-**Métodos adicionales del service
-| **Método**           | **Descripción**                   | 
-|----------------------|-----------------------------------|
-| `updateRatingScore()`  |`Obtiene el promedio de los ratings de la review del repartidor y actualiza el campo`|
-| `asignarRepartidor()`  |`Verifica la cantidad de deliverys que tiene cada repartidor y asigna al que tenga menor cantidad`|
+**Métodos adicionales del service:**
+
+| **Método**            | **Descripción**                                                                                   | 
+|-----------------------|---------------------------------------------------------------------------------------------------|
+| `updateRatingScore()` | Obtiene el promedio de los ratings de la review del repartidor y actualiza el campo.              |
+| `asignarRepartidor()` | Verifica la cantidad de deliverys que tiene cada repartidor y asigna al que tenga menor cantidad. |
 
 
 **Anotaciones**
-- Cada vez que se asigna un pedido a un Repartidor, se manda un correo al Repartidor asignado.
-- Si el ratingScore del Repartidor es bajo o alto, se manda un correo felicitando o advirtiendo al Repartidor, también se manda un correo al administrador.  
+
+- Cada vez que se asigna un pedido a un `Repartidor`, se manda un correo al `Repartidor` asignado.
+- Si el `ratingScore` del `Repartidor` es bajo o alto, se manda un correo felicitando o advirtiendo al `Repartidor`, también se manda un correo al administrador.  
 
 ---
 
@@ -221,32 +231,34 @@ Representa a los Repartidors que atienden el restaurante
 Representa las mesas del restaurante.
 
 **Atributos**:
-| **Atributo**     | **Tipo de Variable**     | **Descripción**                                                         | **Criterios Limitantes**                                        |
-|------------------|--------------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------|
-| `id`             | `Long`                   | Identificador único de la mesa.                                          | Debe ser único y generado automáticamente.                      |
-| `qr`             | `String`                 | Código QR asociado a la mesa para acceder al menú.                       | Longitud máxima de 255 caracteres.                              |
-| `numero`         | `Integer`                | Número de la mesa en el restaurante.                                     | Debe ser único en el contexto del restaurante.                  |
-| `capacity`       | `Integer`                | Capacidad máxima de personas que pueden sentarse en la mesa.             | Valor mayor a 0.                                                |
-| `isAvailable`    | `Boolean`                | Indica si la mesa está disponible (true = disponible, false = ocupada).  | No tiene limitantes, es un valor booleano.                      |
+
+| **Atributo**  | **Tipo de Variable** | **Descripción**                                                         | **Criterios Limitantes**                       |
+|---------------|----------------------|-------------------------------------------------------------------------|------------------------------------------------|
+| `id`          | `Long`               | Identificador único de la mesa.                                         | Debe ser único y generado automáticamente.     |
+| `qr`          | `String`             | Código QR asociado a la mesa para acceder al menú.                      | Longitud máxima de 255 caracteres.             |
+| `numero`      | `Integer`            | Número de la mesa en el restaurante.                                    | Debe ser único en el contexto del restaurante. |
+| `capacity`    | `Integer`            | Capacidad máxima de personas que pueden sentarse en la mesa.            | Valor mayor a 0.                               |
+| `isAvailable` | `Boolean`            | Indica si la mesa está disponible (true = disponible, false = ocupada). | No tiene limitantes, es un valor booleano.     |
 
 
-## Endpoints y Métodos
+**Métodos del endpoint `/mesa`**:
 
-| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
-|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
-| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `tableResponseDTO` de la mesa por su id.                          | `TableNotFound`                                 | `findTableById(Long id)`                        | `TableConsultadaEvent`                                    |
-| `GET`                | `/`                        | `ADMIN`              | Devuelve el `tableResponseDTO` de todas las mesas.                            | -                                               | `findAllTables()`                              | `TablesConsultadasEvent`                                  |
-| `POST`               | `/`                        | `ADMIN`              | Crea una nueva mesa con `tableRequestDTO`.                                    | `TableAlreadyExist`, `IllegalArgumentException`  | `createTable(TableRequestDTO dto)`             | `TableCreadaEvent`                                       |
-| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina una mesa por su id.                                                   | `TableNotFound`                                 | `deleteTable(Long id)`                         | `TableEliminadaEvent`                                    |
-| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza una mesa por su id con `PatchTableDTO`.                             | `TableNotFound`, `IllegalArgumentException`      | `updateTable(Long id, PatchTableDTO dto)`      | `TableActualizadaEvent`                                  |
-| `GET`                | `/availableTables`         | 'MESERO'     | Devuelve el número de mesa de todas las mesas disponibles(ni reservadas ni ocupadas) en ese momento.     | -                                               | `getAvailableTables()`                         | `MesasDisponiblesConsultadasEvent`|                        
+| **Método**  | **Ruta**           | **Roles Permitidos** | **Descripción**                                                                                      | **Excepciones**                                         | **Métodos de Service**                    |
+|-------------|--------------------|----------------------|------------------------------------------------------------------------------------------------------|---------------------------------------------------------|-------------------------------------------|
+| `GET`       | `/{id}`            | `ADMIN`              | Devuelve el `TableResponseDto` de la mesa por su id.                                                 | `ResourceNotFoundException`                             | `findTableById(Long id)`                  |
+| `GET`       | `/`                | `ADMIN`              | Devuelve el `TableResponseDto` de todas las mesas.                                                   | -                                                       | `findAllTables()`                         |
+| `POST`      | `/`                | `ADMIN`              | Crea una nueva mesa con `TableRequestDto`.                                                           | `IllegalArgumentException`                              | `createTable(TableRequestDto dto)`        |
+| `DELETE`    | `/{id}`            | `ADMIN`              | Elimina una mesa por su id.                                                                          | `ResourceNotFoundException`                             | `deleteTable(Long id)`                    |
+| `PATCH`     | `/{id}`            | `ADMIN`              | Actualiza una mesa por su id con `PatchTableDto`.                                                    | `ResourceNotFoundException`, `IllegalArgumentException` | `updateTable(Long id, PatchTableDto dto)` |
+| `GET`       | `/availableTables` | `MESERO`             | Devuelve el número de mesa de todas las mesas disponibles(ni reservadas ni ocupadas) en ese momento. | -                                                       | `getAvailableTables()`                    |                       
 
 
 
-**Métodos adicionales del service
-| **Método**           | **Descripción**                   | 
-|----------------------|-----------------------------------|
-| `changeStatus()`  |`Conmuta la disponibilidad de la mesa`|
+**Métodos adicionales del service:**
+
+| **Método**          | **Descripción**                      | 
+|---------------------|--------------------------------------|
+| `changeStatus()`    | Conmuta la disponibilidad de la mesa |
 
 
 ---
@@ -255,24 +267,26 @@ Representa las mesas del restaurante.
 Representa los pedidos realizados por los clientes.
 
 **Atributos**:
-| **Atributo**    | **Tipo de Variable**     | **Descripción**                                                         | **Criterios Limitantes**                                        |
-|------------------|--------------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------|
-| `id`             | `Long`                   | Identificador único del pedido.                                         | Debe ser único y generado automáticamente.                      |
-| `precio`         | `Double`                 | Precio total del pedido.                                                | Debe ser un valor mayor o igual a 0.0.                         |
-| `productos`      | `List<Producto>`         | Lista de productos individuales incluidos en el pedido.                 | Puede ser una lista vacía, pero no debe contener elementos nulos. |
-| `detalle`        | `String`                 | Instrucciones especiales para el pedido (ej: sin gluten, extra salsa). | Longitud máxima de 500 caracteres.                              |
+
+| **Atributo** | **Tipo de Variable** | **Descripción**                                                        | **Criterios Limitantes**                                          |
+|--------------|----------------------|------------------------------------------------------------------------|-------------------------------------------------------------------|
+| `id`         | `Long`               | Identificador único del pedido.                                        | Debe ser único y generado automáticamente.                        |
+| `precio`     | `Double`             | Precio total del pedido.                                               | Debe ser un valor mayor o igual a 0.0.                            |
+| `productos`  | `List<Producto>`     | Lista de productos individuales incluidos en el pedido.                | Puede ser una lista vacía, pero no debe contener elementos nulos. |
+| `detalle`    | `String`             | Instrucciones especiales para el pedido (ej: sin gluten, extra salsa). | Longitud máxima de 500 caracteres.                                |
 
 
-**Métodos del endpoint "/order"**:
+**Métodos del endpoint `/order`**:
 
-| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
-|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
-| `GET`                | `/{id}`                    | `CLIENTE`              | Devuelve el `OrdenResponseDTO` de la orden por su id.                        | `OrderNotFound`                                 | `findOrderById(Long id)`                        | `OrderConsultadaEvent`                                   |
-| `GET`                | `/`                        | `ADMIN`              | Devuelve el `OrderResponseDTO` de todas las órdenes.                         | -                                               | `findAllOrders()`                               | `OrdersConsultadasEvent`                                 |
-| `POST`               | `/`                        | `ADMIN`              | Crea una nueva orden con `orderRequestDTO`.                                  | `OrderAlreadyExist`, `IllegalArgumentException`  | `createOrder(OrderRequestDTO dto)`             | `OrderCreadaEvent`                                      |
-| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina una orden por su id.                                                 | `OrderNotFound`                                 | `deleteOrder(Long id)`                          | `OrderEliminadaEvent`                                   |
-| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza una orden por su id con `PatchOrderDTO`.                           | `OrderNotFound`, `IllegalArgumentException`      | `updateOrder(Long id, PatchOrderDTO dto)`      | `OrderActualizadaEvent`                                  |
-| `PATCH`              | `/{idOrden}/{idProducto}/{cantidad}`  | `CLIENTE``MESERO`    | Agrega un producto a la orden.                           | `OrderNotFound`, `IllegalArgumentException`      | `addProducto(Long id, Long idProducto, cantidad)`      | `OrderActualizadaEvent`                                  |
+| **Método** | **Ruta**                             | **Roles Permitidos** | **Descripción**                                       | **Excepciones**                                         | **Métodos de Service**                            |
+|------------|--------------------------------------|----------------------|-------------------------------------------------------|---------------------------------------------------------|---------------------------------------------------|
+| `GET`      | `/{id}`                              | `CLIENTE`            | Devuelve el `OrderResponseDto` de la orden por su id. | `ResourceNotFoundException`                             | `findOrderById(Long id)`                          |
+| `GET`      | `/`                                  | `ADMIN`              | Devuelve el `OrderResponseDto` de todas las órdenes.  | -                                                       | `findAllOrders()`                                 |
+| `POST`     | `/`                                  | `ADMIN`              | Crea una nueva orden con `OrderRequestDto`.           | `IllegalArgumentException`                              | `createOrder(OrderRequestDto dto)`                |
+| `DELETE`   | `/{id}`                              | `ADMIN`              | Elimina una orden por su id.                          | `ResourceNotFoundException`                             | `deleteOrder(Long id)`                            |
+| `PATCH`    | `/{id}`                              | `ADMIN`              | Actualiza una orden por su id con `PatchOrderDto`.    | `ResourceNotFoundException`, `IllegalArgumentException` | `updateOrder(Long id, PatchOrderDto dto)`         |
+| `PATCH`    | `/{idOrden}/{idProducto}/{cantidad}` | `CLIENTE`, `MESERO`  | Agrega un producto a la orden.                        | `ResourceNotFoundException`, `IllegalArgumentException` | `addProducto(Long id, Long idProducto, cantidad)` |
+
 
 ---
 
@@ -280,60 +294,65 @@ Representa los pedidos realizados por los clientes.
 Representa los pedidos que son entregados a domicilio.
 
 **Atributos**:
-| **Atributo**        | **Tipo de Variable**        | **Descripción**                                                        | **Criterios Limitantes**                                        |
-|---------------------|-----------------------------|------------------------------------------------------------------------|-----------------------------------------------------------------|
-| `id`                | `Long`                      | Identificador único de la entrega.                                     | Debe ser único y generado automáticamente.                      |
-| `cliente`           | `Cliente`                   | Cliente que solicitó el pedido (relación con la entidad Cliente).     | No puede ser nulo; debe existir un cliente asociado.            |
-| `direccion`         | `String`                    | Dirección donde se entregará el pedido.                                | Longitud máxima de 255 caracteres; no puede estar vacía.       |
-| `costoDelivery`     | `Double`                    | Costo del servicio de entrega.                                         | Debe ser un valor mayor o igual a 0.0.                         |
-| `fecha`             | `LocalDate`                | Fecha de creación de la entrega.                                       | No puede ser nula; debe representar una fecha válida.           |
-| `hora`              | `LocalTime`                | Hora de creación de la entrega.                                        | No puede ser nula; debe representar una hora válida.            |
-| `estado`            | `enum`                   | Estado del pedido (RECIBIDO, EN PREPARACION, ENTREGADO).              | Debe ser uno de los valores permitidos: RECIBIDO, EN PREPARACION, ENTREGADO. |
-| `order`             | `Order`                     | Pedido relacionado con la entrega (relación con la entidad Order).    | No puede ser nulo; debe existir un pedido asociado.             |
-| `repartidor`       | `Repartidor`                 | Empleado que realiza la entrega (relación con la entidad Employee).    | No puede ser nulo; debe existir un repartidor asociado.         |
-| `precio`            | `Double`                    | Precio total del pedido entregado.                                      | Debe ser un valor mayor o igual a 0.0.                         |
+
+| **Atributo**    | **Tipo de Variable** | **Descripción**                                                         | **Criterios Limitantes**                                                           |
+|-----------------|----------------------|-------------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| `id`            | `Long`               | Identificador único de la entrega.                                      | Debe ser único y generado automáticamente.                                         |
+| `cliente`       | `Cliente`            | Cliente que solicitó el pedido (relación con la entidad `Cliente`).     | No puede ser nulo; debe existir un cliente asociado.                               |
+| `direccion`     | `String`             | Dirección donde se entregará el pedido.                                 | Longitud máxima de 255 caracteres; no puede estar vacía.                           |
+| `costoDelivery` | `Double`             | Costo del servicio de entrega.                                          | Debe ser un valor mayor o igual a 0.0.                                             |
+| `fecha`         | `LocalDate`          | Fecha de creación de la entrega.                                        | No puede ser nula; debe representar una fecha válida.                              |
+| `hora`          | `LocalTime`          | Hora de creación de la entrega.                                         | No puede ser nula; debe representar una hora válida.                               |
+| `estado`        | `enum`               | Estado del pedido (`RECIBIDO`, `EN_PREPARACION`, `ENTREGADO`).          | Debe ser uno de los valores permitidos: `RECIBIDO`, `EN_PREPARACION`, `ENTREGADO`. |
+| `order`         | `Order`              | Pedido relacionado con la entrega (relación con la entidad `Order`).    | No puede ser nulo; debe existir un pedido asociado.                                |
+| `repartidor`    | `Repartidor`         | Empleado que realiza la entrega (relación con la entidad `Repartidor`). | No puede ser nulo; debe existir un repartidor asociado.                            |
+| `precio`        | `Double`             | Precio total del pedido entregado.                                      | Debe ser un valor mayor o igual a 0.0.                                             |
 
 
-**Métodos del endpoint "/delivery"**:
-| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
-|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
-| `GET`                | `/{id}`                    | `ADMIN` | Devuelve el `deliveryResponseDTO` de la entrega por su id.                   | `DeliveryNotFound`                               | `findDeliveryById(Long id)`                     | `DeliveryConsultadaEvent`                                |
-| `GET`                | `/`                        | `ADMIN`               | Devuelve el `deliveryResponseDTO` de todas las entregas.                     | -                                               | `findAllDeliveries()`                            | `DeliveriesConsultadasEvent`                              |
-| `POST`               | `/`                        | `CLIENTE`            | Crea una nueva entrega con `deliveryRequestDTO`.                              | `DeliveryAlreadyExist`, `IllegalArgumentException`| `createDelivery(DeliveryRequestDTO dto)`        | `DeliveryCreadaEvent`                                     |
-| `DELETE`             | `/{id}`                    | `CLIENTE``REPARTIDOR`| Elimina una entrega por su id.                                               | `DeliveryNotFound`                               | `deleteDelivery(Long id)`                        | `DeliveryEliminadaEvent`                                  |
-| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza una entrega por su id con `PatchDeliveryDTO`.                       | `DeliveryNotFound`, `IllegalArgumentException`    | `updateDelivery(Long id, PatchDeliveryDTO dto)` | `DeliveryActualizadaEvent`                                 |
-| `PATCH`              | `/cocinando/{id}`| `CHEF`           | Cambia el estado de la entrega en preparacion. | `DeliveryNotFound`                               | `endDelivery(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
-| `PATCH`              | `/listo/{id}`| `CHEF`           | Cambia el estado de la entrega a listo. | `DeliveryNotFound`                               | `endDelivery(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
-| `GET`                | `/deliverysRecibidos`                        | `CHEF`              | Devuelve el `DeliveryResponseDTO` de todos los deliverys recibidos en la aplicación.                         | -                                               | `findDeliverysRecibidos()`                               | `OrdersConsultadasEvent`                                 |
+**Métodos del endpoint `/delivery`**:
+
+| **Método**  | **Ruta**                    | **Roles Permitidos**    | **Descripción**                                                                       | **Excepciones**                                         | **Métodos de Service**                          | **Eventos**                     |
+|-------------|-----------------------------|-------------------------|---------------------------------------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------|---------------------------------|
+| `GET`       | `/{id}`                     | `ADMIN`                 | Devuelve el `DeliveryResponseDto` de la entrega por su id.                            | `ResourceNotFoundException`                             | `findDeliveryById(Long id)`                     | -                               |
+| `GET`       | `/`                         | `ADMIN`                 | Devuelve el `DeliveryResponseDto` de todas las entregas.                              | -                                                       | `findAllDeliveries()`                           | -                               |
+| `POST`      | `/`                         | `CLIENTE`               | Crea una nueva entrega con `DeliveryRequestDto`.                                      | `IllegalArgumentException`                              | `createDelivery(DeliveryRequestDto dto)`        | `DeliveryCreadaEvent`           |
+| `DELETE`    | `/{id}`                     | `CLIENTE`, `REPARTIDOR` | Elimina una entrega por su id.                                                        | `ResourceNotFoundException`                             | `deleteDelivery(Long id)`                       | `DeliveryEliminadaEvent`        |
+| `PATCH`     | `/{id}`                     | `ADMIN`                 | Actualiza una entrega por su id con `PatchDeliveryDto`.                               | `ResourceNotFoundException`, `IllegalArgumentException` | `updateDelivery(Long id, PatchDeliveryDto dto)` | `DeliveryActualizadaEvent`      |
+| `PATCH`     | `/cocinando/{id}`           | `CHEF`                  | Cambia el estado de la entrega en preparación.                                        | `ResourceNotFoundException`                             | `endDelivery(Long id)`                          | `EstadoDeliveryPreparandoEvent` |
+| `PATCH`     | `/listo/{id}`               | `CHEF`                  | Cambia el estado de la entrega a listo.                                               | `ResourceNotFoundException`                             | `endDelivery(Long id)`                          | `EstadoDeliveryListoEvent`      |
+| `GET`       | `/deliverysRecibidos`       | `CHEF`                  | Devuelve el `DeliveryResponseDto` de todos los delivery's recibidos en la aplicación. | -                                                       | `findDeliverysRecibidos()`                      | -                               |
 
 ---
 
 #### 7. PedidoLocal
 Representa los pedidos realizados en el local
+
 **Atributos**:
-| **Atributo**        | **Tipo de Variable**        | **Descripción**                                                        | **Criterios Limitantes**                                        |
-|---------------------|-----------------------------|------------------------------------------------------------------------|-----------------------------------------------------------------|
-| `id`                | `Long`                      | Identificador único de la entrega de mesa.                            | Debe ser único y generado automáticamente.                      |
-| `ordenes`           | `List<Order>`               | Lista de órdenes pedidas por la mesa.                                 | No puede ser nula; debe contener al menos una orden.           |
-| `mesero`            | `Employee`                  | Empleado que realiza la entrega (relación con la entidad Employee).   | No puede ser nulo; debe existir un mesero asociado.            |
-| `fecha`             | `LocalDate`                 | Fecha de creación de la entrega.                                      | No puede ser nula; debe representar una fecha válida.          |
-| `hora`              | `LocalTime`                 | Hora de creación de la entrega.                                       | No puede ser nula; debe representar una hora válida.           |
-| `estado`            | `String`                    | Estado del pedido (RECIBIDO, EN PREPARACION, ENTREGADO).             | Debe ser uno de los valores permitidos: RECIBIDO, EN PREPARACION, ENTREGADO. |
-| `orden`             | `Order`                     | Pedido relacionado con la entrega (relación con la entidad Order).    | No puede ser nulo; debe existir un pedido asociado.            |
-| `precio`            | `Double`                    | Precio total de la entrega.                                           | Debe ser un valor mayor o igual a 0.0.                        |
-| `tipoPago`          | `String`                    | Método de pago utilizado (efectivo o QR).                            | Debe ser uno de los valores permitidos: EFECTIVO, QR.         |
 
+| **Atributo**  | **Tipo de Variable** | **Descripción**                                                        | **Criterios Limitantes**                                                           |
+|---------------|----------------------|------------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| `id`          | `Long`               | Identificador único de la entrega de mesa.                             | Debe ser único y generado automáticamente.                                         |
+| `ordenes`     | `List<Order>`        | Lista de órdenes pedidas por la mesa.                                  | No puede ser nula; debe contener al menos una orden.                               |
+| `mesero`      | `Mesero`             | Empleado que realiza la entrega (relación con la entidad `Mesero`).    | No puede ser nulo; debe existir un mesero asociado.                                |
+| `fecha`       | `LocalDate`          | Fecha de creación de la entrega.                                       | No puede ser nula; debe representar una fecha válida.                              |
+| `hora`        | `LocalTime`          | Hora de creación de la entrega.                                        | No puede ser nula; debe representar una hora válida.                               |
+| `estado`      | `String`             | Estado del pedido (`RECIBIDO`, `EN_PREPARACION`, `ENTREGADO`).         | Debe ser uno de los valores permitidos: `RECIBIDO`, `EN_PREPARACION`, `ENTREGADO`. |
+| `orden`       | `Order`              | Pedido relacionado con la entrega (relación con la entidad `Order`).   | No puede ser nulo; debe existir un pedido asociado.                                |
+| `precio`      | `Double`             | Precio total de la entrega.                                            | Debe ser un valor mayor o igual a 0.0.                                             |
+| `tipoPago`    | `String`             | Método de pago utilizado (efectivo o QR).                              | Debe ser uno de los valores permitidos: EFECTIVO, QR.                              |
 
-| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
-|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
-| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `pedidoLocalResponseDTO` del pedido local por su id.             | `PedidoLocalNotFound`                            | `findPedidoLocalById(Long id)`                  | `PedidoLocalConsultadoEvent`                              |
-| `GET`                | `/`                        | `ADMIN`              | Devuelve el `pedidoLocalResponseDTO` de todos los pedidos locales.           | -                                               | `findAllPedidoLocals()`                         | `PedidoLocalsConsultadosEvent`                            |
-| `POST`               | `/`                        | `ADMIN`              | Crea un nuevo pedido local con `pedidoLocalRequestDTO`.                       | `PedidoLocalAlreadyExist`, `IllegalArgumentException` | `createPedidoLocal(PedidoLocalRequestDTO dto)`  | `PedidoLocalCreadoEvent`                                  |
-| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina un pedido local por su id.                                           | `PedidoLocalNotFound`                            | `deletePedidoLocal(Long id)`                     | `PedidoLocalEliminadoEvent`                               |
-| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza un pedido local por su id con `PatchPedidoLocalDTO`.               | `PedidoLocalNotFound`, `IllegalArgumentException` | `updatePedidoLocal(Long id, PatchPedidoLocalDTO dto)` | `PedidoLocalActualizadoEvent`                             |
-| `PATCH`              | `/cocinando/{id}`| `CHEF`           | Cambia el estado de la entrega en preparacion. | `PedidoLocalNotFound`                               | `cocinandoPedidoLocal(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
-| `PATCH`              | `/listo/{id}`| `CHEF`           | Cambia el estado de la entrega a listo. | `PedidoLocalNotFound`                               | `listoPedidoLocal(Long id)`                           | `EstadoDeliveryFinalizadoEvent`                            |
-| `GET`                | `/pedidosLocalesRecibidos`                        | `CHEF`              | Devuelve el `PedidoLocalResponseDTO` de todos los pedidos locales recibidos en la aplicación.                         | -                                               | `findPedidosLocalesRecibidos()`                               | `OrdersConsultadasEvent`                                 |
+**Métodos del endpoint `/pedidolocal`**:
+
+| **Método**  | **Ruta**                     | **Roles Permitidos**  | **Descripción**                                                                               | **Excepciones**                                         | **Métodos de Service**                                | **Eventos**                        |
+|-------------|------------------------------|-----------------------|-----------------------------------------------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------|------------------------------------|
+| `GET`       | `/{id}`                      | `ADMIN`               | Devuelve el `PedidoLocalResponseDto` del pedido local por su id.                              | `ResourceNotFoundException`                             | `findPedidoLocalById(Long id)`                        | -                                  |
+| `GET`       | `/`                          | `ADMIN`               | Devuelve el `PedidoLocalResponseDto` de todos los pedidos locales.                            | -                                                       | `findAllPedidoLocals()`                               | -                                  |
+| `POST`      | `/`                          | `ADMIN`               | Crea un nuevo pedido local con `PedidoLocalRequestDto`.                                       | `IllegalArgumentException`                              | `createPedidoLocal(PedidoLocalRequestDto dto)`        | `PedidoLocalCreadoEvent`           |
+| `DELETE`    | `/{id}`                      | `ADMIN`               | Elimina un pedido local por su id.                                                            | `ResourceNotFoundException`                             | `deletePedidoLocal(Long id)`                          | `PedidoLocalEliminadoEvent`        |
+| `PATCH`     | `/{id}`                      | `ADMIN`               | Actualiza un pedido local por su id con `PatchPedidoLocalDto`.                                | `ResourceNotFoundException`, `IllegalArgumentException` | `updatePedidoLocal(Long id, PatchPedidoLocalDto dto)` | `PedidoLocalActualizadoEvent`      |
+| `PATCH`     | `/cocinando/{id}`            | `CHEF`                | Cambia el estado de la entrega en preparación.                                                | `ResourceNotFoundException`                             | `cocinandoPedidoLocal(Long id)`                       | `EstadoPedidoLocalPreparandoEvent` |
+| `PATCH`     | `/listo/{id}`                | `CHEF`                | Cambia el estado de la entrega a listo.                                                       | `ResourceNotFoundException`                             | `listoPedidoLocal(Long id)`                           | `EstadoPedidoLocalListoEvent`      |
+| `GET`       | `/pedidosLocalesRecibidos`   | `CHEF`                | Devuelve el `PedidoLocalResponseDto` de todos los pedidos locales recibidos en la aplicación. | -                                                       | `findPedidosLocalesRecibidos()`                       | -                                  |
 
 ---
 
@@ -342,27 +361,29 @@ Representa los pedidos realizados en el local
 Representa las reservas realizadas por los clientes.
 
 **Atributos**:
-| **Atributo**          | **Tipo de Variable**        | **Descripción**                                                         | **Criterios Limitantes**                                       |
-|-----------------------|-----------------------------|-------------------------------------------------------------------------|---------------------------------------------------------------|
-| `id`                  | `Long`                      | Identificador único de la reserva.                                     | Debe ser único y generado automáticamente.                     |
-| `client`              | `Client`                    | Cliente que realizó la reserva (relación con la entidad Client).      | No puede ser nulo; debe existir un cliente asociado.          |
-| `reservationDate`     | `LocalDate`                 | Fecha en la que se realizará la reserva.                               | No puede ser nula; debe representar una fecha futura válida.  |
-| `reservationTime`     | `LocalTime`                 | Hora específica de la reserva.                                          | No puede ser nula; debe representar una hora válida.          |
-| `numOfPeople`         | `Integer`                   | Número de personas para la reserva.                                     | Debe ser mayor que 0.                                         |
-| `tableNumber`         | `Integer`                   | Número de la mesa asignada para la reserva.                            | Debe ser un valor positivo; debe estar disponible.           |
-| `status`              | `String`                    | Estado de la reserva (ej: pendiente, confirmada, cancelada).          | Debe ser uno de los valores permitidos: PENDIENTE, CONFIRMADA, CANCELADA. |
-| `specialRequests`      | `String`                    | Solicitudes especiales del cliente para la reserva.                    | Puede ser nulo; si se proporciona, no debe exceder 255 caracteres. |
+
+| **Atributo**      | **Tipo de Variable** | **Descripción**                                                    | **Criterios Limitantes**                                                        |
+|-------------------|----------------------|--------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| `id`              | `Long`               | Identificador único de la reserva.                                 | Debe ser único y generado automáticamente.                                      |
+| `client`          | `Client`             | Cliente que realizó la reserva (relación con la entidad `Client`). | No puede ser nulo; debe existir un cliente asociado.                            |
+| `reservationDate` | `LocalDate`          | Fecha en la que se realizará la reserva.                           | No puede ser nula; debe representar una fecha futura válida.                    |
+| `reservationTime` | `LocalTime`          | Hora específica de la reserva.                                     | No puede ser nula; debe representar una hora válida.                            |
+| `numOfPeople`     | `Integer`            | Número de personas para la reserva.                                | Debe ser mayor que 0.                                                           |
+| `tableNumber`     | `Integer`            | Número de la mesa asignada para la reserva.                        | Debe ser un valor positivo; debe estar disponible.                              |
+| `status`          | `String`             | Estado de la reserva (ej: pendiente, confirmada, cancelada).       | Debe ser uno de los valores permitidos: `PENDIENTE`, `CONFIRMADA`, `CANCELADA`. |
+| `specialRequests` | `String`             | Solicitudes especiales del cliente para la reserva.                | Puede ser nulo; si se proporciona, no debe exceder 255 caracteres.              |
 
 
-**Métodos del endpoint "/reservation"**:
-| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
-|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
-| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `reservationResponseDTO` de la reservación por su id.            | `ReservationNotFound`                            | `findReservationById(Long id)`                 | `ReservationConsultadaEvent`                              |
-| `GET`                | `/`                        | `ADMIN`              | Devuelve el `reservationResponseDTO` de todas las reservaciones.             | -                                               | `findAllReservations()`                        | `ReservationsConsultadasEvent`                            |
-| `POST`               | `/`                        | `ADMIN`              | Crea una nueva reservación con `reservationRequestDTO`.                       | `ReservationAlreadyExist`, `IllegalArgumentException` | `createReservation(ReservationRequestDTO dto)` | `ReservationCreadaEvent`                                  |
-| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina una reservación por su id.                                           | `ReservationNotFound`                            | `deleteReservation(Long id)`                    | `ReservationEliminadaEvent`                               |
-| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza una reservación por su id con `PatchReservationDTO`.               | `ReservationNotFound`, `IllegalArgumentException` | `updateReservation(Long id, PatchReservationDTO dto)` | `ReservationActualizadaEvent`                             |
-| `PATCH`              | `/changestatus/{id}`       | `MESERO`           | Finaliza la reservación.                                                     | `ReservationNotFound`                            | `endReservation(Long id)`                       | `ReservationFinalizadaEvent`                              |
+**Métodos del endpoint `/reservation`**:
+
+| **Método**  | **Ruta**             | **Roles Permitidos**  | **Descripción**                                                    | **Excepciones**                                         | **Métodos de Service**                                | **Eventos**                   |
+|-------------|----------------------|-----------------------|--------------------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------|-------------------------------|
+| `GET`       | `/{id}`              | `ADMIN`               | Devuelve el `ReservationResponseDto` de la reservación por su id.  | `ResourceNotFoundException`                             | `findReservationById(Long id)`                        | -                             |
+| `GET`       | `/`                  | `ADMIN`               | Devuelve el `ReservationResponseDto` de todas las reservaciones.   | -                                                       | `findAllReservations()`                               | -                             |
+| `POST`      | `/`                  | `ADMIN`               | Crea una nueva reservación con `ReservationRequestDto`.            | `IllegalArgumentException`                              | `createReservation(ReservationRequestDto dto)`        | `ReservationCreadaEvent`      |
+| `DELETE`    | `/{id}`              | `ADMIN`               | Elimina una reservación por su id.                                 | `ResourceNotFoundException`                             | `deleteReservation(Long id)`                          | `ReservationEliminadaEvent`   |
+| `PATCH`     | `/{id}`              | `ADMIN`               | Actualiza una reservación por su id con `PatchReservationDto`.     | `ResourceNotFoundException`, `IllegalArgumentException` | `updateReservation(Long id, PatchReservationDto dto)` | `ReservationActualizadaEvent` |
+| `PATCH`     | `/changestatus/{id}` | `MESERO`              | Finaliza la reservación.                                           | `ResourceNotFoundException`                             | `endReservation(Long id)`                             | -                             |
 
 ---
 
@@ -370,24 +391,29 @@ Representa las reservas realizadas por los clientes.
 Representa los productos (platos o bebidas) del menú.
 
 **Atributos**:
-| **Atributo**          | **Tipo de Variable**        | **Descripción**                                                        | **Criterios Limitantes**                                       |
-|-----------------------|-----------------------------|------------------------------------------------------------------------|---------------------------------------------------------------|
-| `id`                  | `Long`                      | Identificador único del producto.                                      | Debe ser único y generado automáticamente.                     |
-| `nombre`              | `String`                    | Nombre del producto.                                                  | No puede ser nulo; debe tener un tamaño mínimo de 1 carácter y un máximo de 100 caracteres. |
-| `descripcion`         | `String`                    | Descripción del producto.                                             | Puede ser nulo; si se proporciona, no debe exceder 255 caracteres. |
-| `precio`              | `BigDecimal`                | Precio del producto.                                                 | Debe ser un valor positivo; no puede ser nulo.                 |
-| `category`            | `String`                    | Categoría del producto (entrada, plato principal, bebida).           | No puede ser nulo; debe ser uno de los valores permitidos: ENTRADA, PLATO PRINCIPAL, BEBIDA. |
-| `isAvailable`         | `Boolean`                   | Disponibilidad del producto.                                          | No puede ser nulo; indica si el producto está disponible (true) o no (false). |
+
+| **Atributo**   | **Tipo de Variable** | **Descripción**                                            | **Criterios Limitantes**                                                                                        |
+|----------------|----------------------|------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| `id`           | `Long`               | Identificador único del producto.                          | Debe ser único y generado automáticamente.                                                                      |
+| `nombre`       | `String`             | Nombre del producto.                                       | No puede ser nulo; debe tener un tamaño mínimo de 1 carácter y un máximo de 100 caracteres.                     |
+| `descripcion`  | `String`             | Descripción del producto.                                  | Puede ser nulo; si se proporciona, no debe exceder 255 caracteres.                                              |
+| `precio`       | `BigDecimal`         | Precio del producto.                                       | Debe ser un valor positivo; no puede ser nulo.                                                                  |
+| `category`     | `Enum`               | Categoría del producto (entrada, plato principal, bebida). | No puede ser nulo; debe ser uno de los valores permitidos: `DRINK`, `DESSERT`, `STARTER`, `APPETIZIER`, `MENU`. |
+| `isAvailable`  | `Boolean`            | Disponibilidad del producto.                               | No puede ser nulo; indica si el producto está disponible (true) o no (false).                                   |
 
 
-**Métodos del endpoint "/product"**:
-| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
-|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
-| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `productResponseDTO` del producto por su id.                     | `ProductItemNotFound`                            | `findProductById(Long id)`                    | `ProductConsultadoEvent`                                  |
-| `GET`                | `/`                        | `ADMIN`              | Devuelve el `productResponseDTO` de todos los productos.                     | -                                               | `findAllProducts()`                           | `ProductsConsultadosEvent`                                |
-| `POST`               | `/`                        | `ADMIN`              | Crea un nuevo producto con `productRequestDTO`.                               | `ProductAlreadyExist`, `IllegalArgumentException`| `createProduct(ProductRequestDTO dto)`         | `ProductCreadoEvent`                                      |
-| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina un producto por su id.                                               | `ProductItemNotFound`                            | `deleteProduct(Long id)`                       | `ProductEliminadoEvent`                                   |
-| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza un producto por su id con `PatchProductDTO`.                       | `ProductItemNotFound`, `IllegalArgumentException`| `updateProduct(Long id, PatchProductDTO dto)`  | `ProductActualizadoEvent`                                |
+**Métodos del endpoint `/product`**:
+
+| **Método** | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                         | **Métodos de Service**                        | **Eventos**               |
+|------------|----------------------------|----------------------|-------------------------------------------------------------------------------|---------------------------------------------------------|-----------------------------------------------|---------------------------|
+| `GET`      | `/{id}`                    | `ADMIN`              | Devuelve el `ProductResponseDto` del producto por su id.                      | `ResourceNotFoundException`                             | `findProductById(Long id)`                    | -                         |
+| `GET`      | `/`                        | `ADMIN`              | Devuelve el `ProductResponseDto` de todos los productos.                      | -                                                       | `findAllProducts()`                           | -                         |
+| `POST`     | `/`                        | `ADMIN`              | Crea un nuevo producto con `ProductRequestDto`.                               | `IllegalArgumentException`                              | `createProduct(ProductRequestDto dto)`        | `ProductCreadoEvent`      |
+| `DELETE`   | `/{id}`                    | `ADMIN`              | Elimina un producto por su id.                                                | `ResourceNotFoundException`                             | `deleteProduct(Long id)`                      | `ProductEliminadoEvent`   |
+| `PATCH`    | `/{id}`                    | `ADMIN`              | Actualiza un producto por su id con `PatchProductDto`.                        | `ResourceNotFoundException`, `IllegalArgumentException` | `updateProduct(Long id, PatchProductDto dto)` | `ProductActualizadoEvent` |
+| `GET`      | `/category/{category}`     | `ADMIN`              | Devuelve un producto filtrado por su categoría mediante `ProductResponseDto`. | `ResourceNotFoundException`, `IllegalArgumentException` | `findProductoByCategory(String category)`     | -                         |
+| `PATCH`    | `/changeAvailability/{id}` | `ADMIN`              | Actualiza la disponibilidad de un producto con `PatchProductDto`.             | `ResourceNotFoundException`, `IllegalArgumentException` | `changeAvailability(idProducto)`              | -                         |
+| `GET`      | `/available`               | `ADMIN`              | Devuelve una lista de productos disponibles.                                  | `ResourceNotFoundException`                             | `findAvailableProducto()`                     | -                         |
 
 ---
 
@@ -395,26 +421,27 @@ Representa los productos (platos o bebidas) del menú.
 #### 10. ReviewMesero
 Representa la evaluación del servicio prestado por el mesero.
 
-
 **Atributos**:
-| **Atributo**          | **Tipo de Variable**        | **Descripción**                                                        | **Criterios Limitantes**                                       |
-|-----------------------|-----------------------------|------------------------------------------------------------------------|---------------------------------------------------------------|
-| `id`                  | `Long`                      | Identificador único de la evaluación.                                  | Debe ser único y generado automáticamente.                     |
-| `mesero`              | `Employee`                  | Mesero evaluado (relación con Employee).                              | No puede ser nulo; debe referirse a un mesero existente.      |
-| `rating`              | `Integer`                   | Puntuación de la evaluación (de 0 a 5 estrellas).                     | No puede ser nulo; debe estar en el rango de 0 a 5.           |
-| `pedidoLocal`         | `Order`                     | Pedido asociado a la evaluación.                                      | No puede ser nulo; debe referirse a un pedido existente.       |
-| `date`                | `LocalDateTime`             | Fecha y hora de la evaluación.                                        | No puede ser nulo; debe ser la fecha y hora actual o anterior. |
+
+| **Atributo**  | **Tipo de Variable** | **Descripción**                                   | **Criterios Limitantes**                                        |
+|---------------|----------------------|---------------------------------------------------|-----------------------------------------------------------------|
+| `id`          | `Long`               | Identificador único de la evaluación.             | Debe ser único y generado automáticamente.                      |
+| `mesero`      | `Mesero`             | Mesero evaluado (relación con `Mesero`).          | No puede ser nulo; debe referirse a un mesero existente.        |
+| `rating`      | `Integer`            | Puntuación de la evaluación (de 0 a 5 estrellas). | No puede ser nulo; debe estar en el rango de 0 a 5.             |
+| `pedidoLocal` | `Order`              | Pedido asociado a la evaluación.                  | No puede ser nulo; debe referirse a un pedido existente.        |
+| `date`        | `LocalDateTime`      | Fecha y hora de la evaluación.                    | No puede ser nulo; debe ser la fecha y hora actual o anterior.  |
 
 
 
-**Métodos del endpoint "/reviewMesero"**:
-| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
-|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
-| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `reviewMeseroResponseDTO` de la reseña del mesero por su id.     | `ReviewMeseroItemNotFound`                        | `findReviewMeseroById(Long id)`                | `ReviewMeseroConsultadaEvent`                             |
-| `GET`                | `/`                        | `ADMIN`              | Devuelve el `reviewMeseroResponseDTO` de todas las reseñas de meseros.       | -                                               | `findAllReviewMeseros()`                       | `ReviewMeserosConsultadasEvent`                           |
-| `POST`               | `/`                        | `ADMIN`              | Crea una nueva reseña de mesero con `reviewMeseroRequestDTO`.                 | `ReviewMeseroAlreadyExist`, `IllegalArgumentException` | `createReviewMesero(ReviewMeseroRequestDTO dto)`| `ReviewMeseroCreadaEvent`                                 |
-| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina una reseña de mesero por su id.                                      | `ReviewMeseroItemNotFound`                        | `deleteReviewMesero(Long id)`                  | `ReviewMeseroEliminadaEvent`                              |
-| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza una reseña de mesero por su id con `PatchReviewMeseroDTO`.         | `ReviewMeseroItemNotFound`, `IllegalArgumentException`| `updateReviewMesero(Long id, PatchReviewMeseroDTO dto)`| `ReviewMeseroActualizadaEvent`                             |
+**Métodos del endpoint `/reviewMesero`**:
+
+| **Método** | **Ruta**    | **Roles Permitidos** | **Descripción**                                                          | **Excepciones**                                         | **Métodos de Service**                                  | **Eventos**                    |
+|------------|-------------|----------------------|--------------------------------------------------------------------------|---------------------------------------------------------|---------------------------------------------------------|--------------------------------|
+| `GET`      | `/{id}`     | `ADMIN`              | Devuelve el `ReviewMeseroResponseDto` de la reseña del mesero por su id. | `ResourceNotFoundException`                             | `findReviewMeseroById(Long id)`                         | -                              |
+| `GET`      | `/`         | `ADMIN`              | Devuelve el `ReviewMeseroResponseDto` de todas las reseñas de meseros.   | -                                                       | `findAllReviewMeseros()`                                | -                              |
+| `POST`     | `/`         | `ADMIN`              | Crea una nueva reseña de mesero con `ReviewMeseroRequestDto`.            | `IllegalArgumentException`                              | `createReviewMesero(ReviewMeseroRequestDto dto)`        | `ReviewMeseroCreadaEvent`      |
+| `DELETE`   | `/{id}`     | `ADMIN`              | Elimina una reseña de mesero por su id.                                  | `ResourceNotFoundException`                             | `deleteReviewMesero(Long id)`                           | `ReviewMeseroEliminadaEvent`   |
+| `PATCH`    | `/{id}`     | `ADMIN`              | Actualiza una reseña de mesero por su id con `PatchReviewMeseroDto`.     | `ResourceNotFoundException`, `IllegalArgumentException` | `updateReviewMesero(Long id, PatchReviewMeseroDto dto)` | `ReviewMeseroActualizadaEvent` |
 
 ---
 
@@ -423,29 +450,35 @@ Representa la evaluación del servicio prestado por el mesero.
 #### 11. ReviewDelivery
 Representa la evaluación del servicio prestado por el mesero.
 
-
 **Atributos**:
-| **Atributo**          | **Tipo de Variable**        | **Descripción**                                                        | **Criterios Limitantes**                                       |
-|-----------------------|-----------------------------|------------------------------------------------------------------------|---------------------------------------------------------------|
-| `id`                  | `Long`                      | Identificador único de la evaluación.                                  | Debe ser único y generado automáticamente.                     |
-| `repartidor`          | `Employee`                  | Repartidor evaluado (relación con Employee).                          | No puede ser nulo; debe referirse a un repartidor existente.  |
-| `client`              | `Client`                    | Cliente que realiza la evaluación (relación con Client).              | No puede ser nulo; debe referirse a un cliente existente.     |
-| `rating`              | `Integer`                   | Puntuación de la evaluación (de 0 a 5 estrellas).                     | No puede ser nulo; debe estar en el rango de 0 a 5.           |
-| `comentarios`         | `String`                    | Comentarios adicionales del cliente sobre el servicio.                | Opcional; puede ser nulo, pero debe tener un límite de longitud. |
-| `delivery`            | `Delivery`                  | Asociación al delivery relacionado.                                    | No puede ser nulo; debe referirse a un delivery existente.     |
-| `date`                | `LocalDateTime`            | Fecha y hora de la evaluación.                                        | No puede ser nulo; debe ser la fecha y hora actual o anterior. |
 
+| **Atributo**   | **Tipo de Variable** | **Descripción**                                             | **Criterios Limitantes**                                         |
+|----------------|----------------------|-------------------------------------------------------------|------------------------------------------------------------------|
+| `id`           | `Long`               | Identificador único de la evaluación.                       | Debe ser único y generado automáticamente.                       |
+| `repartidor`   | `Repartidor`         | Repartidor evaluado (relación con `Repartidor`).            | No puede ser nulo; debe referirse a un repartidor existente.     |
+| `client`       | `Client`             | Cliente que realiza la evaluación (relación con `Client`).  | No puede ser nulo; debe referirse a un cliente existente.        |
+| `rating`       | `Integer`            | Puntuación de la evaluación (de 0 a 5 estrellas).           | No puede ser nulo; debe estar en el rango de 0 a 5.              |
+| `comentarios`  | `String`             | Comentarios adicionales del cliente sobre el servicio.      | Opcional; puede ser nulo, pero debe tener un límite de longitud. |
+| `delivery`     | `Delivery`           | Asociación al delivery relacionado.                         | No puede ser nulo; debe referirse a un delivery existente.       |
+| `date`         | `LocalDateTime`      | Fecha y hora de la evaluación.                              | No puede ser nulo; debe ser la fecha y hora actual o anterior.   |
 
+**Métodos del endpoint `/reviewDelivery`**:
 
-**Métodos del endpoint "/reviewDelivery"**:
+| **Método** | **Ruta**   | **Roles Permitidos** | **Descripción**                                                                 | **Excepciones**                                         | **Métodos de Service**                                      | **Eventos**                      |
+|------------|------------|----------------------|---------------------------------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------|----------------------------------|
+| `GET`      | `/{id}`    | `ADMIN`              | Devuelve el `ReviewDeliveryResponseDto` de la reseña del repartidor por su id.  | `ResourceNotFoundException`                             | `findReviewDeliveryById(Long id)`                           | -                                |
+| `GET`      | `/`        | `ADMIN`              | Devuelve el `ReviewDeliveryResponseDto` de todas las reseñas de repartidores.   | -                                                       | `findAllReviewDeliverys()`                                  | -                                |
+| `POST`     | `/`        | `ADMIN`              | Crea una nueva reseña de repartidor con `ReviewDeliveryRequestDto`.             | `IllegalArgumentException`                              | `createReviewDelivery(ReviewDeliveryRequestDto dto)`        | `ReviewDeliveryCreadaEvent`      |
+| `DELETE`   | `/{id}`    | `ADMIN`              | Elimina una reseña de repartidor por su id.                                     | `ResourceNotFoundException`                             | `deleteReviewDelivery(Long id)`                             | `ReviewDeliveryEliminadaEvent`   |
+| `PATCH`    | `/{id}`    | `ADMIN`              | Actualiza una reseña de repartidor por su id con `PatchReviewDeliveryDto`.      | `ResourceNotFoundException`, `IllegalArgumentException` | `updateReviewDelivery(Long id, PatchReviewDeliveryDto dto)` | `ReviewDeliveryActualizadaEvent` |
 
-| **Método**           | **Ruta**                   | **Roles Permitidos** | **Descripción**                                                               | **Excepciones**                                  | **Métodos de Service**                          | **Eventos**                                             |
-|----------------------|----------------------------|----------------------|-------------------------------------------------------------------------------|-------------------------------------------------|-------------------------------------------------|----------------------------------------------------------|
-| `GET`                | `/{id}`                    | `ADMIN`              | Devuelve el `reviewDeliveryResponseDTO` de la reseña del repartidor por su id.| `ReviewDeliveryItemNotFound`                      | `findReviewDeliveryById(Long id)`              | `ReviewDeliveryConsultadaEvent`                           |
-| `GET`                | `/`                        | `ADMIN`              | Devuelve el `reviewDeliveryResponseDTO` de todas las reseñas de repartidores. | -                                               | `findAllReviewDeliverys()`                     | `ReviewDeliverysConsultadasEvent`                         |
-| `POST`               | `/`                        | `ADMIN`              | Crea una nueva reseña de repartidor con `reviewDeliveryRequestDTO`.           | `ReviewDeliveryAlreadyExist`, `IllegalArgumentException` | `createReviewDelivery(ReviewDeliveryRequestDTO dto)`| `ReviewDeliveryCreadaEvent`                                |
-| `DELETE`             | `/{id}`                    | `ADMIN`              | Elimina una reseña de repartidor por su id.                                   | `ReviewDeliveryItemNotFound`                      | `deleteReviewDelivery(Long id)`                | `ReviewDeliveryEliminadaEvent`                            |
-| `PATCH`              | `/{id}`                    | `ADMIN`              | Actualiza una reseña de repartidor por su id con `PatchReviewDeliveryDTO`.    | `ReviewDeliveryItemNotFound`, `IllegalArgumentException` | `updateReviewDelivery(Long id, PatchReviewDeliveryDTO dto)`| `ReviewDeliveryActualizadaEvent`                            |
+---
+
+**Descripción de Exceptions:**
+
+- `UsernameNotFoundException`: Cuando se busca por `id` o por algún otro parámetro de usuario y el recurso no existe.
+- `IllegalArgumentException`: Cada que se escriba un dato mal en la búsqueda, saltará esta exception.
+- `ResourceNotFoundException`: Cuando se busca por `id` o por algún otro parámetro ya sea de algún producto, delivery o entidad que no herede de User y el recurso no existe.
 
 ---
 
@@ -454,19 +487,36 @@ Representa la evaluación del servicio prestado por el mesero.
 ### Niveles de Testing Realizados
 
 1. **Pruebas Unitarias**
-   - Verifican la funcionalidad individual de cada componente del sistema.
-     - Respuesta de Endpoints
-     - Métodos de los Services
-     - Verificación de permisos por roles
-     - Manejo de excepciones y errores
 
-2. **Pruebas de Integración**
-   - Aseguran que los diferentes módulos interactúan correctamente entre sí.
-   - Procesos fundamentales del negocio
+ - Las pruebas unitarias se realizarán para cada endpoint de la aplicación. | Cliente termina pedidoLocal | Se evaluará la validez de la solicitud en los campos en endpoints POST y la respuesta obtenida en endpoint GET.                                    
 
-3. **Pruebas de Sistema**
-   - Validan que el sistema completo cumpla con los requisitos funcionales y no funcionales.
-     - Simulación de escenarios reales
+| **Tipo de prueba**    | **Descripción**                                                                                                                                    | **Criterio de éxito**                                                                                                                         |
+|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| Pruebas de respuesta  | Se evaluará el código de respuesta HTTP y, en caso exista, el `ResponseEntity` del endpoint.                                                       | El código de respuesta y la respuesta contiene los valores esperados.                                                                         |
+| Pruebas de DTOs       | Se evaluará la validez de la solicitud en los campos en endpoints POST y la respuesta obtenida en endpoint GET.                                    | El ResponseEntity muestra los valores esperados y en caso de los POST, la aplicación no permite ingresar parámetros distintos a los posibles. |
+| Manejo de excepciones | Se evaluará el código de respuesta HTTP en situaciones de errores forzados.                                                                        | Los endpoints responden con la excepción correspondiente.                                                                                     |
+| Pruebas de seguridad  | Se evaluará que los usuarios autorizados puedan acceder a los endpoints y que los usuarios autenticados puedan acceder a los endpoints protegidos. | Los endpoints responden con las excepciones de seguridad correspondientes.                                                                    |
+
+2. **Pruebas de Sistema**
+
+- Simulación de los procesos de negocio.
+
+| **Nombre de prueba**             | **Descripción**                                                                                                                                                                                                                                                                                                                                                                                                           |
+|----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Cliente start pedidoLocal        | Simulación de los siguientes eventos: Mesero desocupa una mesa, Cliente crea orden, se crea pedidoLocal, aparece en el menú del Chef el pedido, Chef cambia estado a `EN_PREPARACION`, Chef cambia estado a `LISTO`, Mesero recibe notificación (no se simulará), Mesero cambia el estado a `ENTREGADO`, mesa no disponible, cliente deja reseña a mesero, cliente paga el pedidoLocal (no se simulará), mesa disponible. |
+| Cliente agrega orden             | Simulación de los siguientes eventos: Se crea pedidoLocal, se prepara y entrega la comida (no se simulará), cambia el estado del pedido a `ENTREGADO`, Cliente añade orden al pedido, cambio el estado del pedido a `RECIBIDO`, se prepara y entrega la comida (no se simulará), cambia de estado del pedido a `ENTREGADO`.                                                                                               |
+| Cliente start delivery           | Simulación de los siguientes eventos: Cliente hace login, Cliente crea orden, se crea delivery, aparecé en el menú del chef el pedido (delivery), Chef cambia el estado a `EN_PREPARACION`, Chef cambia estado a `LISTO`, Repartidor cambia estado a `EN_CAMINO`, Cliente paga (no se simulará), Cliente deja reseña, Repartidor cambia estado a `ENTREGADO`.                                                             | 
+| Cliente start reserva            | Simulación de los siguientes eventos: Cliente hace login, Cliente crea reserva, estado de mesa reservada = no disponible, se crea pedidoLocal.                                                                                                                                                                                                                                                                            |
+| Disponibilidad mesas             | Simulación de los siguientes eventos: Se crean las mesas en el restaurante, se crean pedido locales para cada mesa. Se evalúa la posibilidad de crear más pedidos locales en mesas ya ocupadas, y la posibilidad de hacer reservas y el menú de mesas disponibles.                                                                                                                                                        |
+| Disponibilidad mesas con reserva | Simulación de los siguientes eventos: Se crean las mesas en el restaurante, se crean pedido locales y reservas. Se evalúa la posibilidad de crear más reservas y el menú de mesas disponibles.                                                                                                                                                                                                                            |
+| Asignación de repartidores       | Simulación de los siguientes eventos: Se crean 4 repartidores, se crean 8 delivery's, se evalúa que todos reciban dos pedidos.                                                                                                                                                                                                                                                                                            |
+| Asignación de meseros            | Simulación de los siguientes eventos: Se crean 4 meseros, se crean 8 pedidos locales, se evalúa que todos reciban dos pedidos.                                                                                                                                                                                                                                                                                            |
+| Menú chef                        | Simulación de los siguientes eventos: Se crean pedidos locales y delivery's, se comprueba que aparezcan en el endpoint del Chef, algunos se marcan como `LISTO`, se comprueba que se actualice el menú del Chef.                                                                                                                                                                                                          |
+| Visualización de menú            | Simulación de los siguientes eventos: Se crea un menú de productos con diferentes categorías, se crean usuarios con diferentes rangos, se verifica que puedan ver los productos dependiendo de su rango.                                                                                                                                                                                                                  |
+
+
+
+
 
 ### Resultados
 Se detectaron y corrigieron errores en la integración del carrito de compras y el panel de control del administrador. El manejo de excepciones garantiza una correcta experiencia de usuario.
@@ -492,7 +542,7 @@ El sistema usa eventos asincrónicos para el procesamiento de pedidos en segundo
 ## GitHub
 
 ### GitHub Projects
-Se usaron "issues" para asignar tareas, con fechas límite específicas para cada una. El progreso del proyecto fue gestionado mediante el tablero de GitHub Projects.
+Se usaron "issues" para asignar tareas, con fechas límite específicas para cada una. El progreso del proyecto fue gestionado mediante el tablero de GitHub Projects, gestionando de ese modo la prioridad de un issue como CRITICAL, HIGH, MEDIUM, LOW u OPTIONAL.
 
 ### GitHub Actions
 Se configuró un flujo de CI/CD (Integración Continua/Entrega Continua) con GitHub Actions para ejecutar pruebas automáticas y despliegues a un servidor de prueba.
