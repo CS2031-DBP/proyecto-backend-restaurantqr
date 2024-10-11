@@ -83,7 +83,7 @@ Es relevante solucionar este problema porque permite agilizar el proceso de pedi
 ## Modelo de Entidades
 
 ### Diagrama de Entidades
-![Diagrama de Entidades](./path_to_diagram.png)
+![Diagrama de Entidades](./DiagramaDeClases-DBP.png)
 
 ### Descripción de Entidades
 
