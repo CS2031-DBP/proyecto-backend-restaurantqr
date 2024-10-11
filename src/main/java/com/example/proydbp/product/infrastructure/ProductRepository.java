@@ -1,4 +1,7 @@
 package com.example.proydbp.product.infrastructure;
 
-public interface ProductRepository {
+import com.example.proydbp.product.domain.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ProductRepository extends JpaRepository<Product, Long> {
 }

@@ -1,11 +1,16 @@
 package com.example.proydbp.order.domain;
 
-import com.example.proydbp.order.dto.OrderDto;
+import com.example.proydbp.exception.ResourceNotFoundException;
+import com.example.proydbp.order.dto.OrderRequestDto;
+import com.example.proydbp.order.dto.OrderResponseDto;
+import com.example.proydbp.order.dto.PatchOrderDto;
 import com.example.proydbp.order.infrastructure.OrderRepository;
-import com.example.proydbp.reservation.domain.Status;
+import com.example.proydbp.product.domain.Product;
+import com.example.proydbp.product.infrastructure.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,63 +18,88 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     final private OrderRepository orderRepository;
+    final private ProductRepository productRepository;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository) {this.orderRepository = orderRepository;}
-
-    public List<Order> findAll() {
-        return orderRepository.findAll();
+    public OrderService(OrderRepository orderRepository,
+                        ProductRepository productRepository) {
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
     }
 
-    public Order findById(Long id) {
-        return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
+
+    public OrderResponseDto findOrderById(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + id));
+        return mapToResponseDto(order);
     }
 
-    public Order save(OrderDto orderDto) {
-        Order order = convertDtoToEntity(orderDto);
-        return orderRepository.save(order);
+    public List<OrderResponseDto> findAllOrders() {
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream().map(this::mapToResponseDto).collect(Collectors.toList());
     }
 
-    public Order save(Order order) {
-        return orderRepository.save(order);
+    public OrderResponseDto createOrder(OrderRequestDto orderRequestDto) {
+        if (orderRequestDto.getPrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
+        }
+
+        Order order = mapToEntity(orderRequestDto);
+        orderRepository.save(order);
+        return mapToResponseDto(order);
     }
 
-    private void setOrderFields(Order existingOrder, OrderDto orderDto) {
-        existingOrder.setOrderDate(orderDto.getOrderDate());
-        existingOrder.setOrderTime(orderDto.getOrderTime());
-        existingOrder.setTotalPrice(orderDto.getTotalPrice());
-        existingOrder.setOrderType(orderDto.getOrderType());
-        existingOrder.setStatus(Status.valueOf(String.valueOf(orderDto.getStatus())));
-        existingOrder.setSpecialInstructions(orderDto.getSpecialInstructions());
+    public void deleteOrder(Long id) {
+        if (!orderRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Order not found with id " + id);
+        }
+        orderRepository.deleteById(id);
     }
 
-    private Order convertDtoToEntity(OrderDto orderDto) {
+    public OrderResponseDto updateOrder(Long id, PatchOrderDto patchOrderDto) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + id));
+
+        if (patchOrderDto.getPrice() != null && patchOrderDto.getPrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
+        }
+
+        if (patchOrderDto.getPrice() != null) {
+            order.setPrice(patchOrderDto.getPrice());
+        }
+        if (patchOrderDto.getDetails() != null) {
+            order.setDetails(patchOrderDto.getDetails());
+        }
+        orderRepository.save(order);
+        return mapToResponseDto(order);
+    }
+
+    public void addProducto(Long idOrden, Long idProducto, int cantidad) {
+        if (cantidad <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than 0");
+        }
+
+        Order order = orderRepository.findById(idOrden)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        Product product = productRepository.findById(idProducto)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        for (int i = 0; i < cantidad; i++) {
+            order.getProducts().add(product);
+        }
+
+        orderRepository.save(order);
+    }
+
+    private OrderResponseDto mapToResponseDto(Order order) {
+        return new OrderResponseDto(order.getId(), order.getPrice(), order.getProducts(), order.getDetails());
+    }
+
+    private Order mapToEntity(OrderRequestDto dto) {
         Order order = new Order();
-        setOrderFields(order, orderDto);
+        order.setPrice(dto.getPrice());
+        order.setDetails(dto.getDetails());
         return order;
-    }
-
-    public Order update(Long id, OrderDto orderDto) {
-        Order existingOrder = findById(id);
-        setOrderFields(existingOrder, orderDto);
-        return orderRepository.save(existingOrder);
-    }
-
-    public void delete(Long id) {
-        Order order = findById(id);
-        orderRepository.delete(order);
-    }
-
-    public List<OrderDto> findByOrderType(Type orderType) {
-        List<Order> orders = orderRepository.findByOrderType(orderType);
-        return orders.stream()
-                .map(this::convertEntityToDto)
-                .collect(Collectors.toList());
-    }
-
-    public OrderDto convertEntityToDto(Order order) {
-        OrderDto orderDto = new OrderDto();
-        setOrderFields(order, orderDto);
-        return orderDto;
     }
 }
