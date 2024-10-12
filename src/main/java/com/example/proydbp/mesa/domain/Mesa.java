@@ -1,4 +1,4 @@
-package com.example.proydbp.table.domain;
+package com.example.proydbp.mesa.domain;
 
 import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.order.domain.Order;
@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-public class Table {
+public class Mesa {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -34,4 +34,6 @@ public class Table {
     // Relación con Order
     @OneToMany(mappedBy = "table")
     private List<Order> orders;
+
+
 }

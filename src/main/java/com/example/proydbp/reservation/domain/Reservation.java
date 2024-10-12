@@ -1,7 +1,6 @@
 package com.example.proydbp.reservation.domain;
 
 import com.example.proydbp.client.domain.Client;
-import com.example.proydbp.table.domain.Table;
 import jakarta.persistence.*;
 import lombok.Data;
 

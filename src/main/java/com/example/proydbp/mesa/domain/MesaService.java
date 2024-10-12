@@ -1,30 +1,29 @@
-package com.example.proydbp.table.domain;
+package com.example.proydbp.mesa.domain;
 
 import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.reservation.domain.Reservation;
-import com.example.proydbp.table.dto.TableDto;
-import com.example.proydbp.table.infrastructure.TableRepository;
+import com.example.proydbp.mesa.infrastructure.MesaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class TableService {
+public class MesaService {
 
-    private final TableRepository tableRepository;
+    private final MesaRepository mesaRepository;
 
     @Autowired
-    public TableService(TableRepository tableRepository) {
-        this.tableRepository = tableRepository;
+    public MesaService(MesaRepository mesaRepository) {
+        this.mesaRepository = mesaRepository;
     }
 
     public List<Table> getAllTables() {
-        return tableRepository.findAll();
+        return mesaRepository.findAll();
     }
 
     public Table getTableById(Long id) {
-        return tableRepository.findById(id)
+        return mesaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Table not found with id " + id));
     }
 
@@ -34,7 +33,7 @@ public class TableService {
         newTable.setLocation(tableDto.getLocation());
         newTable.setCapacity(tableDto.getCapacity());
         newTable.setAvailable(tableDto.isAvailable());
-        return tableRepository.save(newTable);
+        return mesaRepository.save(newTable);
     }
 
 
@@ -44,30 +43,30 @@ public class TableService {
         existingTable.setLocation(tableDto.getLocation());
         existingTable.setCapacity(tableDto.getCapacity());
         existingTable.setAvailable(tableDto.isAvailable());
-        return tableRepository.save(existingTable);
+        return mesaRepository.save(existingTable);
     }
 
     public Table updateTableAvailability(Long id, Boolean isAvailable) {
         Table existingTable = getTableById(id);
         existingTable.setAvailable(isAvailable);
-        return tableRepository.save(existingTable);
+        return mesaRepository.save(existingTable);
     }
 
     public void deleteTable(Long id) {
         Table existingTable = getTableById(id);
-        tableRepository.delete(existingTable);
+        mesaRepository.delete(existingTable);
     }
 
     public List<Table> getAvailableTables() {
-        return tableRepository.findByAvailableTrue();
+        return mesaRepository.findByAvailableTrue();
     }
 
     public List<Table> getTablesByLocation(String location) {
-        return tableRepository.findByLocation(location);
+        return mesaRepository.findByLocation(location);
     }
 
     public List<Table> getTablesByCapacity(int capacity) {
-        return tableRepository.findByCapacityGreaterThanEqual(capacity);
+        return mesaRepository.findByCapacityGreaterThanEqual(capacity);
     }
 
     public List<Reservation> getReservationsForTable(Long id) {
