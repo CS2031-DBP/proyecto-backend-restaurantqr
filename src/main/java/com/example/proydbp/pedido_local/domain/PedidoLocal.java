@@ -1,7 +1,7 @@
 package com.example.proydbp.pedido_local.domain;
 
 import com.example.proydbp.mesero.domain.Mesero;
-import com.example.proydbp.order.domain.Order;
+import com.example.proydbp.orden.domain.Order;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

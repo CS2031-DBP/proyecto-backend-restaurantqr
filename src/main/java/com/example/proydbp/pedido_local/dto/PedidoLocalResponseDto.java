@@ -1,7 +1,7 @@
 package com.example.proydbp.pedido_local.dto;
 
 import com.example.proydbp.mesero.dto.MeseroResponseDto;
-import com.example.proydbp.order.dto.OrderResponseDto;
+import com.example.proydbp.orden.dto.OrderResponseDto;
 import lombok.Data;
 
 import java.time.LocalDate;

@@ -6,7 +6,7 @@ import com.example.proydbp.mesero.dto.MeseroResponseDto;
 import com.example.proydbp.mesero.dto.MeseroSelfResponseDto;
 import com.example.proydbp.mesero.dto.PatchMeseroDto;
 import com.example.proydbp.mesero.infrastructure.MeseroRepository;
-import com.example.proydbp.order.dto.OrderResponseDto;
+import com.example.proydbp.orden.dto.OrderResponseDto;
 import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import com.example.proydbp.pedido_local.infrastructure.PedidoLocalRepository;

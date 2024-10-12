@@ -3,8 +3,6 @@ package com.example.proydbp.mesa.application;
 import com.example.proydbp.mesa.domain.Mesa;
 import com.example.proydbp.mesa.dto.MesaRequestDto;
 import com.example.proydbp.mesa.dto.MesaResponseDto;
-import com.example.proydbp.order.domain.Order;
-import com.example.proydbp.reservation.domain.Reservation;
 import com.example.proydbp.mesa.domain.MesaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

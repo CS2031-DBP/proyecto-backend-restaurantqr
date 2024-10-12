@@ -1,11 +1,9 @@
 package com.example.proydbp.reviewMesero.domain;
 
-import com.example.proydbp.client.domain.Client;
+import com.example.proydbp.cliente.domain.Client;
 import com.example.proydbp.mesero.domain.Mesero;
-import com.example.proydbp.order.domain.Order;
-import com.example.proydbp.pedido_local.domain.PedidoLocal;
+import com.example.proydbp.orden.domain.Order;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +11,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 @Data
 @Entity
