@@ -61,7 +61,12 @@ public class MesaService {
     public Mesa updateMesa(Long id, MesaRequestDto mesaDto) {
         Mesa mesa = mesaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa not found with id " + id));
-
+        if (mesaRepository.existsByNumero(mesaDto.getNumero())) {
+            throw new IllegalArgumentException("La mesa con el número " + mesaDto.getNumero() + " ya existe.");
+        }
+        if (mesaDto.getCapacity() <= 1) {
+            throw new IllegalArgumentException("La capacidad debe ser mayor o igual a 1.");
+        }
         mesa.setNumero(mesaDto.getNumero());
         mesa.setCapacity(mesaDto.getCapacity());
 

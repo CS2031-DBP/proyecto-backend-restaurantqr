@@ -1,5 +1,8 @@
 package com.example.proydbp.mesa.application;
 
+import com.example.proydbp.mesa.domain.Mesa;
+import com.example.proydbp.mesa.dto.MesaRequestDto;
+import com.example.proydbp.mesa.dto.MesaResponseDto;
 import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.reservation.domain.Reservation;
 import com.example.proydbp.mesa.domain.MesaService;
@@ -22,68 +25,45 @@ public class MesaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Table>> getAllTables() {
-        List<Table> tables = mesaService.getAllTables();
+    public ResponseEntity<List<MesaResponseDto>> getAllTables() {
+        List<MesaResponseDto> tables = mesaService.findAllMesas();
         return new ResponseEntity<>(tables, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Table> getTableById(@PathVariable Long id) {
-        Table table = mesaService.getTableById(id);
+    public ResponseEntity<MesaResponseDto> getTableById(@PathVariable Long id) {
+        MesaResponseDto table = mesaService.getMesaById(id);
         return new ResponseEntity<>(table, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<Table> createTable(@RequestBody TableDto tableDto) {
-        Table newTable = mesaService.createTable(tableDto);
+    public ResponseEntity<Mesa> createTable(@RequestBody MesaRequestDto tableDto) {
+        Mesa newTable = mesaService.createMesa(tableDto);
+
         return new ResponseEntity<>(newTable, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Table> updateTable(@PathVariable Long id, @RequestBody TableDto tableDto) {
-        Table updatedTable = mesaService.updateTable(id, tableDto);
-        return new ResponseEntity<>(updatedTable, HttpStatus.OK);
-    }
-
-    @PatchMapping("/{id}/availability")
-    public ResponseEntity<Table> updateTableAvailability(@PathVariable Long id, @RequestBody Boolean isAvailable) {
-        Table updatedTable = mesaService.updateTableAvailability(id, isAvailable);
+    public ResponseEntity<Mesa> updateTable(@PathVariable Long id, @RequestBody MesaRequestDto tableDto) {
+        Mesa updatedTable = mesaService.updateMesa(id, tableDto);
         return new ResponseEntity<>(updatedTable, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTable(@PathVariable Long id) {
-        mesaService.deleteTable(id);
+        mesaService.deleteMesaById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/available")
-    public ResponseEntity<List<Table>> getAvailableTables() {
-        List<Table> availableTables = mesaService.getAvailableTables();
+    public ResponseEntity<List<MesaResponseDto>> getAvailableTables() {
+        List<MesaResponseDto> availableTables = mesaService.getAvailableMesas();
         return new ResponseEntity<>(availableTables, HttpStatus.OK);
     }
 
-    @GetMapping("/location/{location}")
-    public ResponseEntity<List<Table>> getTablesByLocation(@PathVariable String location) {
-        List<Table> tablesByLocation = mesaService.getTablesByLocation(location);
-        return new ResponseEntity<>(tablesByLocation, HttpStatus.OK);
-    }
-
     @GetMapping("/capacity/{capacity}")
-    public ResponseEntity<List<Table>> getTablesByCapacity(@PathVariable int capacity) {
-        List<Table> tablesByCapacity = mesaService.getTablesByCapacity(capacity);
+    public ResponseEntity<List<MesaResponseDto>> getTablesByCapacity(@PathVariable int capacity) {
+        List<MesaResponseDto> tablesByCapacity = mesaService.getMesasByCapacity(capacity);
         return new ResponseEntity<>(tablesByCapacity, HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}/reservations")
-    public ResponseEntity<List<Reservation>> getReservationsForTable(@PathVariable Long id) {
-        List<Reservation> reservations = mesaService.getReservationsForTable(id);
-        return new ResponseEntity<>(reservations, HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}/orders")
-    public ResponseEntity<List<Order>> getOrdersForTable(@PathVariable Long id) {
-        List<Order> orders = mesaService.getOrdersForTable(id);
-        return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 }
