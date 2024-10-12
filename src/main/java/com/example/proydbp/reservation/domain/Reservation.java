@@ -1,6 +1,7 @@
 package com.example.proydbp.reservation.domain;
 
 import com.example.proydbp.client.domain.Client;
+import com.example.proydbp.mesa.domain.Mesa;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -27,7 +28,7 @@ public class Reservation {
 
     @ManyToOne
     @JoinColumn(name = "table_id", nullable = false)
-    private Table table;
+    private Mesa table;
 
     @Enumerated(EnumType.STRING)
     private Status status;

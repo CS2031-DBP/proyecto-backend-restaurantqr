@@ -23,6 +23,8 @@ public class PedidoLocalResponseDto {
 
     private String estado;
 
+    private OrderResponseDto orden;
+
     private Double precio;
 
     private String tipoPago;
