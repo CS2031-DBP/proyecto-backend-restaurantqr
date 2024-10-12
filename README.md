@@ -306,7 +306,7 @@ Representa los pedidos que son entregados a domicilio.
 | `costoDelivery` | `Double`             | Costo del servicio de entrega.                                          | Debe ser un valor mayor o igual a 0.0.                                             |
 | `fecha`         | `LocalDate`          | Fecha de creación de la entrega.                                        | No puede ser nula; debe representar una fecha válida.                              |
 | `hora`          | `LocalTime`          | Hora de creación de la entrega.                                         | No puede ser nula; debe representar una hora válida.                               |
-| `estado`        | `enum`               | Estado del pedido (`RECIBIDO`, `EN_PREPARACION`, `ENTREGADO`).          | Debe ser uno de los valores permitidos: `RECIBIDO`, `EN_PREPARACION`, `ENTREGADO`. |
+| `estado`        | `enum`               | Estado del pedido (`RECIBIDO`, `EN_PREPARACION`,`LISTO`,`EN_CAMINO`, `ENTREGADO`).          | Debe ser uno de los valores permitidos |
 | `order`         | `Order`              | Pedido relacionado con la entrega (relación con la entidad `Order`).    | No puede ser nulo; debe existir un pedido asociado.                                |
 | `repartidor`    | `Repartidor`         | Empleado que realiza la entrega (relación con la entidad `Repartidor`). | No puede ser nulo; debe existir un repartidor asociado.                            |
 | `precio`        | `Double`             | Precio total del pedido entregado.                                      | Debe ser un valor mayor o igual a 0.0.                                             |
