@@ -249,7 +249,7 @@ Representa las mesas del restaurante.
 | `POST`      | `/`                | `ADMIN`              | Crea una nueva mesa con `TableRequestDto`.                                                           | `IllegalArgumentException`                              | `createTable(TableRequestDto dto)`        |
 | `DELETE`    | `/{id}`            | `ADMIN`              | Elimina una mesa por su id.                                                                          | `ResourceNotFoundException`                             | `deleteTable(Long id)`                    |
 | `PATCH`     | `/{id}`            | `ADMIN`              | Actualiza una mesa por su id con `PatchTableDto`.                                                    | `ResourceNotFoundException`, `IllegalArgumentException` | `updateTable(Long id, PatchTableDto dto)` |
-| `GET`       | `/availableTables` | `MESERO`             | Devuelve el número de mesa de todas las mesas disponibles(ni reservadas ni ocupadas) en ese momento. | -                                                       | `getAvailableTables()`                    |                       
+| `GET`       | `/availableTables` | `MESERO`             | Devuelve el número de mesa de todas las mesas disponibles(ni reservadas ni ocupadas) en ese momento. | -                                                       | `getAvailableTables()`                    |      | `GET`       | `/QR/{id}`         | `ADMIN`              | Devuelve el `TableResponseDto` de la mesa por su id.                                                 | `ResourceNotFoundException`                             | `findTableById(Long id)`                  |                 
 
 
 
@@ -259,6 +259,9 @@ Representa las mesas del restaurante.
 |---------------------|--------------------------------------|
 | `changeStatus()`    | Conmuta la disponibilidad de la mesa |
 
+**Anotaciones**
+- Cada vez que se cree una mesa, se envia un correo con la imagen del QR, igualmente con el endpoint /mesa/QR/{id}
+- El qr  envía al link de crear pedidoLocal con la id de la mesa
 
 ---
 
