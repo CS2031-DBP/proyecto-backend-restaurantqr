@@ -2,8 +2,7 @@ package com.example.proydbp.reservation.domain;
 
 import com.example.proydbp.reservation.dto.ReservationDto;
 import com.example.proydbp.reservation.infrastructure.ReservationRepository;
-import com.example.proydbp.table.domain.Table;
-import com.example.proydbp.table.infrastructure.TableRepository;
+import com.example.proydbp.mesa.infrastructure.MesaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +12,13 @@ import java.util.List;
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
-    private final TableRepository tableRepository;
+    private final MesaRepository mesaRepository;
 
     @Autowired
     public ReservationService(ReservationRepository reservationRepository,
-                              TableRepository tableRepository) {
+                              MesaRepository mesaRepository) {
         this.reservationRepository = reservationRepository;
-        this.tableRepository = tableRepository;
+        this.mesaRepository = mesaRepository;
     }
 
     public List<Reservation> getAllReservations() {
@@ -41,7 +40,7 @@ public class ReservationService {
         newReservation.setReservationTime(reservationDto.getReservationTime());
         newReservation.setNumOfPeople(reservationDto.getNumOfPeople());
 
-        Table table = tableRepository.findById(reservationDto.getTableId())
+        Table table = mesaRepository.findById(reservationDto.getTableId())
                 .orElseThrow(() -> new RuntimeException("Table not found with id " + reservationDto.getTableId()));
 
         newReservation.setTable(table);
@@ -58,7 +57,7 @@ public class ReservationService {
         existingReservation.setReservationTime(reservationDto.getReservationTime());
         existingReservation.setNumOfPeople(reservationDto.getNumOfPeople());
 
-        Table table = tableRepository.findById(reservationDto.getTableId())
+        Table table = mesaRepository.findById(reservationDto.getTableId())
                 .orElseThrow(() -> new RuntimeException("Table not found with id " + reservationDto.getTableId()));
 
         existingReservation.setTable(table);
