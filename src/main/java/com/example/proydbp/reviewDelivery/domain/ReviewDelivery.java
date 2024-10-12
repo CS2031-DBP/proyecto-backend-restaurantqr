@@ -1,4 +1,4 @@
-package com.example.proydbp.reviewDelivery;
+package com.example.proydbp.reviewDelivery.domain;
 
 public class ReviewDelivery {
 }
