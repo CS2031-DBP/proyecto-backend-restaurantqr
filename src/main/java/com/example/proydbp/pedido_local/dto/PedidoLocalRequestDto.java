@@ -9,13 +9,15 @@ import java.util.List;
 @Data
 public class PedidoLocalRequestDto {
 
-    private List<Long> ordenes;
+    private List<Long> ordenesIds;
 
     private Long meseroId;
 
     private LocalDate fecha;
 
     private LocalTime hora;
+
+    private Long ordenId;
 
     private String estado;
 

@@ -1,10 +1,10 @@
 package com.example.proydbp.client.domain;
 
 import com.example.proydbp.client.dto.ClientDto;
-import com.example.proydbp.client.exceptions.ClientNotFoundException;
 import com.example.proydbp.client.infrastructure.ClientRepository;
 import com.example.proydbp.user.domain.Role;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,7 +52,7 @@ public class ClientService {
 
     public void updateClient(Long id, ClientDto clientDto) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente con id "+ id +"no encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con id "+ id +"no encontrado."));
 
         client.setFirstName(clientDto.getFirstName());
         client.setLastName(clientDto.getLastName());
@@ -64,6 +64,6 @@ public class ClientService {
 
     public Client getClient(Long id) {
         return clientRepository.findById(id)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente con id "+ id +"no encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con id "+ id +"no encontrado."));
     }
 }
