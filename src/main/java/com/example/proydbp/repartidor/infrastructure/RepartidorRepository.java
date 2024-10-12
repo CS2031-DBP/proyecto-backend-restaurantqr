@@ -1,4 +1,10 @@
-package com.example.proydbp.repartidor;
+package com.example.proydbp.repartidor.infrastructure;
 
-public class RepartidorRepository {
+import com.example.proydbp.repartidor.domain.Repartidor;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+public interface RepartidorRepository extends JpaRepository<Repartidor, Long> {
+
 }

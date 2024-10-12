@@ -1,17 +1,24 @@
 package com.example.proydbp.repartidor.domain;
 
 import com.example.proydbp.delivery.domain.Delivery;
+
 import com.example.proydbp.reviewDelivery.domain.ReviewDelivery;
+import com.example.proydbp.user.domain.User;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
 @Entity
 @Data
-public class Repartidor {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Repartidor extends User {
 
+    @jakarta.persistence.Id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,4 +31,6 @@ public class Repartidor {
 
     @Column(name = "rating_score", precision = 3, scale = 2)
     private Double ratingScore;
+
+
 }
