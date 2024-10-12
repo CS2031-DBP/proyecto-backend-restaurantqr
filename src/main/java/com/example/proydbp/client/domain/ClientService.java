@@ -3,6 +3,7 @@ package com.example.proydbp.client.domain;
 import com.example.proydbp.client.dto.ClientRequestDto;
 import com.example.proydbp.client.dto.ClientResponseDto;
 import com.example.proydbp.client.dto.PatchClientDto;
+
 import com.example.proydbp.client.infrastructure.ClientRepository;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.exception.ResourceNotFoundException;
@@ -10,6 +11,7 @@ import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import com.example.proydbp.reservation.dto.ReservationDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
@@ -81,6 +83,7 @@ public class ClientService {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente con id "+ id +"no encontrado."));
 
+
         client.setFirstName(patchClientDto.getFirstName());
         client.setLastName(patchClientDto.getLastName());
         client.setEmail(patchClientDto.getEmail());
@@ -96,6 +99,7 @@ public class ClientService {
                 .findByEmail(clientName)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
         return modelMapper.map(client, ClientResponseDto.class);
+
     }
 
 

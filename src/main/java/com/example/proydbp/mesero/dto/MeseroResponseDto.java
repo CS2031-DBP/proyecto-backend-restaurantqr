@@ -1,6 +1,7 @@
 package com.example.proydbp.mesero.dto;
 
 import com.example.proydbp.pedido_local.domain.PedidoLocal;
+import com.example.proydbp.reviewMesero.domain.ReviewMesero;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;

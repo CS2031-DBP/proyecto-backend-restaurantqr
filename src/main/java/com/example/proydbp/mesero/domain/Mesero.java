@@ -1,6 +1,7 @@
 package com.example.proydbp.mesero.domain;
 
 import com.example.proydbp.pedido_local.domain.PedidoLocal;
+import com.example.proydbp.reviewMesero.domain.ReviewMesero;
 import com.example.proydbp.user.domain.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;

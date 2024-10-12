@@ -16,66 +16,54 @@ import java.util.List;
 @RequestMapping("/pedidolocal")
 public class PedidoLocalController {
 
-    final private PedidoLocalService pedidoLocalService;
-
     @Autowired
-    public PedidoLocalController(PedidoLocalService pedidoLocalService) {
-        this.pedidoLocalService = pedidoLocalService;
-    }
+    private PedidoLocalService pedidoLocalService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PedidoLocalResponseDto> findPedidoLocalById(@PathVariable Long id) {
-        PedidoLocalResponseDto pedidoLocal = pedidoLocalService.findPedidoLocalById(id);
-        return ResponseEntity.ok(pedidoLocal);
+    public PedidoLocalResponseDto getPedidoLocalById(@PathVariable Long id) {
+        return pedidoLocalService.findPedidoLocalById(id);
     }
 
-    @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<PedidoLocalResponseDto>> findAllPedidoLocals() {
-        List<PedidoLocalResponseDto> pedidoLocals = pedidoLocalService.findAllPedidoLocals();
-        return ResponseEntity.ok(pedidoLocals);
+    @GetMapping
+    public List<PedidoLocalResponseDto> getAllPedidoLocals() {
+        return pedidoLocalService.findAllPedidoLocals();
     }
 
-    @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PedidoLocalResponseDto> createPedidoLocal(@RequestBody PedidoLocalRequestDto dto) {
-        PedidoLocalResponseDto createdPedidoLocal = pedidoLocalService.createPedidoLocal(dto);
-        return new ResponseEntity<>(createdPedidoLocal, HttpStatus.CREATED);
+    @PostMapping
+    public PedidoLocalResponseDto createPedidoLocal(@RequestBody PedidoLocalRequestDto dto) {
+        return pedidoLocalService.createPedidoLocal(dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deletePedidoLocal(@PathVariable Long id) {
+    public void deletePedidoLocal(@PathVariable Long id) {
         pedidoLocalService.deletePedidoLocal(id);
-        return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PedidoLocalResponseDto> updatePedidoLocal(@PathVariable Long id, @RequestBody PatchPedidoLocalDto dto) {
-        PedidoLocalResponseDto updatedPedidoLocal = pedidoLocalService.updatePedidoLocal(id, dto);
-        return ResponseEntity.ok(updatedPedidoLocal);
+    @PatchMapping("/{id}")
+    public PedidoLocalResponseDto updatePedidoLocal(@PathVariable Long id, @RequestBody PatchPedidoLocalDto dto) {
+        return pedidoLocalService.updatePedidoLocal(id, dto);
     }
 
-    @PatchMapping("/cocinando/{id}")
     @PreAuthorize("hasRole('CHEF')")
-    public ResponseEntity<Void> cocinandoPedidoLocal(@PathVariable Long id) {
-        pedidoLocalService.cocinandoPedidoLocal(id);
-        return ResponseEntity.noContent().build();
+    @PatchMapping("/cocinando/{id}")
+    public PedidoLocalResponseDto cocinandoPedidoLocal(@PathVariable Long id) {
+        return pedidoLocalService.cocinandoPedidoLocal(id);
     }
 
     @PreAuthorize("hasRole('CHEF')")
     @PatchMapping("/listo/{id}")
-    public ResponseEntity<Void> listoPedidoLocal(@PathVariable Long id) {
-        pedidoLocalService.listoPedidoLocal(id);
-        return ResponseEntity.noContent().build();
+    public PedidoLocalResponseDto listoPedidoLocal(@PathVariable Long id) {
+        return pedidoLocalService.listoPedidoLocal(id);
     }
 
     @PreAuthorize("hasRole('CHEF')")
     @GetMapping("/pedidosLocalesRecibidos")
-    public ResponseEntity<List<PedidoLocalResponseDto>> findPedidosLocalesRecibidos() {
-        List<PedidoLocalResponseDto> pedidosRecibidos = pedidoLocalService.findPedidosLocalesRecibidos();
-        return ResponseEntity.ok(pedidosRecibidos);
+    public List<PedidoLocalResponseDto> getPedidosLocalesRecibidos() {
+        return pedidoLocalService.findPedidosLocalesRecibidos();
     }
 }

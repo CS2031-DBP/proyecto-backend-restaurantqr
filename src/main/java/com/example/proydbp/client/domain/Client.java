@@ -5,6 +5,9 @@ import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.reservation.domain.Reservation;
 import com.example.proydbp.reviewDelivery.domain.ReviewDelivery;
+
+import com.example.proydbp.reviewMesero.domain.ReviewMesero;
+
 import com.example.proydbp.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,8 +36,12 @@ public class Client extends User {
     @OneToMany(mappedBy = "reservation")
     private List<Reservation> reservation;
 
-    @Column(name = "address")
-    private String address;
+
+    @OneToOne
+    private ReviewMesero reviewMesero;
+
+    @OneToMany
+    private List<PedidoLocal> pedidoLocal;
 
     @OneToOne
     private ReviewMesero reviewMesero;
@@ -45,5 +52,6 @@ public class Client extends User {
     @Enumerated(EnumType.STRING)
     @Column(name = "membership_level")
     private Rango rango;
+
 
 }

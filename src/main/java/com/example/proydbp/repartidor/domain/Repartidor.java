@@ -1,7 +1,6 @@
 package com.example.proydbp.repartidor.domain;
 
 import com.example.proydbp.delivery.domain.Delivery;
-
 import com.example.proydbp.reviewDelivery.domain.ReviewDelivery;
 import com.example.proydbp.user.domain.User;
 import jakarta.persistence.*;
@@ -18,7 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 public class Repartidor extends User {
 
-    @jakarta.persistence.Id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

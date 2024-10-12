@@ -1,8 +1,11 @@
 package com.example.proydbp.reservation.domain;
 
+import com.example.proydbp.exception.ResourceNotFoundException;
+import com.example.proydbp.mesa.domain.Mesa;
 import com.example.proydbp.reservation.dto.ReservationDto;
 import com.example.proydbp.reservation.infrastructure.ReservationRepository;
 import com.example.proydbp.mesa.infrastructure.MesaRepository;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +30,7 @@ public class ReservationService {
 
     public Reservation getReservationById(Long id) {
         return reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reservation not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id " + id));
     }
 
     public List<Reservation> getReservationsByClientId(Long clientId) {
@@ -36,12 +39,17 @@ public class ReservationService {
 
     public Reservation createReservation(ReservationDto reservationDto) {
         Reservation newReservation = new Reservation();
+        return getReservation(reservationDto, newReservation);
+    }
+
+    @NotNull
+    private Reservation getReservation(ReservationDto reservationDto, Reservation newReservation) {
         newReservation.setReservationDate(reservationDto.getReservationDate());
         newReservation.setReservationTime(reservationDto.getReservationTime());
         newReservation.setNumOfPeople(reservationDto.getNumOfPeople());
 
-        Table table = mesaRepository.findById(reservationDto.getTableId())
-                .orElseThrow(() -> new RuntimeException("Table not found with id " + reservationDto.getTableId()));
+        Mesa table = mesaRepository.findById(reservationDto.getTableId())
+                .orElseThrow(() -> new ResourceNotFoundException("Table not found with id " + reservationDto.getTableId()));
 
         newReservation.setTable(table);
         newReservation.setStatus(reservationDto.getStatus());
@@ -53,18 +61,7 @@ public class ReservationService {
     public Reservation updateReservation(Long id, ReservationDto reservationDto) {
         Reservation existingReservation = getReservationById(id);
 
-        existingReservation.setReservationDate(reservationDto.getReservationDate());
-        existingReservation.setReservationTime(reservationDto.getReservationTime());
-        existingReservation.setNumOfPeople(reservationDto.getNumOfPeople());
-
-        Table table = mesaRepository.findById(reservationDto.getTableId())
-                .orElseThrow(() -> new RuntimeException("Table not found with id " + reservationDto.getTableId()));
-
-        existingReservation.setTable(table);
-        existingReservation.setStatus(reservationDto.getStatus());
-        existingReservation.setSpecialRequests(reservationDto.getSpecialRequests());
-
-        return reservationRepository.save(existingReservation);
+        return getReservation(reservationDto, existingReservation);
     }
 
 
