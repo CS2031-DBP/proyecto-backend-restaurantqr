@@ -4,12 +4,18 @@ import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.reservation.domain.Reservation;
 import com.example.proydbp.user.domain.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Client extends User {
 
     @Column(name = "loyalty_points", columnDefinition = "int default 0")
