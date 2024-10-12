@@ -123,6 +123,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.uber</groupId>
 			<artifactId>h3</artifactId>
 			<version>4.1.1</version>

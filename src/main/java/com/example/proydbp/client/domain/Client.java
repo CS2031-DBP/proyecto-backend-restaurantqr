@@ -5,7 +5,9 @@ import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.reservation.domain.Reservation;
 import com.example.proydbp.reviewDelivery.domain.ReviewDelivery;
+
 import com.example.proydbp.reviewMesero.domain.ReviewMesero;
+
 import com.example.proydbp.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,9 +27,15 @@ public class Client extends User {
     @Column(name = "loyalty_points", columnDefinition = "int default 0")
     private int loyaltyPoints;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "membership_level")
-    private Level level;
+    @OneToMany(mappedBy = "pedidoLocal")
+    private List<PedidoLocal> pedidoLocal;
+
+    @OneToMany(mappedBy = "delivery")
+    private List<Delivery> delivery;
+
+    @OneToMany(mappedBy = "reservation")
+    private List<Reservation> reservation;
+
 
     @OneToOne
     private ReviewMesero reviewMesero;
@@ -35,12 +43,15 @@ public class Client extends User {
     @OneToMany
     private List<PedidoLocal> pedidoLocal;
 
-    @OneToMany
-    private List<Reservation> reservations;
-
-    @OneToMany
-    private List<Delivery> deliveries;
+    @OneToOne
+    private ReviewMesero reviewMesero;
 
     @OneToOne
     private ReviewDelivery reviewDelivery;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "membership_level")
+    private Rango rango;
+
+
 }
