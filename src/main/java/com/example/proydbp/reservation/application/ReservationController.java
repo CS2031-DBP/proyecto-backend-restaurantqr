@@ -2,7 +2,7 @@ package com.example.proydbp.reservation.application;
 
 import com.example.proydbp.reservation.domain.Reservation;
 import com.example.proydbp.reservation.domain.ReservationService;
-import com.example.proydbp.reservation.dto.ReservationDto;
+import com.example.proydbp.reservation.dto.ReservationResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,15 +40,15 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<Reservation> createReservation(@RequestBody ReservationDto reservationDto) {
+    public ResponseEntity<Reservation> createReservation(@RequestBody ReservationResponseDto reservationResponseDto) {
         // Usar el DTO para crear la nueva reserva
-        Reservation newReservation = reservationService.createReservation(reservationDto);
+        Reservation newReservation = reservationService.createReservation(reservationResponseDto);
         return new ResponseEntity<>(newReservation, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Reservation> updateReservation(@PathVariable Long id, @RequestBody ReservationDto reservationDto) {
-        Reservation updatedReservation = reservationService.updateReservation(id, reservationDto);
+    public ResponseEntity<Reservation> updateReservation(@PathVariable Long id, @RequestBody ReservationResponseDto reservationResponseDto) {
+        Reservation updatedReservation = reservationService.updateReservation(id, reservationResponseDto);
         return new ResponseEntity<>(updatedReservation, HttpStatus.OK);
     }
 

@@ -1,5 +1,6 @@
 package com.example.proydbp.pedido_local.domain;
 
+import com.example.proydbp.delivery.domain.Status;
 import com.example.proydbp.mesero.domain.Mesero;
 import com.example.proydbp.order.domain.Order;
 import jakarta.persistence.*;
@@ -36,7 +37,7 @@ public class PedidoLocal {
     private LocalTime hora;
 
     @Column(name = "estado", nullable = false)
-    private String estado;
+    private Status status;
 
     @Column(name = "precio", nullable = false)
     private Double precio;

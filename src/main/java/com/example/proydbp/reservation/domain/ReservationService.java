@@ -2,7 +2,7 @@ package com.example.proydbp.reservation.domain;
 
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.mesa.domain.Mesa;
-import com.example.proydbp.reservation.dto.ReservationDto;
+import com.example.proydbp.reservation.dto.ReservationResponseDto;
 import com.example.proydbp.reservation.infrastructure.ReservationRepository;
 import com.example.proydbp.mesa.infrastructure.MesaRepository;
 import jakarta.validation.constraints.NotNull;
@@ -37,31 +37,31 @@ public class ReservationService {
         return reservationRepository.findByClientId(clientId);
     }
 
-    public Reservation createReservation(ReservationDto reservationDto) {
+    public Reservation createReservation(ReservationResponseDto reservationResponseDto) {
         Reservation newReservation = new Reservation();
-        return getReservation(reservationDto, newReservation);
+        return getReservation(reservationResponseDto, newReservation);
     }
 
     @NotNull
-    private Reservation getReservation(ReservationDto reservationDto, Reservation newReservation) {
-        newReservation.setReservationDate(reservationDto.getReservationDate());
-        newReservation.setReservationTime(reservationDto.getReservationTime());
-        newReservation.setNumOfPeople(reservationDto.getNumOfPeople());
+    private Reservation getReservation(ReservationResponseDto reservationResponseDto, Reservation newReservation) {
+        newReservation.setReservationDate(reservationResponseDto.getReservationDate());
+        newReservation.setReservationTime(reservationResponseDto.getReservationTime());
+        newReservation.setNumOfPeople(reservationResponseDto.getNumOfPeople());
 
-        Mesa table = mesaRepository.findById(reservationDto.getTableId())
-                .orElseThrow(() -> new ResourceNotFoundException("Table not found with id " + reservationDto.getTableId()));
+        Mesa table = mesaRepository.findById(reservationResponseDto.getTableId())
+                .orElseThrow(() -> new ResourceNotFoundException("Table not found with id " + reservationResponseDto.getTableId()));
 
         newReservation.setTable(table);
-        newReservation.setStatus(reservationDto.getStatus());
-        newReservation.setSpecialRequests(reservationDto.getSpecialRequests());
+        newReservation.setStatusReservation(reservationResponseDto.getStatusReservation());
+        newReservation.setSpecialRequests(reservationResponseDto.getSpecialRequests());
 
         return reservationRepository.save(newReservation);
     }
 
-    public Reservation updateReservation(Long id, ReservationDto reservationDto) {
+    public Reservation updateReservation(Long id, ReservationResponseDto reservationResponseDto) {
         Reservation existingReservation = getReservationById(id);
 
-        return getReservation(reservationDto, existingReservation);
+        return getReservation(reservationResponseDto, existingReservation);
     }
 
 
@@ -80,8 +80,8 @@ public class ReservationService {
         if (updatedFields.getTable() != null) {
             existingReservation.setTable(updatedFields.getTable());
         }
-        if (updatedFields.getStatus() != null) {
-            existingReservation.setStatus(updatedFields.getStatus());
+        if (updatedFields.getStatusReservation() != null) {
+            existingReservation.setStatusReservation(updatedFields.getStatusReservation());
         }
         if (updatedFields.getSpecialRequests() != null) {
             existingReservation.setSpecialRequests(updatedFields.getSpecialRequests());

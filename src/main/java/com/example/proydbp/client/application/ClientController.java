@@ -6,12 +6,14 @@ import com.example.proydbp.client.dto.ClientRequestDto;
 import com.example.proydbp.client.dto.ClientResponseDto;
 import com.example.proydbp.client.dto.PatchClientDto;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
+import com.example.proydbp.exception.UserAlreadyExistException;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
-import com.example.proydbp.reservation.dto.ReservationDto;
+import com.example.proydbp.reservation.dto.ReservationResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -46,21 +48,21 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<Client> creatClient(@RequestBody ClientRequestDto clientRequestDto) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Client> createClient(@RequestBody ClientRequestDto clientRequestDto) {
         if (clientService.clientExists(clientRequestDto)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            throw new UserAlreadyExistException("Cliente con email " + clientRequestDto.getEmail() + " ya existe.");
         }
         clientService.saveClientDto(clientRequestDto);
+
         String uri = clientService.getIdClient(clientRequestDto);
         return ResponseEntity.created(URI.create(uri)).build();
     }
 
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
-        if (clientService.clientExists(id)) {
-            return ResponseEntity.notFound().build();
-        }
         clientService.deleteClient(id);
         return ResponseEntity.noContent().build();
     }
@@ -68,9 +70,6 @@ public class ClientController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updateClient(@PathVariable Long id, @RequestBody PatchClientDto patchClientDto) {
-        if (clientService.clientExists(id)) {
-            return ResponseEntity.notFound().build();
-        }
         clientService.updateClient(id, patchClientDto);
         return ResponseEntity.noContent().build();
     }
@@ -100,20 +99,37 @@ public class ClientController {
 
     @GetMapping("me/pedidoLocal")
     @PreAuthorize("hasRole('CLIENT')")
-    public ResponseEntity<List<PedidoLocalResponseDto>> getActualPedidoLocal() {
+    public ResponseEntity<List<PedidoLocalResponseDto>> getAllPedidoLocal() {
         return ResponseEntity.ok(clientService.getActualPedidoLocal());
     }
 
     @GetMapping("me/delivery")
     @PreAuthorize("hasRole('CLIENT')")
-    public ResponseEntity<List<DeliveryResponseDto>> getActualDelivery() {
+    public ResponseEntity<List<DeliveryResponseDto>> getAllDelivery() {
         return ResponseEntity.ok(clientService.getActualDelivery());
     }
 
     @GetMapping("me/reservation")
     @PreAuthorize("hasRole('CLIENT')")
-    public ResponseEntity<List<ReservationDto>> getActualReserva() {
+    public ResponseEntity<List<ReservationResponseDto>> getAllReservation() {
         return ResponseEntity.ok(clientService.getActualReservation());
+    }
 
+    @GetMapping("/me/pedidoLocalActual")
+    @PreAuthorize("hasRole('CLIENT')")
+    public List<PedidoLocalResponseDto> getActualPedidoLocal() {
+        return clientService.getAllPedidoLocal();
+    }
+
+    @GetMapping("/me/deliveryActual")
+    @PreAuthorize("hasRole('CLIENT')")
+    public List<DeliveryResponseDto> getActualDelivery() {
+        return clientService.getAllDelivery();
+    }
+
+    @GetMapping("/me/reservationActual")
+    @PreAuthorize("hasRole('CLIENT')")
+    public List<ReservationResponseDto> getActualReservation() {
+        return clientService.getAllReservation();
     }
 }

@@ -35,7 +35,7 @@ public class ReviewMesero {
     @Size(min = 0, max = 250)
     private String comment;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
