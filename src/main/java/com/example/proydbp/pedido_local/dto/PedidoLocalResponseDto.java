@@ -28,7 +28,7 @@ public class PedidoLocalResponseDto {
 
     private OrderResponseDto orden;
 
-    private BigDecimal precio;
+    private Double precio;
 
     private TipoPago tipoPago;
 }

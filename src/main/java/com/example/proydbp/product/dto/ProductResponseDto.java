@@ -26,7 +26,7 @@ public class ProductResponseDto {
 
     @NotNull
     @Positive
-    private BigDecimal price;
+    private Double price;
 
     @NotNull
     @Enumerated(EnumType.STRING)

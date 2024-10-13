@@ -99,18 +99,18 @@ public class OrderService {
 
     // adicional
 
-    public BigDecimal calcularPrecioTotal(Long orderId) {
+    public double calcularPrecioTotal(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + orderId));
 
         List<Product> productos = order.getProducts();
 
-        // Sumar el precio de cada producto
-        BigDecimal total = productos.stream()
-                .map(Product::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add); // Sumar los precios
+        // Sumar el precio de cada producto como double
+        double total = productos.stream()
+                .mapToDouble(product -> product.getPrice().doubleValue()) // Convertir BigDecimal a double
+                .sum(); // Sumar los precios
 
-        return total; // Retornar el precio total
+        return total; // Retornar el precio total como double
     }
 
 }

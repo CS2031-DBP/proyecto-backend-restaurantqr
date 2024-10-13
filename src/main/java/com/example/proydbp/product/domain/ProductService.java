@@ -28,11 +28,6 @@ public class ProductService {
     }
 
     public ProductResponseDto createProduct(ProductRequestDto dto) {
-        // Verifica que el precio sea positivo
-        if (dto.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Price must be positive");
-        }
-
         // Mapeo usando ModelMapper
         Product product = modelMapper.map(dto, Product.class);
         Product savedProduct = productRepository.save(product);
@@ -70,12 +65,6 @@ public class ProductService {
         }
         if (dto.getDescripcion() != null) {
             product.setDescripcion(dto.getDescripcion());
-        }
-        if (dto.getPrice() != null) {
-            if (dto.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new IllegalArgumentException("Price must be positive");
-            }
-            product.setPrice(dto.getPrice());
         }
         if (dto.getCategory() != null) {
             product.setCategory(Category.valueOf(String.valueOf(dto.getCategory())));

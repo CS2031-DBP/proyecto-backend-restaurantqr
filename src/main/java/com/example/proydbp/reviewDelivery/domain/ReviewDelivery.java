@@ -29,7 +29,7 @@ public class ReviewDelivery {
     @JoinColumn(name = "repartidor_id", nullable = false)
     private Repartidor repartidor;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
@@ -37,7 +37,7 @@ public class ReviewDelivery {
     @Min(value = 1, message = "La calificación mínima es 1")
     @Max(value = 5, message = "La calificación máxima es 5")
     @NotNull(message = "La calificación no puede estar vacía")
-    private Integer calificacion;
+    private Double calificacion;
 
     @NotNull(message = "El comentario no puede estar vacío")
     @Size(min = 0, max = 250)

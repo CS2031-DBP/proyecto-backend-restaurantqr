@@ -12,10 +12,15 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class ReviewDeliveryResponseDto {
 
-    private Long id;
     private Long repartidorId;
-    private Integer calificacion;
+
+    private Double ratingScore;
+
     private Long deliveryId;
+
+    private String comment;
+
     private LocalTime hora;
+
     private LocalDate fecha;
 }
