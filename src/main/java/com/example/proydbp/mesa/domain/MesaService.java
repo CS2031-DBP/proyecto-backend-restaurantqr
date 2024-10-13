@@ -84,7 +84,7 @@ public class MesaService {
 
 
     public List<MesaResponseDto> getAvailableMesas() {
-        List<Mesa> mesas = mesaRepository.findByIsAvailable(true);
+        List<Mesa> mesas = mesaRepository.findByAvailable(true);
 
         return mesas.stream()
                 .filter(Mesa::isAvailable)  // Filtrar solo las mesas disponibles
