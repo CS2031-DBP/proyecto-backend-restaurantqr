@@ -122,15 +122,18 @@ Representa a los clientes registrados del restaurante.
 |----------------------|-------------------|----------------------|--------------------------------------------------------------------------|---------------------------------------------------------|---------------------------------------------------|
 | `GET`                | `/{id}`           | `ADMIN`              | Devuelve el `ClienteResponseDto` del cliente por su id.                  | `UsernameNotFoundException`                             | `findClienteById(Long id)`                        |
 | `GET`                | `/`               | `ADMIN`              | Devuelve el `ClienteResponseDto` de todos los clientes.                  | -                                                       | `findAllClientes()`                               |
-| `POST`               | `/`               | -                    | Crea un nuevo cliente con `ClienteRequestDto`.                           | `IllegalArgumentException`                              | `createCliente(ClienteRequestDto dto)`            |
+| `POST`               | `/`               | `ADMIN`              | Crea un nuevo cliente con `ClienteRequestDto`.                           | `IllegalArgumentException`                              | `createCliente(ClienteRequestDto dto)`            |
 | `DELETE`             | `/{id}`           | `ADMIN`              | Elimina un cliente por su id.                                            | `UsernameNotFoundException`                             | `deleteCliente(Long id)`                          |
 | `PATCH`              | `/{id}`           | `ADMIN`              | Actualiza un cliente por su id con `PatchClienteDto`.                    | `UsernameNotFoundException`, `IllegalArgumentException` | `updateCliente(Long id, PatchClienteDto dto)`     |
 | `GET`                | `/me`             | `CLIENTE`            | Devuelve el `ClienteResponseDto` del usuario autenticado.                | `UsernameNotFoundException`                             | `getAuthenticatedCliente()`                       |
 | `DELETE`             | `/me`             | `CLIENTE`            | Elimina el cliente autenticado.                                          | `UsernameNotFoundException`                             | `deleteAuthenticatedCliente()`                    |
 | `PATCH`              | `/me`             | `CLIENTE`            | Actualiza el cliente autenticado con `PatchClienteDto`.                  | `UsernameNotFoundException`, `IllegalArgumentException` | `updateAuthenticatedCliente(PatchClienteDto dto)` |
-| `GET`                | `/me/pedidoLocal` | `CLIENTE`            | Devuelve el `PedidoResponseDto` del pedido local en proceso del usuario. | `UsernameNotFoundException`                             | `getActualPedidoLocal()`                          |
-| `GET`                | `/me/delivery`    | `CLIENTE`            | Devuelve el `PedidoResponseDto` del delivery en proceso del usuario.     | `UsernameNotFoundException`                             | `getActualDelivery()`                             | 
-| `GET`                | `/me/reserva`     | `CLIENTE`            | Devuelve el `PedidoResponseDto` de la reserva en proceso del usuario.    | `UsernameNotFoundException`                             | `getActualtReserva()`                             |
+| `GET`                | `/me/pedidoLocal` | `CLIENTE`            | Devuelve el `PedidoResponseDto` todos los pedidos locales del usuario | `UsernameNotFoundException`                             | `getAllPedidoLocal()`                          |
+| `GET`                | `/me/delivery`    | `CLIENTE`            | Devuelve el `PedidoResponseDto` todos los deliverys del usario    | `UsernameNotFoundException`                             | `getAllDelivery()`                             | 
+| `GET`                | `/me/reserva`     | `CLIENTE`            | Devuelve el `PedidoResponseDto` todas las reservas del usuario.    | `UsernameNotFoundException`                             | `getAllReserva()`                             |
+| `GET`                | `/me/pedidoLocalActual` | `CLIENTE`            | Devuelve el `PedidoResponseDto` del pedido local en proceso del usuario. | `UsernameNotFoundException`                             | `getActualPedidoLocal()`                          |
+| `GET`                | `/me/deliveryActual`    | `CLIENTE`            | Devuelve el `PedidoResponseDto` del delivery en proceso del usuario.     | `UsernameNotFoundException`                             | `getActualDelivery()`                             | 
+| `GET`                | `/me/reservaActual`     | `CLIENTE`            | Devuelve el `PedidoResponseDto` de la reserva en proceso del usuario.    | `UsernameNotFoundException`                             | `getActualtReserva()`                             |
 
 
 **Métodos adicionales del service:**
@@ -306,7 +309,7 @@ Representa los pedidos que son entregados a domicilio.
 | `costoDelivery` | `Double`             | Costo del servicio de entrega.                                          | Debe ser un valor mayor o igual a 0.0.                                             |
 | `fecha`         | `LocalDate`          | Fecha de creación de la entrega.                                        | No puede ser nula; debe representar una fecha válida.                              |
 | `hora`          | `LocalTime`          | Hora de creación de la entrega.                                         | No puede ser nula; debe representar una hora válida.                               |
-| `estado`        | `enum`               | Estado del pedido (`RECIBIDO`, `EN_PREPARACION`,`LISTO`,`EN_CAMINO`, `ENTREGADO`).          | Debe ser uno de los valores permitidos |
+| `status`        | `enum`               | Estado del pedido (`RECIBIDO`, `EN_PREPARACION`,`LISTO`,`EN_CAMINO`, `ENTREGADO`,`CANCELADO`).          | Debe ser uno de los valores permitidos |
 | `order`         | `Order`              | Pedido relacionado con la entrega (relación con la entidad `Order`).    | No puede ser nulo; debe existir un pedido asociado.                                |
 | `repartidor`    | `Repartidor`         | Empleado que realiza la entrega (relación con la entidad `Repartidor`). | No puede ser nulo; debe existir un repartidor asociado.                            |
 | `precio`        | `Double`             | Precio total del pedido entregado.                                      | Debe ser un valor mayor o igual a 0.0.                                             |
@@ -339,7 +342,7 @@ Representa los pedidos realizados en el local
 | `mesero`      | `Mesero`             | Empleado que realiza la entrega (relación con la entidad `Mesero`).    | No puede ser nulo; debe existir un mesero asociado.                                |
 | `fecha`       | `LocalDate`          | Fecha de creación de la entrega.                                       | No puede ser nula; debe representar una fecha válida.                              |
 | `hora`        | `LocalTime`          | Hora de creación de la entrega.                                        | No puede ser nula; debe representar una hora válida.                               |
-| `estado`      | `String`             | Estado del pedido (`RECIBIDO`, `EN_PREPARACION`, `ENTREGADO`).         | Debe ser uno de los valores permitidos: `RECIBIDO`, `EN_PREPARACION`, `ENTREGADO`. |
+| `estado`      | `String`             | Estado del pedido (`RECIBIDO`, `EN_PREPARACION`,`LISTO`, `ENTREGADO`).         | Debe ser uno de los valores permitidos |
 | `orden`       | `Order`              | Pedido relacionado con la entrega (relación con la entidad `Order`).   | No puede ser nulo; debe existir un pedido asociado.                                |
 | `precio`      | `Double`             | Precio total de la entrega.                                            | Debe ser un valor mayor o igual a 0.0.                                             |
 | `tipoPago`    | `String`             | Método de pago utilizado (efectivo o QR).                              | Debe ser uno de los valores permitidos: EFECTIVO, QR.                              |
@@ -373,7 +376,7 @@ Representa las reservas realizadas por los clientes.
 | `reservationTime` | `LocalTime`          | Hora específica de la reserva.                                     | No puede ser nula; debe representar una hora válida.                            |
 | `numOfPeople`     | `Integer`            | Número de personas para la reserva.                                | Debe ser mayor que 0.                                                           |
 | `tableNumber`     | `Integer`            | Número de la mesa asignada para la reserva.                        | Debe ser un valor positivo; debe estar disponible.                              |
-| `status`          | `String`             | Estado de la reserva (ej: pendiente, confirmada, cancelada).       | Debe ser uno de los valores permitidos: `PENDIENTE`, `CONFIRMADA`, `CANCELADA`. |
+| `status`          | `String`             | Estado de la reserva: `PENDIENTE`,`CONFIRMADO`,`CANCELADO`  | Debe ser uno de los valores permitidos: `PENDIENTE`, `CONFIRMADA`, `CANCELADA`. |
 | `specialRequests` | `String`             | Solicitudes especiales del cliente para la reserva.                | Puede ser nulo; si se proporciona, no debe exceder 255 caracteres.              |
 
 
