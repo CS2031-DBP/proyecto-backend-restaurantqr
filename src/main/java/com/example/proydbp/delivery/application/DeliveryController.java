@@ -39,7 +39,7 @@ public class DeliveryController {
         DeliveryResponseDto createdDelivery = deliveryService.createDelivery(dto);
         return ResponseEntity.ok(createdDelivery);
     }
-
+    
     @PreAuthorize("hasRole('CLIENT') or hasRole('REPARTIDOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDelivery(@PathVariable Long id) {
