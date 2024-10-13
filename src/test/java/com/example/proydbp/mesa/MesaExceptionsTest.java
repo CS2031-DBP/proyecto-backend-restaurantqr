@@ -1,4 +1,4 @@
 package com.example.proydbp.mesa;
 
-public class se {
+public class MesaExceptionsTest {
 }

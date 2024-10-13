@@ -163,11 +163,13 @@ public class ClientService {
                 .collect(Collectors.toList());
     }
 
-    public Void updateLoyaltyPoints(){
+    public Void updateLoyaltyPoints(int point){
         String clientName = SecurityContextHolder.getContext().getAuthentication().getName();
+
         Client client = clientRepository
                 .findByEmail(clientName)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+        client.setLoyaltyPoints(point+client.getLoyaltyPoints());
         if (client.getLoyaltyPoints() < 100) {
             client.setRango(Rango.BRONZE);
         } else if (client.getLoyaltyPoints() < 500) {
@@ -177,6 +179,8 @@ public class ClientService {
         } else {
             client.setRango(Rango.PLATINUM);
         }
+
+        clientRepository.save(client);
 
         // Incluir el evento
         return null;

@@ -25,7 +25,7 @@ public class ReservationResponseDto {
 
     private Integer numOfPeople;
 
-    private MesaResponseDto table;
+    private MesaResponseDto mesa;
 
     @Enumerated(EnumType.STRING)
     private StatusReservation statusReservation;
