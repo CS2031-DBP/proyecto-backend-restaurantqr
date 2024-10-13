@@ -1,38 +1,57 @@
 package com.example.proydbp.client.domain;
 
+import com.example.proydbp.delivery.domain.Delivery;
 import com.example.proydbp.order.domain.Order;
+import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.reservation.domain.Reservation;
+import com.example.proydbp.reviewDelivery.domain.ReviewDelivery;
+
+import com.example.proydbp.reviewMesero.domain.ReviewMesero;
+
 import com.example.proydbp.user.domain.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Client extends User {
 
     @Column(name = "loyalty_points", columnDefinition = "int default 0")
     private int loyaltyPoints;
 
-    @Column(name = "preferred_contact_method")
-    private String preferredContactMethod;
+    @OneToMany(mappedBy = "pedidoLocal")
+    private List<PedidoLocal> pedidoLocal;
+
+    @OneToMany(mappedBy = "delivery")
+    private List<Delivery> delivery;
+
+    @OneToMany(mappedBy = "reservation")
+    private List<Reservation> reservation;
+
+
+    @OneToOne
+    private ReviewMesero reviewMesero;
+
+    @OneToMany
+    private List<PedidoLocal> pedidoLocal;
+
+    @OneToOne
+    private ReviewMesero reviewMesero;
+
+    @OneToOne
+    private ReviewDelivery reviewDelivery;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "membership_level")
-    private Level level;
+    private Rango rango;
 
-    @Column(name = "address")
-    private String address;
 
-    @ElementCollection
-    @CollectionTable(name = "client_preferences", joinColumns = @JoinColumn(name = "client_id"))
-    @Column(name = "preference")
-    private List<String> preferences;
-
-    @OneToMany(mappedBy = "client")
-    private List<Order> orderHistory;
-
-    @OneToMany(mappedBy = "client")
-    private List<Reservation> reservationHistory;
 }

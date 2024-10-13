@@ -100,7 +100,7 @@ Atributos:
 id: Identificador único del ítem.
 product: Producto solicitado (ver entidad Product).
 quantity: Cantidad de este producto.
-customization: Personalizaciones o comentarios (ej: sin sal).5
+customization: Personalizaciones o comentarios (ej: sin sal).
 
 ////
 
