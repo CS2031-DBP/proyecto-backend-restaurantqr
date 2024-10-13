@@ -81,16 +81,14 @@ public class ReviewDeliveryService {
         return modelMapper.map(savedReview, ReviewDeliveryResponseDto.class);
     }
 
-
-
-    public void deleteReviewRepartidor(Long id) {
+    public void deleteReviewDelivery(Long id) {
         if (!reviewDeliveryRepository.existsById(id)) {
             throw new ResourceNotFoundException("ReviewRepartidor not found");
         }
         reviewDeliveryRepository.deleteById(id);
     }
 
-    public ReviewDeliveryResponseDto updateReviewRepartidor(Long id, @Valid PatchReviewDeliveryDto dto) {
+    public ReviewDeliveryResponseDto updateReviewDelivery(Long id, @Valid PatchReviewDeliveryDto dto) {
         ReviewDelivery existingReview = reviewDeliveryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ReviewRepartidor not found"));
 

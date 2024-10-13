@@ -44,9 +44,4 @@ public class SpringMailConfig implements ApplicationContextAware, EnvironmentAwa
         return emailTemplateResolver;
     }
 
-    @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
-    }
-
 }

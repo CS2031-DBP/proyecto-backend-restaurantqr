@@ -49,7 +49,6 @@ public class Delivery {
     private StatusDelivery status;
 
     @OneToMany(mappedBy = "delivery")
-    @JoinColumn(name = "order_id", nullable = false)
     private List<Order> order;
 
     @ManyToOne

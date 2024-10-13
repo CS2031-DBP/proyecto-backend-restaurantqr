@@ -138,7 +138,7 @@ public class RepartidorService {
 
         // Actualiza el ratingScore promedio a partir de las reseñas
         double promedio = repartidor.getReviewsRepartidor().stream()
-                .mapToDouble(ReviewDelivery::getRatingScore)
+                .mapToDouble(ReviewDelivery::getCalificacion)
                 .average()
                 .orElse(0.0);
         repartidor.setRatingScore(promedio);

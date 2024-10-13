@@ -28,7 +28,7 @@ public class Order {
     @ManyToMany(mappedBy = "product_id",cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private List<Product> products;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private Delivery delivery;
 
     @ManyToOne
