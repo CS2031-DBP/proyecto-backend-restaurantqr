@@ -18,21 +18,20 @@ import java.util.List;
 public class Order {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long orderId;
 
-    private BigDecimal price;
+    @OneToMany(mappedBy = "orders")
+    private List<Product> products;
+
+    private Double price;
 
     private String details;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Product> products;
-
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    @ManyToOne
     private Delivery delivery;
 
     @ManyToOne
     @JoinColumn(name = "pedido_local_id")
     private PedidoLocal pedidoLocal;
-
 }

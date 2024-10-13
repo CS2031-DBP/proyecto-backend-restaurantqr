@@ -1,10 +1,12 @@
-package com.example.proydbp.cliente.domain;
+package com.example.proydbp.client.domain;
 
 import com.example.proydbp.delivery.domain.Delivery;
 import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.reservation.domain.Reservation;
 import com.example.proydbp.reviewDelivery.domain.ReviewDelivery;
+
 import com.example.proydbp.reviewMesero.domain.ReviewMesero;
+
 import com.example.proydbp.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,22 +26,24 @@ public class Client extends User {
     @Column(name = "loyalty_points", columnDefinition = "int default 0")
     private int loyaltyPoints;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "membership_level")
-    private Level level;
+    @OneToMany(mappedBy = "client")
+    private List<PedidoLocal> pedidoLocales;
 
-    @OneToOne
-    private ReviewMesero reviewMesero;
-
-    @OneToMany
-    private List<PedidoLocal> pedidoLocal;
-
-    @OneToMany
-    private List<Reservation> reservations;
-
-    @OneToMany
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<Delivery> deliveries;
 
-    @OneToOne
-    private ReviewDelivery reviewDelivery;
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<Reservation> reservations;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<ReviewMesero> reviewMesero;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<ReviewDelivery> reviewDelivery;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "membership_level")
+    private Rango rango;
+
+
 }

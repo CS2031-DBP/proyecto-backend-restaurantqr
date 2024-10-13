@@ -24,7 +24,7 @@ public class Mesero extends User {
     private List<PedidoLocal> pedidosLocales;
 
     @OneToMany(mappedBy = "mesero", cascade = CascadeType.ALL)
-    private List<ReviewMesero> reviewsMesero;
+    private List<ReviewMesero> reviewMesero;
 
     private Double ratingScore;
 }

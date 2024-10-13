@@ -8,25 +8,28 @@ import com.example.proydbp.mesero.dto.MeseroSelfResponseDto;
 import com.example.proydbp.mesero.dto.PatchMeseroDto;
 import com.example.proydbp.mesero.infrastructure.MeseroRepository;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
-import com.example.proydbp.pedido_local.infrastructure.PedidoLocalRepository;
+import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/employee")
+@RequestMapping("/mesero")
 public class MeseroController {
 
     final private MeseroService meseroService;
+    final private MeseroRepository meseroRepository;
 
     @Autowired
-    public MeseroController(MeseroService meseroService) {
+    public MeseroController(MeseroService meseroService, MeseroRepository meseroRepository) {
         this.meseroService = meseroService;
+        this.meseroRepository = meseroRepository;
     }
 
     @GetMapping("/{id}")
@@ -70,43 +73,25 @@ public class MeseroController {
 
     @PreAuthorize("hasRole('MESERO')")
     @GetMapping("/me/pedidosLocalesActuales")
-    public ResponseEntity<List<PedidoLocalResponseDto>> findPedidosLocalesActuales(Long idMesero) {
-        List<PedidoLocalResponseDto> pedidosLocales = meseroService.findPedidosLocalesActuales(idMesero);
+    public ResponseEntity<List<PedidoLocalResponseDto>> findPedidosLocalesActuales() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Mesero mesero = meseroRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+
+        List<PedidoLocalResponseDto> pedidosLocales = meseroService.findPedidosLocalesActuales(mesero.getId());
         return ResponseEntity.ok(pedidosLocales);
     }
 
     @PreAuthorize("hasRole('MESERO')")
-    @PatchMapping("/me/{idPedidoLocal}/encamino")
-    public ResponseEntity<Void> pedidoLocalListo(@PathVariable Long idPedidoLocal) {
-        meseroService.pedidoLocalListo(idPedidoLocal);
-        return ResponseEntity.noContent().build();
-    }
+    @GetMapping("/me/misReviews")
+    public ResponseEntity<List<ReviewMeseroResponseDto>> findMisReviews() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-    @PreAuthorize("hasRole('MESERO')")
-    @PatchMapping("/me/{idPedidoLocal}/entregado")
-    public ResponseEntity<Void> pedidoLocalEntregado(@PathVariable Long idPedidoLocal) {
-        meseroService.pedidoLocalEntregado(idPedidoLocal);
-        return ResponseEntity.noContent().build();
-    }
+        Mesero mesero = meseroRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
 
-    // adicionales
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{id}/rating")
-    public ResponseEntity<Void> updateRatingScore(@PathVariable Long id, @RequestBody PatchMeseroDto patchMeseroDto) {
-        meseroService.updateRatingScore(patchMeseroDto, id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/asignar")
-    public ResponseEntity<MeseroResponseDto> asignarMesero() {
-        Mesero mesero = meseroService.asignarMesero();
-        MeseroResponseDto meseroDto = new MeseroResponseDto();
-        meseroDto.setId(mesero.getId());
-        meseroDto.setFirstName(mesero.getFirstName());
-        meseroDto.setLastName(mesero.getLastName());
-
-        return ResponseEntity.ok(meseroDto);
+        List<ReviewMeseroResponseDto> reviews = meseroService.findMisReviews(mesero.getId());
+        return ResponseEntity.ok(reviews);
     }
 }

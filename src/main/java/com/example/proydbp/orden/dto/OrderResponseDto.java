@@ -1,6 +1,7 @@
 package com.example.proydbp.orden.dto;
 
 import com.example.proydbp.product.domain.Product;
+import com.example.proydbp.product.dto.ProductResponseDto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -17,13 +18,10 @@ import java.util.List;
 public class OrderResponseDto {
 
     @NotNull
-    private Long id;
-
-    @NotNull
     @Positive
-    private BigDecimal price;
+    private Double price;
 
-    private List<Product> products;
+    private List<ProductResponseDto> products;
 
     @Size(min = 1, max = 250)
     private String details;

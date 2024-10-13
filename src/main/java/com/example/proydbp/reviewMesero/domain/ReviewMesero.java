@@ -1,8 +1,7 @@
 package com.example.proydbp.reviewMesero.domain;
 
-import com.example.proydbp.cliente.domain.Client;
+import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.mesero.domain.Mesero;
-import com.example.proydbp.orden.domain.Order;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -32,7 +31,7 @@ public class ReviewMesero {
     @Size(min = 0, max = 250)
     private String comment;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
@@ -44,5 +43,5 @@ public class ReviewMesero {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "pedido_id", nullable = false)
-    private Order pedidoLocal;
+    private PedidoLocal pedidoLocal;
 }

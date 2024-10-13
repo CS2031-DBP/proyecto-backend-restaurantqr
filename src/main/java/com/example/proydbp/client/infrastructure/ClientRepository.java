@@ -1,6 +1,6 @@
-package com.example.proydbp.cliente.infrastructure;
+package com.example.proydbp.client.infrastructure;
 
-import com.example.proydbp.cliente.domain.Client;
+import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.user.infrastructure.BaseUserRepository;
 
 import java.util.Optional;

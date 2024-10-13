@@ -1,5 +1,6 @@
 package com.example.proydbp.pedido_local.domain;
 
+import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.mesero.domain.Mesero;
 import com.example.proydbp.orden.domain.Order;
 import jakarta.persistence.*;
@@ -7,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -21,13 +23,16 @@ public class PedidoLocal {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @OneToMany
-    @JoinColumn(name = "orden_id", nullable = false)
-    private List<Order> ordenes;
+    @OneToMany(mappedBy = "pedidoLocal") // Asegúrate de que "pedidoLocal" es el nombre correcto
+    private List<Order> orders;
 
     @ManyToOne
     @JoinColumn(name = "mesero_id", nullable = false)
     private Mesero mesero;
+
+    @ManyToOne
+    @JoinColumn(name = "client_id")
+    private Client client;
 
     @Column(name = "fecha", nullable = false)
     private LocalDate fecha;
@@ -36,11 +41,12 @@ public class PedidoLocal {
     private LocalTime hora;
 
     @Column(name = "estado", nullable = false)
-    private String estado;
+    private StatusPedidoLocal status;
 
     @Column(name = "precio", nullable = false)
     private Double precio;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "tipo_pago", nullable = false)
-    private String tipoPago;
+    private TipoPago tipoPago;
 }

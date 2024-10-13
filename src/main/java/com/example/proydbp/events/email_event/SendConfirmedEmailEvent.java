@@ -1,6 +1,6 @@
 package com.example.proydbp.events.email_event;
 
-import com.example.proydbp.cliente.domain.Client;
+import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.events.model.Mail;
 import com.example.proydbp.reservation.domain.Reservation;
 import lombok.Getter;

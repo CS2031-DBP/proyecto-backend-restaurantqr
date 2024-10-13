@@ -73,4 +73,5 @@ public class ConfirmedEmailListener {
     public void handleEstadoPedidoLocalListoEvent(EstadoPedidoLocalListoEvent event) throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
+
 }

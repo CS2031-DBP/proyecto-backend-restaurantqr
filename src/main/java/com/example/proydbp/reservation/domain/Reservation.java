@@ -1,15 +1,19 @@
 package com.example.proydbp.reservation.domain;
 
-import com.example.proydbp.cliente.domain.Client;
+import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.mesa.domain.Mesa;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Reservation {
 
     @Id
@@ -27,11 +31,11 @@ public class Reservation {
     private Integer numOfPeople;
 
     @ManyToOne
-    @JoinColumn(name = "table_id", nullable = false)
-    private Mesa table;
+    @JoinColumn(name = "mesa_id") // o el nombre de columna correcto
+    private Mesa mesa;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private StatusReservation statusReservation;
 
     private String specialRequests;
 }
