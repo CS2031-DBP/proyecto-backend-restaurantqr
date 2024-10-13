@@ -39,7 +39,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
         if (StringUtils.hasText(userEmail) && SecurityContextHolder.getContext().getAuthentication() == null) {
             jwtService.validateToken(jwt, userEmail);
         }
-
         filterChain.doFilter(servletRequest, servletResponse);
     }
 }
