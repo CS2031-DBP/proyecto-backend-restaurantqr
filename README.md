@@ -167,7 +167,7 @@ Representa a los meseros que atienden el restaurante
 | `DELETE`         | `/{id}`                        | `ADMIN`                  | Elimina un empleado por su id.                                                  | `UsernameNotFoundException`                             | `deleteMesero(Long id)`                     |
 | `PATCH`          | `/{id}`                        | `ADMIN`                  | Actualiza un empleado por su id con `PatchMeseroDto`.                           | `UsernameNotFoundException`, `IllegalArgumentException` | `updateMesero(Long id, PatchMeseroDto dto)` |
 | `GET`            | `/me`                          | `MESERO`                 | Devuelve `MeseroResponseDto` del mesero autenticado.                            | `UsernameNotFoundException`                             | `findMeseroById(Long id)`                   |
-| `GET`            | `/me/pedidosLocalesActuales`   | `MESERO`                 | Devuelve la lista de PedidoLocalResponseDto con el estado `LISTO` y `RECIBIDO`. | `UsernameNotFoundException`                             | `findPedidosLocalesActuales(Long id)`       |                             
+| `GET`            | `/me/pedidosLocalesActuales`   | `MESERO`                 | Devuelve la lista de PedidoLocalResponseDto con el estado `LISTO` y `RECIBIDO`. | `UsernameNotFoundException`                             | `findPedidosLocalesActuales(Long id)`       |    
 | `PATCH`          | `me/{idPedidoLocal}/encamino`  | `MESERO`                 | Cambia el estado de la entrega a Listo.                                         | `ResourceNotFoundException`                             | `pedidoLocalListo(Long id)`                 |
 | `PATCH`          | `me/{idPedidoLocal}/entregado` | `MESERO`                 | Cambia el estado de la entrega a Entregado .                                    | `ResourceNotFoundException`                             | `pedidoLocalEntregado(Long id)`             | 
 
@@ -343,7 +343,6 @@ Representa los pedidos realizados en el local
 | `fecha`       | `LocalDate`          | Fecha de creación de la entrega.                                       | No puede ser nula; debe representar una fecha válida.                              |
 | `hora`        | `LocalTime`          | Hora de creación de la entrega.                                        | No puede ser nula; debe representar una hora válida.                               |
 | `estado`      | `String`             | Estado del pedido (`RECIBIDO`, `EN_PREPARACION`,`LISTO`, `ENTREGADO`).         | Debe ser uno de los valores permitidos |
-| `orden`       | `Order`              | Pedido relacionado con la entrega (relación con la entidad `Order`).   | No puede ser nulo; debe existir un pedido asociado.                                |
 | `precio`      | `Double`             | Precio total de la entrega.                                            | Debe ser un valor mayor o igual a 0.0.                                             |
 | `tipoPago`    | `String`             | Método de pago utilizado (efectivo o QR).                              | Debe ser uno de los valores permitidos: EFECTIVO, QR.                              |
 
