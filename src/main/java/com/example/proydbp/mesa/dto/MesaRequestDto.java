@@ -8,16 +8,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class MesaRequestDto {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
 
     @NotNull
     @Column(unique = true)

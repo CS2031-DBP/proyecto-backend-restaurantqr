@@ -23,16 +23,12 @@ public class PedidoLocal {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @OneToMany(mappedBy = "pedidoLocal") // Asegúrate de que "pedidoLocal" es el nombre correcto
+    @OneToMany(mappedBy = "pedidoLocal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
 
     @ManyToOne
     @JoinColumn(name = "mesero_id", nullable = false)
     private Mesero mesero;
-
-    @ManyToOne
-    @JoinColumn(name = "client_id")
-    private Client client;
 
     @Column(name = "fecha", nullable = false)
     private LocalDate fecha;
@@ -49,4 +45,10 @@ public class PedidoLocal {
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_pago", nullable = false)
     private TipoPago tipoPago;
+
+    @ManyToOne
+    @JoinColumn(name = "client_id", nullable = false)
+    private Client client;
+
+
 }

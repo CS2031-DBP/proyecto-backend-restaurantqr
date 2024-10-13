@@ -27,12 +27,6 @@ public class GlobalExceptionHandler {
         return e.getMessage();
     }
 
-    @ExceptionHandler(UserAlreadyExistException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public String handleUserAlreadyExistException(UserAlreadyExistException e) { // Cambié el nombre del método
-        return e.getMessage();
-    }
-
     @ExceptionHandler(UnauthorizeOperationException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public String handleUnauthorizeOperationException(UnauthorizeOperationException e) {
@@ -42,6 +36,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public String handleAuthenticationException(AuthenticationException e) {
+        return e.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(UserAlreadyExistException.class)
+    public String handleUserAlreadyExistException(UserAlreadyExistException e) {
         return e.getMessage();
     }
 

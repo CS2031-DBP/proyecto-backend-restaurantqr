@@ -22,7 +22,5 @@ public class MeseroSelfResponseDto {
     private String phoneNumber;
 
     @NotNull
-    @DecimalMax("5")
-    @DecimalMin("0")
     private Float ratingScore;
 }

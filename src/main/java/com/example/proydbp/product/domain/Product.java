@@ -16,12 +16,8 @@ import lombok.NoArgsConstructor;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long productId;
-
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
 
     @NotNull
     @Size(min = 1, max = 100)
@@ -41,4 +37,7 @@ public class Product {
     @NotNull
     private Boolean isAvailable;
 
+    @ManyToMany(mappedBy = "products")
+    private List<Order> orders;
 }
+

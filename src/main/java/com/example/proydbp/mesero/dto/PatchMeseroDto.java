@@ -26,9 +26,7 @@ public class PatchMeseroDto {
     private String phoneNumber;
 
     @NotNull
-    @DecimalMax("5")
-    @DecimalMin("0")
-    private Float ratingScore;
+    private Double ratingScore;
 
     @NotNull
     @Size(min = 6)

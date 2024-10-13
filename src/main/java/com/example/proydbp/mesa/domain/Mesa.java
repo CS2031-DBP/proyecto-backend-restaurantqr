@@ -21,6 +21,7 @@ public class Mesa {
 
     private boolean available;
 
-    @OneToMany
+    // Relación con Reservas
+    @OneToMany(mappedBy = "table") // Cambiado a "table" para coincidir con el campo en Reservation
     private List<Reservation> reservations;
 }

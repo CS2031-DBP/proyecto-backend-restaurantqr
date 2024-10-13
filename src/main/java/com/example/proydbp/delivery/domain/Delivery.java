@@ -48,7 +48,7 @@ public class Delivery {
     @Column(name = "delivery_status")
     private StatusDelivery status;
 
-    @OneToMany(mappedBy = "delivery")
+    @OneToMany(mappedBy = "delivery", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> order;
 
     @ManyToOne

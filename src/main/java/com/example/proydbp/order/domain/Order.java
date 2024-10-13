@@ -15,23 +15,34 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "orden")
 public class Order {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long orderId;
-
-    @OneToMany(mappedBy = "orders")
-    private List<Product> products;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
 
     private Double price;
 
     private String details;
 
+    @ManyToMany
+    @JoinTable(
+            name = "order_products",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    private List<Product> products;
+
     @ManyToOne
+    @JoinColumn(name = "deliery_id", nullable = false)
     private Delivery delivery;
 
     @ManyToOne
-    @JoinColumn(name = "pedido_local_id")
+    private PedidoLocal pedidoLocals;
+
+    @ManyToOne
+    @JoinColumn(name = "pedido_local_id", nullable = false)
     private PedidoLocal pedidoLocal;
 }
+

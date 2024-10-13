@@ -31,8 +31,9 @@ public class Reservation {
     private Integer numOfPeople;
 
     @ManyToOne
-    @JoinColumn(name = "mesa_id") // o el nombre de columna correcto
-    private Mesa mesa;
+    @JoinColumn(name = "table_id", nullable = false)
+    private Mesa table; // Este es el nombre correcto de la propiedad
+
 
     @Enumerated(EnumType.STRING)
     private StatusReservation statusReservation;
