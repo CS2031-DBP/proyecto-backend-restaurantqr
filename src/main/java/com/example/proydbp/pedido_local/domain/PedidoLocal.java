@@ -1,5 +1,6 @@
 package com.example.proydbp.pedido_local.domain;
 
+import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.mesero.domain.Mesero;
 import com.example.proydbp.order.domain.Order;
 import jakarta.persistence.*;
@@ -22,12 +23,16 @@ public class PedidoLocal {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @OneToMany(mappedBy = "pedidoLocal", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "pedidoLocal") // Asegúrate de que "pedidoLocal" es el nombre correcto
     private List<Order> orders;
 
     @ManyToOne
     @JoinColumn(name = "mesero_id", nullable = false)
     private Mesero mesero;
+
+    @ManyToOne
+    @JoinColumn(name = "client_id")
+    private Client client;
 
     @Column(name = "fecha", nullable = false)
     private LocalDate fecha;

@@ -19,8 +19,12 @@ import java.util.List;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long productId;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
 
     @NotNull
     @Size(min = 1, max = 100)
@@ -40,11 +44,4 @@ public class Product {
     @NotNull
     private Boolean isAvailable;
 
-    @ManyToMany
-    @JoinTable(
-            name = "relacion_order-product",
-            joinColumns = @JoinColumn(name = "product_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name ="order_id", nullable = false)
-    )
-    private List<Order> orders;
 }

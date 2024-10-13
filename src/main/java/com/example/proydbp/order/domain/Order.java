@@ -18,19 +18,20 @@ import java.util.List;
 public class Order {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long orderId;
+
+    @OneToMany(mappedBy = "orders")
+    private List<Product> products;
 
     private Double price;
 
     private String details;
 
-    @ManyToMany(mappedBy = "product_id",cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    private List<Product> products;
-
     @ManyToOne
     private Delivery delivery;
 
     @ManyToOne
-    private PedidoLocal pedidoLocals;
+    @JoinColumn(name = "pedido_local_id")
+    private PedidoLocal pedidoLocal;
 }

@@ -13,8 +13,7 @@ import javax.naming.AuthenticationException;
 import java.nio.file.AccessDeniedException;
 
 @RestControllerAdvice
-public class
-GlobalExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -30,7 +29,7 @@ GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public String handleIllegalArgumentException(UserAlreadyExistException e) {
+    public String handleUserAlreadyExistException(UserAlreadyExistException e) { // Cambié el nombre del método
         return e.getMessage();
     }
 
@@ -43,12 +42,6 @@ GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public String handleAuthenticationException(AuthenticationException e) {
-        return e.getMessage();
-    }
-
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(UserAlreadyExistException.class)
-    public String handleUserAlreadyExistException(UserAlreadyExistException e) {
         return e.getMessage();
     }
 

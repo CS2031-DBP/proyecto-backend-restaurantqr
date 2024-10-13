@@ -7,7 +7,6 @@ import com.example.proydbp.mesero.dto.PatchMeseroDto;
 import com.example.proydbp.mesero.infrastructure.MeseroRepository;
 import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
-import com.example.proydbp.pedido_local.infrastructure.PedidoLocalRepository;
 import com.example.proydbp.reviewMesero.domain.ReviewMesero;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import com.example.proydbp.user.domain.Role;
@@ -24,13 +23,11 @@ import java.util.stream.Collectors;
 public class MeseroService {
 
     final private MeseroRepository meseroRepository;
-    final private PedidoLocalRepository pedidoLocalRepository;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public MeseroService(MeseroRepository meseroRepository, PedidoLocalRepository pedidoLocalRepository) {
+    public MeseroService(MeseroRepository meseroRepository) {
         this.meseroRepository = meseroRepository;
-        this.pedidoLocalRepository = pedidoLocalRepository;
         this.modelMapper = new ModelMapper();
     }
 

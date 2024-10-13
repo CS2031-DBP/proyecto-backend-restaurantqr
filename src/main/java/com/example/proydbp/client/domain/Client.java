@@ -27,7 +27,7 @@ public class Client extends User {
     @Column(name = "loyalty_points", columnDefinition = "int default 0")
     private int loyaltyPoints;
 
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "client")
     private List<PedidoLocal> pedidoLocales;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)

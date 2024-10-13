@@ -46,7 +46,7 @@ public class OrderService {
 
     public OrderResponseDto createOrder(OrderRequestDto orderRequestDto) {
         Order order = modelMapper.map(orderRequestDto, Order.class);
-        order.setPrice(calcularPrecioTotal(order.getId()));
+        order.setPrice(calcularPrecioTotal(order.getOrderId()));
         orderRepository.save(order);
         return modelMapper.map(order, OrderResponseDto.class);
     }
@@ -71,7 +71,7 @@ public class OrderService {
                     .map(productDto -> modelMapper.map(productDto, Product.class))
                     .collect(Collectors.toList()); // Recoger los productos mapeados en una lista
             order.setProducts(products); // Asignar la lista de productos al pedido
-            order.setPrice(calcularPrecioTotal(order.getId()));
+            order.setPrice(calcularPrecioTotal(order.getOrderId()));
         }
 
         orderRepository.save(order);
@@ -93,7 +93,7 @@ public class OrderService {
             order.getProducts().add(product);
         }
 
-        order.setPrice(calcularPrecioTotal(order.getId()));
+        order.setPrice(calcularPrecioTotal(order.getOrderId()));
         orderRepository.save(order);
     }
 

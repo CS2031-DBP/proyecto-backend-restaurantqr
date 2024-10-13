@@ -15,8 +15,12 @@ import java.util.List;
 @RequestMapping("/delivery")
 public class DeliveryController {
 
+    final private DeliveryService deliveryService;
+
     @Autowired
-    private DeliveryService deliveryService;
+    public DeliveryController(DeliveryService deliveryService) {
+        this.deliveryService = deliveryService;
+    }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')") // Acceso para administradores
