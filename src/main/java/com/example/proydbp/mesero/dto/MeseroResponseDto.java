@@ -33,7 +33,5 @@ public class MeseroResponseDto {
 
     private List<ReviewMeseroResponseDto> reviewsMesero;
 
-    @DecimalMax("5")
-    @DecimalMin("0")
     private Double ratingScore;
 }

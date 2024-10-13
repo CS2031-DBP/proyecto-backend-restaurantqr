@@ -19,9 +19,6 @@ import java.time.LocalTime;
 public class PatchReviewDeliveryDto {
 
     @Column(nullable = false)
-    @Min(value = 1, message = "La calificación mínima es 1")
-    @Max(value = 5, message = "La calificación máxima es 5")
-    @NotNull(message = "La calificación no puede estar vacía")
     private Double calificacion;
 
     @NotNull(message = "El comentario no puede estar vacío")

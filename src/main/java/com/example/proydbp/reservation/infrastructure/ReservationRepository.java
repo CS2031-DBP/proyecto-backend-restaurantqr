@@ -9,5 +9,6 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     List<Reservation> findByClientId(Long clientId);
 
-    List<Reservation> findByMesa(Mesa mesa);
+
+    List<Reservation> findByTable(Mesa table); // Cambiado a findByTable
 }

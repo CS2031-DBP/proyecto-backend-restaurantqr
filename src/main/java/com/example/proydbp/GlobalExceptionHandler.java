@@ -28,12 +28,6 @@ GlobalExceptionHandler {
         return e.getMessage();
     }
 
-    @ExceptionHandler(UserAlreadyExistException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public String handleIllegalArgumentException(UserAlreadyExistException e) {
-        return e.getMessage();
-    }
-
     @ExceptionHandler(UnauthorizeOperationException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public String handleUnauthorizeOperationException(UnauthorizeOperationException e) {

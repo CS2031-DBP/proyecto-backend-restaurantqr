@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface PedidoLocalRepository extends JpaRepository<PedidoLocal, Long> {
-    List<PedidoLocal> findByStatus(String estado);
+    List<PedidoLocal> findByStatus(StatusPedidoLocal estado);
 
     List<PedidoLocal> findByStatusIn(List<StatusPedidoLocal> statuses);
 }

@@ -4,6 +4,9 @@ import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.client.infrastructure.ClientRepository;
 import com.example.proydbp.events.email_event.ReviewMeseroCreatedEvent;
 import com.example.proydbp.exception.ResourceNotFoundException;
+import com.example.proydbp.mesero.domain.Mesero;
+import com.example.proydbp.mesero.domain.MeseroService;
+import com.example.proydbp.mesero.infrastructure.MeseroRepository;
 import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.pedido_local.infrastructure.PedidoLocalRepository;
 import com.example.proydbp.reviewMesero.dto.PatchReviewMeseroDto;
@@ -30,15 +33,19 @@ public class ReviewMeseroService {
     final private ApplicationEventPublisher eventPublisher;
     private final ClientRepository clientRepository;
     private final PedidoLocalRepository pedidoLocalRepository;
+    private final MeseroRepository meseroRepository;
+    private final MeseroService meseroService;
 
     @Autowired
     public ReviewMeseroService (ReviewMeseroRepository reviewMeseroRepository,
-                                ModelMapper modelMapper, ApplicationEventPublisher eventPublisher, ClientRepository clientRepository, PedidoLocalRepository pedidoLocalRepository) {
+                                ModelMapper modelMapper, ApplicationEventPublisher eventPublisher, ClientRepository clientRepository, PedidoLocalRepository pedidoLocalRepository, MeseroRepository meseroRepository, MeseroService meseroService) {
         this.reviewMeseroRepository = reviewMeseroRepository;
         this.modelMapper = modelMapper;
         this.eventPublisher = eventPublisher;
         this.clientRepository = clientRepository;
         this.pedidoLocalRepository = pedidoLocalRepository;
+        this.meseroRepository = meseroRepository;
+        this.meseroService = meseroService;
     }
 
     public ReviewMeseroResponseDto findReviewMeseroById(Long id) {
@@ -75,6 +82,11 @@ public class ReviewMeseroService {
         ReviewMesero savedReview = reviewMeseroRepository.save(reviewMesero);
 
         String recipientEmail = savedReview.getMesero().getEmail();
+
+        Mesero mesero = meseroRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+
+        meseroService.updateRatingScore(mesero.getId());
 
         eventPublisher.publishEvent(new ReviewMeseroCreatedEvent(savedReview, recipientEmail));
 

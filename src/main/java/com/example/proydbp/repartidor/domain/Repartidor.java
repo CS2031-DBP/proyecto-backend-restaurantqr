@@ -23,7 +23,7 @@ public class Repartidor extends User {
     @OneToMany(mappedBy = "repartidor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ReviewDelivery> reviewsRepartidor;
 
-    @Column(name = "rating_score", precision = 3, scale = 2)
+    @Column(name = "rating_score")
     private Double ratingScore;
 
 

@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
 
 @Data
@@ -34,9 +35,7 @@ public class MeseroRequestDto {
     private String phoneNumber;
 
     @NotNull
-    @DecimalMax("5")
-    @DecimalMin("0")
-    private Float ratingScore;
+    private Double ratingScore;
 
     @NotNull
     @Size(min = 6)

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -142,10 +143,16 @@ public class PedidoLocalService {
     }
 
     public List<PedidoLocalResponseDto> findPedidosLocalesActuales() {
-        List<PedidoLocal> pedidosLocales = pedidoLocalRepository.findByStatusIn(List.of(StatusPedidoLocal.RECIBIDO, StatusPedidoLocal.EN_PREPARACION));
+
+        List<String> estados = List.of(StatusPedidoLocal.RECIBIDO.toString(), StatusPedidoLocal.EN_PREPARACION.toString());
+        List<PedidoLocal> pedidosLocalesListos = pedidoLocalRepository.findByStatus(StatusPedidoLocal.RECIBIDO);
+        List<PedidoLocal> pedidosLocalesPreparados = pedidoLocalRepository.findByStatus(StatusPedidoLocal.EN_PREPARACION);
+
+        List<PedidoLocal> todosLosPedidosLocales = new ArrayList<>(pedidosLocalesListos);
+        todosLosPedidosLocales.addAll(pedidosLocalesPreparados);
 
         // Mapear los pedidos locales a PedidoLocalResponseDto utilizando ModelMapper
-        return pedidosLocales.stream()
+        return todosLosPedidosLocales.stream()
                 .map(pedidoLocal -> modelMapper.map(pedidoLocal, PedidoLocalResponseDto.class))
                 .collect(Collectors.toList());
     }

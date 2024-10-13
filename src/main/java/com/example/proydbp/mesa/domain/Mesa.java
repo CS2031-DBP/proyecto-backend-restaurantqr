@@ -24,9 +24,8 @@ public class Mesa {
 
     private boolean isAvailable;
 
-    // Relación con Mesa (parte dueña)
-    @ManyToOne
-    @JoinColumn(name = "table_id", nullable = false)
-    private Mesa mesa;
+    // Relación con Reservas
+    @OneToMany(mappedBy = "table") // Cambiado a "table" para coincidir con el campo en Reservation
+    private List<Reservation> reservations;
 
 }

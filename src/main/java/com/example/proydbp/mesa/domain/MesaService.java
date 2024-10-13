@@ -87,7 +87,7 @@ public class MesaService {
 
 
     public List<MesaResponseDto> getAvailableMesas() {
-        List<Mesa> mesas = mesaRepository.findByAvailableTrue();
+        List<Mesa> mesas = mesaRepository.findByIsAvailable(true);
 
         return mesas.stream()
                 .filter(Mesa::isAvailable)  // Filtrar solo las mesas disponibles
@@ -112,7 +112,7 @@ public class MesaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa not found with id " + idMesa));
 
         // Buscar las reservas asociadas a esa mesa
-        List<Reservation> reservations = reservationRepository.findByMesa(mesa);
+        List<Reservation> reservations = reservationRepository.findByTable(mesa);
 
         // Mapear las entidades de Reservation a ReservationResponseDto
         return reservations.stream()
