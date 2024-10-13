@@ -2,9 +2,9 @@ package com.example.proydbp.delivery.domain;
 
 import com.example.proydbp.delivery.dto.DeliveryRequestDto;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
+import com.example.proydbp.delivery.dto.PatchDeliveryDto;
 import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
 import com.example.proydbp.exception.ResourceNotFoundException;
-import com.example.proydbp.delivery.domain.Status;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,7 +47,7 @@ public class DeliveryService {
         deliveryRepository.delete(delivery);
     }
 
-    public DeliveryResponseDto updateDelivery(Long id, DeliveryRequestDto dto) {
+    public DeliveryResponseDto updateDelivery(Long id, PatchDeliveryDto dto) {
         Delivery delivery = deliveryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Entrega no encontrada con ID: " + id));
 

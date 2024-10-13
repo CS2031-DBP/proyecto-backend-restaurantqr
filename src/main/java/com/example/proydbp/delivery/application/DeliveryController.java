@@ -2,7 +2,9 @@ package com.example.proydbp.delivery.application;
 
 import com.example.proydbp.delivery.domain.DeliveryService;
 import com.example.proydbp.delivery.dto.DeliveryDto;
+import com.example.proydbp.delivery.dto.DeliveryRequestDto;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
+import com.example.proydbp.delivery.dto.PatchDeliveryDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,7 +35,7 @@ public class DeliveryController {
 
     @PreAuthorize("hasRole('CLIENT')")
     @PostMapping("/")
-    public ResponseEntity<DeliveryResponseDto> createDelivery(@RequestBody DeliveryDto dto) {
+    public ResponseEntity<DeliveryResponseDto> createDelivery(@RequestBody DeliveryRequestDto dto) {
         DeliveryResponseDto createdDelivery = deliveryService.createDelivery(dto);
         return ResponseEntity.ok(createdDelivery);
     }
@@ -47,7 +49,7 @@ public class DeliveryController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
-    public ResponseEntity<DeliveryResponseDto> updateDelivery(@PathVariable Long id, @RequestBody DeliveryDto dto) {
+    public ResponseEntity<DeliveryResponseDto> updateDelivery(@PathVariable Long id, @RequestBody PatchDeliveryDto dto) {
         DeliveryResponseDto updatedDelivery = deliveryService.updateDelivery(id, dto);
         return ResponseEntity.ok(updatedDelivery);
     }
