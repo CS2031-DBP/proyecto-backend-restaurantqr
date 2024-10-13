@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/auth/**").permitAll().requestMatchers("/user/expo-token/**").permitAll()
+                                .requestMatchers("/auth/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .build();
@@ -43,9 +43,9 @@ public class SecurityConfig {
     static RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
         hierarchy.setHierarchy(
-                "ROLE_ADMIN > ROLE_CLIENT \n " +
-                "ROLE_ADMIN > ROLE_REPARTIDOR \n " +
-                "ROLE_ADMIN > ROLE_MESERO");
+                "ADMIN > CLIENT \n " +
+                "ADMIN > REPARTIDOR \n " +
+                "ADMIN > MESERO");
         return hierarchy;
     }
 
@@ -53,7 +53,6 @@ public class SecurityConfig {
     static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
         DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
         expressionHandler.setRoleHierarchy(roleHierarchy);
-        expressionHandler.setDefaultRolePrefix("ROLE_");
         return expressionHandler;
     }
 
