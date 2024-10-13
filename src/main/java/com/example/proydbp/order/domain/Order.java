@@ -45,3 +45,4 @@ public class Order {
     @JoinColumn(name = "pedido_local_id", nullable = false)
     private PedidoLocal pedidoLocal;
 }
+

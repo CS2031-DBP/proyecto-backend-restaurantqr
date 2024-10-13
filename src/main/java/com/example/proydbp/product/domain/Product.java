@@ -9,9 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -43,3 +40,4 @@ public class Product {
     @ManyToMany(mappedBy = "products")
     private List<Order> orders;
 }
+

@@ -1,14 +1,8 @@
 package com.example.proydbp.delivery.domain;
 
-import com.example.proydbp.events.email_event.*;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.exception.UnauthorizeOperationException;
-import com.example.proydbp.mesero.domain.MeseroService;
-import com.example.proydbp.mesero.dto.MeseroResponseDto;
-import com.example.proydbp.mesero.infrastructure.MeseroRepository;
 import com.example.proydbp.order.domain.Order;
-import com.example.proydbp.order.dto.OrderResponseDto;
-import com.example.proydbp.order.infrastructure.OrderRepository;
 import com.example.proydbp.delivery.dto.DeliveryRequestDto;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
@@ -19,7 +13,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -31,18 +24,15 @@ public class DeliveryService {
     final private DeliveryRepository deliveryRepository;
     final private ApplicationEventPublisher eventPublisher;
     final private ModelMapper modelMapper;
-    final private MeseroService meseroService;
     private final RepartidorService repartidorService;
 
     @Autowired
     public DeliveryService(DeliveryRepository deliveryRepository,
                            ApplicationEventPublisher eventPublisher,
-                           ModelMapper modelMapper,
-                           MeseroService meseroService, RepartidorService repartidorService) {
+                           ModelMapper modelMapper, RepartidorService repartidorService) {
         this.deliveryRepository = deliveryRepository;
         this.eventPublisher = eventPublisher;
         this.modelMapper = modelMapper;
-        this.meseroService = meseroService;
         this.repartidorService = repartidorService;
     }
 

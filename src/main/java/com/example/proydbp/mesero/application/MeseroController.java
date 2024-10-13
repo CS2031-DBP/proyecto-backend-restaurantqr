@@ -8,8 +8,6 @@ import com.example.proydbp.mesero.dto.MeseroSelfResponseDto;
 import com.example.proydbp.mesero.dto.PatchMeseroDto;
 import com.example.proydbp.mesero.infrastructure.MeseroRepository;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
-import com.example.proydbp.pedido_local.infrastructure.PedidoLocalRepository;
-import com.example.proydbp.reviewMesero.domain.ReviewMesero;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +18,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/mesero")
@@ -87,7 +84,7 @@ public class MeseroController {
     }
 
     @PreAuthorize("hasRole('MESERO')")
-    @GetMapping("/me/misreviews")
+    @GetMapping("/me/misReviews")
     public ResponseEntity<List<ReviewMeseroResponseDto>> findMisReviews() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 

@@ -3,14 +3,11 @@ package com.example.proydbp.mesa.domain;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.mesa.dto.MesaRequestDto;
 import com.example.proydbp.mesa.dto.MesaResponseDto;
-import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.reservation.domain.Reservation;
 import com.example.proydbp.mesa.infrastructure.MesaRepository;
 import com.example.proydbp.reservation.dto.ReservationResponseDto;
 import com.example.proydbp.reservation.infrastructure.ReservationRepository;
-import org.hibernate.type.TrueFalseConverter;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

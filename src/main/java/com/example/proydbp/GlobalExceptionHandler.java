@@ -13,8 +13,7 @@ import javax.naming.AuthenticationException;
 import java.nio.file.AccessDeniedException;
 
 @RestControllerAdvice
-public class
-GlobalExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
