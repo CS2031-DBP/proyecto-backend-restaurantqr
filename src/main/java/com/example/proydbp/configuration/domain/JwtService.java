@@ -1,4 +1,4 @@
-package com.example.proydbp.configuration;
+package com.example.proydbp.configuration.domain;
 import com.auth0.jwt.JWT;
 
 import com.auth0.jwt.algorithms.Algorithm;

@@ -1,5 +1,6 @@
 package com.example.proydbp.configuration;
 
+import com.example.proydbp.configuration.domain.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
-public class JwtAuthenticationFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter{
     private final JwtService jwtService;
 
     @Autowired
