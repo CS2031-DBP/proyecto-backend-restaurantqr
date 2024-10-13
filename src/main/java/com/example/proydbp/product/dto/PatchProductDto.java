@@ -1,7 +1,8 @@
-package com.example.proydbp.product.domain;
+package com.example.proydbp.product.dto;
 
-import com.example.proydbp.order.domain.Order;
-import jakarta.persistence.*;
+import com.example.proydbp.product.domain.Category;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -10,17 +11,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
-@Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class Product {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+public class PatchProductDto {
 
     @NotNull
     @Size(min = 1, max = 100)
@@ -39,12 +34,4 @@ public class Product {
 
     @NotNull
     private Boolean isAvailable;
-
-    @ManyToMany
-    @JoinTable(
-            name = "relacion_order-product",
-            joinColumns = @JoinColumn(name = "product_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name ="order_id", nullable = false)
-    )
-    private List<Order> orders;
 }

@@ -13,10 +13,14 @@ import com.example.proydbp.pedido_local.dto.PatchPedidoLocalDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalRequestDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import com.example.proydbp.pedido_local.infrastructure.PedidoLocalRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,41 +29,50 @@ public class PedidoLocalService {
 
     final private PedidoLocalRepository pedidoLocalRepository;
     final private ApplicationEventPublisher eventPublisher;
-    final private OrderRepository orderRepository;
-    final private MeseroRepository meseroRepository;
+    final private ModelMapper modelMapper;
+    final private MeseroService meseroService;
 
     @Autowired
     public PedidoLocalService(PedidoLocalRepository pedidoLocalRepository
-            , ApplicationEventPublisher eventPublisher, OrderRepository orderRepository,
-                              MeseroRepository meseroRepository) {
+            , ApplicationEventPublisher eventPublisher, ModelMapper modelMapper, MeseroService meseroService) {
         this.pedidoLocalRepository = pedidoLocalRepository;
         this.eventPublisher = eventPublisher;
-        this.orderRepository = orderRepository;
-        this.meseroRepository = meseroRepository;
+        this.modelMapper = modelMapper;
+        this.meseroService = meseroService;
     }
 
     public PedidoLocalResponseDto findPedidoLocalById(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
-        return mapToResponseDto(pedidoLocal);
+
+        return modelMapper.map(pedidoLocal, PedidoLocalResponseDto.class);
     }
 
     public List<PedidoLocalResponseDto> findAllPedidoLocals() {
         return pedidoLocalRepository.findAll().stream()
-                .map(this::mapToResponseDto)
+                .map(pedidoLocal -> modelMapper.map(pedidoLocal, PedidoLocalResponseDto.class))
                 .collect(Collectors.toList());
     }
 
     public PedidoLocalResponseDto createPedidoLocal(PedidoLocalRequestDto dto) {
-        PedidoLocal pedidoLocal = mapToEntity(dto);
-        PedidoLocal savedPedidoLocal = pedidoLocalRepository.save(pedidoLocal);
+        PedidoLocal pedidoLocal = modelMapper.map(dto, PedidoLocal.class); // Mapeo directo desde DTO a entidad
+        pedidoLocal.setMesero(meseroService.asignarMesero());
+        pedidoLocal.setStatus(StatusPedidoLocal.RECIBIDO);
+        pedidoLocal.setFecha(LocalDate.now());
+        pedidoLocal.setHora(LocalTime.now());
+
+        PedidoLocal pedidoLocal2 = pedidoLocalRepository.save(pedidoLocal);
+
+        pedidoLocal2.setPrecio(calcularPrecioTotal(pedidoLocal.getId()));
+
+        PedidoLocal savedPedidoLocal = pedidoLocalRepository.save(pedidoLocal2);
 
         // Obtener el correo del mesero asociado al pedido
         String recipientEmail = savedPedidoLocal.getMesero().getEmail();
 
         eventPublisher.publishEvent(new PedidoLocalCreatedEvent(savedPedidoLocal, recipientEmail));
 
-        return mapToResponseDto(savedPedidoLocal);
+        return modelMapper.map(savedPedidoLocal, PedidoLocalResponseDto.class);
     }
 
 
@@ -78,123 +91,92 @@ public class PedidoLocalService {
     public PedidoLocalResponseDto updatePedidoLocal(Long id, PatchPedidoLocalDto dto) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
-        mapPatchDtoToEntity(dto, pedidoLocal);
-        PedidoLocal updatedPedidoLocal = pedidoLocalRepository.save(pedidoLocal);
 
-        String recipientEmail = updatedPedidoLocal.getMesero().getEmail();
+        // Mapear solo los campos que se actualizan desde el DTO
+        modelMapper.map(dto, pedidoLocal);
 
-        eventPublisher.publishEvent(new PedidoLocalUpdatedEvent(updatedPedidoLocal, recipientEmail));
-        return mapToResponseDto(updatedPedidoLocal);
+        PedidoLocal pedidoLocal2 = pedidoLocalRepository.save(pedidoLocal);
+
+        pedidoLocal2.setPrecio(calcularPrecioTotal(pedidoLocal.getId()));
+
+        PedidoLocal savedPedidoLocal = pedidoLocalRepository.save(pedidoLocal2);
+
+        String recipientEmail = savedPedidoLocal.getMesero().getEmail();
+
+        eventPublisher.publishEvent(new PedidoLocalUpdatedEvent(savedPedidoLocal, recipientEmail));
+        return modelMapper.map(savedPedidoLocal, PedidoLocalResponseDto.class);
     }
 
     public PedidoLocalResponseDto cocinandoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
 
-        pedidoLocal.setEstado("EN_PREPARACION");
+        pedidoLocal.setStatus(StatusPedidoLocal.EN_PREPARACION);
 
         PedidoLocal updatedPedidoLocal = pedidoLocalRepository.save(pedidoLocal);
-
         String recipientEmail = updatedPedidoLocal.getMesero().getEmail();
 
         // Publicar el evento
         eventPublisher.publishEvent(new EstadoPedidoLocalPreparandoEvent(updatedPedidoLocal, recipientEmail));
 
-        return mapToResponseDto(updatedPedidoLocal);
+        return modelMapper.map(updatedPedidoLocal, PedidoLocalResponseDto.class);
     }
-
 
     public PedidoLocalResponseDto listoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
 
-        pedidoLocal.setEstado("ENTREGADO");
+        pedidoLocal.setStatus(StatusPedidoLocal.LISTO);
 
         PedidoLocal updatedPedidoLocal = pedidoLocalRepository.save(pedidoLocal);
-
         String recipientEmail = updatedPedidoLocal.getMesero().getEmail();
 
         // Publicar el evento
         eventPublisher.publishEvent(new EstadoPedidoLocalListoEvent(updatedPedidoLocal, recipientEmail));
 
-        return mapToResponseDto(updatedPedidoLocal);
+        return modelMapper.map(updatedPedidoLocal, PedidoLocalResponseDto.class);
     }
 
-    public List<PedidoLocalResponseDto> findPedidosLocalesRecibidos() {
-        List<PedidoLocal> pedidosLocales = pedidoLocalRepository.findByStatus("RECIBIDO");
+    public List<PedidoLocalResponseDto> findPedidosLocalesActuales() {
+        List<PedidoLocal> pedidosLocales = pedidoLocalRepository.findByStatusIn(List.of(StatusPedidoLocal.RECIBIDO, StatusPedidoLocal.EN_PREPARACION));
 
+        // Mapear los pedidos locales a PedidoLocalResponseDto utilizando ModelMapper
         return pedidosLocales.stream()
-                .map(this::mapToResponseDto)
+                .map(pedidoLocal -> modelMapper.map(pedidoLocal, PedidoLocalResponseDto.class))
                 .collect(Collectors.toList());
     }
 
 
-    private PedidoLocalResponseDto mapToResponseDto(PedidoLocal pedidoLocal) {
-        PedidoLocalResponseDto responseDto = new PedidoLocalResponseDto();
-        responseDto.setId(pedidoLocal.getId());
+    // adicional
 
-        // Mapeo de cada orden a su correspondiente OrderResponseDto
-        List<OrderResponseDto> ordersResponse = pedidoLocal.getOrdenes().stream()
-                .map(order -> new OrderResponseDto(order.getId(), order.getPrice(), order.getProducts(), order.getDetails()))
-                .collect(Collectors.toList());
-        responseDto.setOrdenes(ordersResponse);
+    public BigDecimal calcularPrecioTotal(Long idPedidoLocal) {
+        PedidoLocal pedidoLocal = pedidoLocalRepository.findById(idPedidoLocal)
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
 
-        // Mapeo del mesero usando MeseroResponseDto
-        Mesero mesero = pedidoLocal.getMesero();
-        if (mesero != null) {
-            MeseroResponseDto meseroDto = new MeseroResponseDto(
-                    mesero.getId(),
-                    mesero.getFirstName(),
-                    mesero.getLastName(),
-                    mesero.getPedidosLocales(),
-                    mesero.getReviewsMesero(),
-                    mesero.getRatingScore()
-            );
-            responseDto.setMesero(meseroDto);
-        }
+        // Obtener todas las órdenes asociadas al pedido local
+        List<Order> orders = pedidoLocal.getOrders();
 
-        responseDto.setFecha(pedidoLocal.getFecha());
-        responseDto.setHora(pedidoLocal.getHora());
-        responseDto.setEstado(pedidoLocal.getEstado());
-        responseDto.setPrecio(pedidoLocal.getPrecio());
-        responseDto.setTipoPago(pedidoLocal.getTipoPago());
+        // Calcular el precio total sumando el precio de cada orden
+        BigDecimal totalPrecio = orders.stream()
+                .map(Order::getPrice) // Obtener el precio de cada orden
+                .reduce(BigDecimal.ZERO, BigDecimal::add); // Sumar los precios
 
-        return responseDto;
+        return totalPrecio;
     }
 
-    private PedidoLocal mapToEntity(PedidoLocalRequestDto dto) {
-        PedidoLocal pedidoLocal = new PedidoLocal();
+    public PedidoLocalResponseDto entregadoPedidoLocal(Long id) {
+        PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
 
-        // Mapeo de las órdenes
-        List<Order> orders = dto.getOrdenesIds().stream()
-                .map(orderId -> orderRepository.findById(orderId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Orden no encontrada con ID: " + orderId)))
-                .collect(Collectors.toList());
-        pedidoLocal.setOrdenes(orders);
+        pedidoLocal.setStatus(StatusPedidoLocal.ENTREGADO);
 
-        // Mapeo del mesero desde el repositorio
-        Mesero mesero = meseroRepository.findById(dto.getMeseroId())
-                .orElseThrow(() -> new ResourceNotFoundException("Mesero no encontrado"));
-        pedidoLocal.setMesero(mesero);
+        PedidoLocal updatedPedidoLocal = pedidoLocalRepository.save(pedidoLocal);
+        String recipientEmail = updatedPedidoLocal.getMesero().getEmail();
 
-        pedidoLocal.setFecha(dto.getFecha());
-        pedidoLocal.setHora(dto.getHora());
-        pedidoLocal.setEstado(dto.getEstado());
-        pedidoLocal.setPrecio(dto.getPrecio());
-        pedidoLocal.setTipoPago(dto.getTipoPago());
+        // Publicar el evento
+        eventPublisher.publishEvent(new EstadoPedidoLocalListoEvent(updatedPedidoLocal, recipientEmail));
 
-        return pedidoLocal;
+        return modelMapper.map(updatedPedidoLocal, PedidoLocalResponseDto.class);
     }
 
-    private void mapPatchDtoToEntity(PatchPedidoLocalDto dto, PedidoLocal pedidoLocal) {
-        if (dto.getEstado() != null) {
-            pedidoLocal.setEstado(dto.getEstado());
-        }
-        if (dto.getPrecio() != null) {
-            pedidoLocal.setPrecio(dto.getPrecio());
-        }
-        if (dto.getTipoPago() != null) {
-            pedidoLocal.setTipoPago(dto.getTipoPago());
-        }
-    }
 }

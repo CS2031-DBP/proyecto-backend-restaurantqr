@@ -25,14 +25,12 @@ public class Order {
 
     private String details;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "product_id",cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private List<Product> products;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "delivery_id", cascade = CascadeType.ALL)
     private Delivery delivery;
 
     @ManyToOne
-    @JoinColumn(name = "pedido_local_id")
-    private PedidoLocal pedidoLocal;
-
+    private PedidoLocal pedidoLocals;
 }

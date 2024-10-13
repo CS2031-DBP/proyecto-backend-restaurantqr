@@ -5,7 +5,6 @@ import com.example.proydbp.mesero.domain.Mesero;
 import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +12,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 @Data
 @Entity
@@ -47,5 +45,5 @@ public class ReviewMesero {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "pedido_id", nullable = false)
-    private Order pedidoLocal;
+    private PedidoLocal pedidoLocal;
 }

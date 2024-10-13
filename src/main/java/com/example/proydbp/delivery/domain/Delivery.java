@@ -16,5 +16,5 @@ public class Delivery {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private StatusDelivery status;
 }

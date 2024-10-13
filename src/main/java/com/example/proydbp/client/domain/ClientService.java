@@ -5,8 +5,9 @@ import com.example.proydbp.client.dto.ClientResponseDto;
 import com.example.proydbp.client.dto.PatchClientDto;
 
 import com.example.proydbp.client.infrastructure.ClientRepository;
-import com.example.proydbp.delivery.domain.Status;
+import com.example.proydbp.delivery.domain.StatusDelivery;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
+import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import com.example.proydbp.reservation.domain.StatusReservation;
 import com.example.proydbp.reservation.dto.ReservationResponseDto;
@@ -191,7 +192,7 @@ public class ClientService {
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
 
         return client.getPedidoLocales().stream()
-                .filter(pedidoLocal -> pedidoLocal.getStatus() != Status.ENTREGADO && pedidoLocal.getStatus() != Status.CANCELADO)  // Filtrar por estado enum
+                .filter(pedidoLocal -> pedidoLocal.getStatus() == StatusPedidoLocal.ENTREGADO || pedidoLocal.getStatus() == StatusPedidoLocal.CANCELADO)  // Filtrar por estado enum
                 .map(delivery -> modelMapper.map(delivery, PedidoLocalResponseDto.class))  // Mapear usando ModelMapper
                 .collect(Collectors.toList());  // Recoger la lista filtrada
     }
@@ -204,7 +205,7 @@ public class ClientService {
         // Filtrar los deliveries que no están en estado "ENTREGADO" y mapear a DeliveryResponseDto usando ModelMapper
 
         return client.getDeliveries().stream()
-                .filter(delivery -> delivery.getStatus() != Status.ENTREGADO && delivery.getStatus() != Status.CANCELADO)  // Filtrar por estado enum
+                .filter(delivery -> delivery.getStatus() != StatusDelivery.ENTREGADO && delivery.getStatus() != StatusDelivery.CANCELADO)  // Filtrar por estado enum
                 .map(delivery -> modelMapper.map(delivery, DeliveryResponseDto.class))  // Mapear usando ModelMapper
                 .collect(Collectors.toList());  // Recoger la lista filtrada
     }

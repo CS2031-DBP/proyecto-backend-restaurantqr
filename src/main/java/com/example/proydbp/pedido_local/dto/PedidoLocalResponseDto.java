@@ -2,8 +2,11 @@ package com.example.proydbp.pedido_local.dto;
 
 import com.example.proydbp.mesero.dto.MeseroResponseDto;
 import com.example.proydbp.order.dto.OrderResponseDto;
+import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
+import com.example.proydbp.pedido_local.domain.TipoPago;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -21,11 +24,11 @@ public class PedidoLocalResponseDto {
 
     private LocalTime hora;
 
-    private String estado;
+    private StatusPedidoLocal status;
 
     private OrderResponseDto orden;
 
-    private Double precio;
+    private BigDecimal precio;
 
-    private String tipoPago;
+    private TipoPago tipoPago;
 }

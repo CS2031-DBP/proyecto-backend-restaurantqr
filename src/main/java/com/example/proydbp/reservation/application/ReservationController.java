@@ -2,10 +2,13 @@ package com.example.proydbp.reservation.application;
 
 import com.example.proydbp.reservation.domain.Reservation;
 import com.example.proydbp.reservation.domain.ReservationService;
+import com.example.proydbp.reservation.dto.ReservationRequestDto;
 import com.example.proydbp.reservation.dto.ReservationResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,46 +24,68 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<Reservation>> getAllReservations() {
-        List<Reservation> reservations = reservationService.getAllReservations();
-        return new ResponseEntity<>(reservations, HttpStatus.OK);
+    public ResponseEntity<List<ReservationResponseDto>> getAllReservations() {
+        List<ReservationResponseDto> reservations = reservationService.findAllReservations();
+        return ResponseEntity.ok(reservations);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
-        Reservation reservation = reservationService.getReservationById(id);
-        return new ResponseEntity<>(reservation, HttpStatus.OK);
+    public ResponseEntity<ReservationResponseDto> getReservationById(@PathVariable Long id) {
+        ReservationResponseDto reservation = reservationService.findReservationById(id);
+        return ResponseEntity.ok(reservation);
     }
 
-    @GetMapping("/client/{clientId}")
-    public ResponseEntity<List<Reservation>> getReservationsByClientId(@PathVariable Long clientId) {
-        List<Reservation> reservations = reservationService.getReservationsByClientId(clientId);
-        return new ResponseEntity<>(reservations, HttpStatus.OK);
-    }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<Reservation> createReservation(@RequestBody ReservationResponseDto reservationResponseDto) {
-        // Usar el DTO para crear la nueva reserva
-        Reservation newReservation = reservationService.createReservation(reservationResponseDto);
-        return new ResponseEntity<>(newReservation, HttpStatus.CREATED);
+    public ResponseEntity<ReservationResponseDto> createReservation(@Validated @RequestBody ReservationRequestDto reservationRequestDto) {
+        ReservationResponseDto newReservation = reservationService.createReservation(reservationRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newReservation);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<Reservation> updateReservation(@PathVariable Long id, @RequestBody ReservationResponseDto reservationResponseDto) {
-        Reservation updatedReservation = reservationService.updateReservation(id, reservationResponseDto);
-        return new ResponseEntity<>(updatedReservation, HttpStatus.OK);
+    public ResponseEntity<ReservationResponseDto> updateReservation(@PathVariable Long id,
+                                                                    @Validated @RequestBody ReservationRequestDto reservationRequestDto) {
+        ReservationResponseDto updatedReservation = reservationService.updateReservation(id, reservationRequestDto);
+        return ResponseEntity.ok(updatedReservation);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Reservation> patchReservation(@PathVariable Long id, @RequestBody Reservation updatedFields) {
-        Reservation patchedReservation = reservationService.patchReservation(id, updatedFields);
-        return new ResponseEntity<>(patchedReservation, HttpStatus.OK);
-    }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
         reservationService.deleteReservation(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('CLIENT')")
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<ReservationResponseDto> cancelReservation(@PathVariable Long id) {
+        ReservationResponseDto canceledReservation = reservationService.canceledReservation(id);
+        return ResponseEntity.ok(canceledReservation);
+    }
+
+    @PreAuthorize("hasRole('MESERO')")
+    @PutMapping("/{id}/confirm")
+    public ResponseEntity<ReservationResponseDto> confirmReservation(@PathVariable Long id) {
+        ReservationResponseDto confirmedReservation = reservationService.confirmedReservation(id);
+        return ResponseEntity.ok(confirmedReservation);
+    }
+
+    @PreAuthorize("hasRole('MESERO')")
+    @PutMapping("/{id}/finish")
+    public ResponseEntity<ReservationResponseDto> finishReservation(@PathVariable Long id) {
+        ReservationResponseDto finishedReservation = reservationService.finishedReservation(id);
+        return ResponseEntity.ok(finishedReservation);
+    }
+
+    @PreAuthorize("hasRole('CLIENT')")
+    @PutMapping("/me/{id}/editReservation")
+    public ResponseEntity<ReservationResponseDto> updateMyReservation(@PathVariable Long id,
+                                                                      @Validated @RequestBody ReservationRequestDto reservationRequestDto) {
+        ReservationResponseDto updatedReservation = reservationService.updateMyReservation(id, reservationRequestDto);
+        return ResponseEntity.ok(updatedReservation);
     }
 }
