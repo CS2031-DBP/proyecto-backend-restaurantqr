@@ -1,5 +1,7 @@
 package com.example.proydbp.pedido_local.domain;
 
+import com.example.proydbp.client.domain.Client;
+import com.example.proydbp.client.infrastructure.ClientRepository;
 import com.example.proydbp.events.email_event.*;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.mesero.domain.MeseroService;
@@ -11,6 +13,8 @@ import com.example.proydbp.pedido_local.infrastructure.PedidoLocalRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,14 +29,16 @@ public class PedidoLocalService {
     final private ApplicationEventPublisher eventPublisher;
     final private ModelMapper modelMapper;
     final private MeseroService meseroService;
+    private final ClientRepository clientRepository;
 
     @Autowired
     public PedidoLocalService(PedidoLocalRepository pedidoLocalRepository
-            , ApplicationEventPublisher eventPublisher, ModelMapper modelMapper, MeseroService meseroService) {
+            , ApplicationEventPublisher eventPublisher, ModelMapper modelMapper, MeseroService meseroService, ClientRepository clientRepository) {
         this.pedidoLocalRepository = pedidoLocalRepository;
         this.eventPublisher = eventPublisher;
         this.modelMapper = modelMapper;
         this.meseroService = meseroService;
+        this.clientRepository = clientRepository;
     }
 
     public PedidoLocalResponseDto findPedidoLocalById(Long id) {
@@ -55,13 +61,17 @@ public class PedidoLocalService {
         pedidoLocal.setFecha(LocalDate.now());
         pedidoLocal.setHora(LocalTime.now());
 
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Client client = clientRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+
+        pedidoLocal.setClient(client);
         PedidoLocal pedidoLocal2 = pedidoLocalRepository.save(pedidoLocal);
 
         pedidoLocal2.setPrecio(calcularPrecioTotal(pedidoLocal.getId()));
 
         PedidoLocal savedPedidoLocal = pedidoLocalRepository.save(pedidoLocal2);
 
-        // Obtener el correo del mesero asociado al pedido
         String recipientEmail = savedPedidoLocal.getMesero().getEmail();
 
         eventPublisher.publishEvent(new PedidoLocalCreatedEvent(savedPedidoLocal, recipientEmail));

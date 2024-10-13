@@ -1,5 +1,6 @@
 package com.example.proydbp.pedido_local.domain;
 
+import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.mesero.domain.Mesero;
 import com.example.proydbp.order.domain.Order;
 import jakarta.persistence.*;
@@ -44,4 +45,10 @@ public class PedidoLocal {
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_pago", nullable = false)
     private TipoPago tipoPago;
+
+    @ManyToOne
+    @JoinColumn(name = "client_id", nullable = false)
+    private Client client;
+
+
 }
