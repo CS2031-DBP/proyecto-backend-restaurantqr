@@ -1,11 +1,10 @@
 package com.example.proydbp.mesero.dto;
 
 import com.example.proydbp.pedido_local.domain.PedidoLocal;
+import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import com.example.proydbp.reviewMesero.domain.ReviewMesero;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,17 +17,21 @@ import java.util.List;
 public class MeseroResponseDto {
 
     @NotNull
-    private Long id;
-
-    @NotBlank(message = "El nombre no puede estar vacío")
+    @NotEmpty
     private String firstName;
 
-    @NotBlank(message = "El apellido no puede estar vacío")
+    @NotNull
     private String lastName;
 
-    private List<PedidoLocal> pedidosLocales;
+    @NotNull
+    private String email;
 
-    private List<ReviewMesero> reviewsMesero;
+    @NotNull
+    private String phoneNumber;
+
+    private List<PedidoLocalResponseDto> pedidosLocales;
+
+    private List<ReviewMeseroResponseDto> reviewsMesero;
 
     @DecimalMax("5")
     @DecimalMin("0")

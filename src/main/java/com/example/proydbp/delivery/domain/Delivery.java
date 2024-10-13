@@ -45,7 +45,7 @@ public class Delivery {
     @Enumerated(EnumType.STRING)
     @NotNull(message = "El estado no puede ser nulo")
     @Column(name = "delivery_status")
-    private Status status;
+    private StatusDelivery status;
 
     @OneToOne
     @JoinColumn(name = "order_id", nullable = false)

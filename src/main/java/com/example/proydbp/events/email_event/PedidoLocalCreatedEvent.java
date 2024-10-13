@@ -21,7 +21,7 @@ public class PedidoLocalCreatedEvent extends ApplicationEvent {
         // Configuración del correo electrónico
         Map<String, Object> properties = new HashMap<>();
         properties.put("ID del Pedido", pedidoLocal.getId());
-        properties.put("Estado", pedidoLocal.getEstado());
+        properties.put("Estado", pedidoLocal.getStatus());
         properties.put("Precio Total", pedidoLocal.getPrecio());
         properties.put("Tipo de Pago", pedidoLocal.getTipoPago());
 

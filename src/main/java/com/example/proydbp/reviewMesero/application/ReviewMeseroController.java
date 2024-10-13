@@ -36,21 +36,21 @@ public class ReviewMeseroController {
         return ResponseEntity.ok(reviewMeseroService.findAllReviewMeseros());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CLIENT')")
     @PostMapping
     public ResponseEntity<ReviewMeseroResponseDto> createReviewMesero(@Valid @RequestBody ReviewMeseroRequestDto dto) {
         ReviewMeseroResponseDto createdReview = reviewMeseroService.createReviewMesero(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdReview);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CLIENT')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReviewMesero(@PathVariable Long id) {
         reviewMeseroService.deleteReviewMesero(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CLIENT')")
     @PatchMapping("/{id}")
     public ResponseEntity<ReviewMeseroResponseDto> updateReviewMesero(@PathVariable Long id, @Valid @RequestBody PatchReviewMeseroDto dto) {
         ReviewMeseroResponseDto updatedReview = reviewMeseroService.updateReviewMesero(id, dto);

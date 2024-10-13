@@ -7,6 +7,7 @@ import com.example.proydbp.order.dto.PatchOrderDto;
 import com.example.proydbp.order.infrastructure.OrderRepository;
 import com.example.proydbp.product.domain.Product;
 import com.example.proydbp.product.infrastructure.ProductRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,35 +20,37 @@ public class OrderService {
 
     final private OrderRepository orderRepository;
     final private ProductRepository productRepository;
+    final private ModelMapper modelMapper;
 
     @Autowired
     public OrderService(OrderRepository orderRepository,
-                        ProductRepository productRepository) {
+                        ProductRepository productRepository, ModelMapper modelMapper) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.modelMapper = modelMapper;
     }
 
 
     public OrderResponseDto findOrderById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + id));
-        return mapToResponseDto(order);
+        return modelMapper.map(order, OrderResponseDto.class);
     }
 
     public List<OrderResponseDto> findAllOrders() {
         List<Order> orders = orderRepository.findAll();
-        return orders.stream().map(this::mapToResponseDto).collect(Collectors.toList());
+        return orders.stream()
+                .map(order -> modelMapper.map(order, OrderResponseDto.class))
+                .collect(Collectors.toList());
     }
 
     public OrderResponseDto createOrder(OrderRequestDto orderRequestDto) {
-        if (orderRequestDto.getPrice().compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Price cannot be negative");
-        }
-
-        Order order = mapToEntity(orderRequestDto);
+        Order order = modelMapper.map(orderRequestDto, Order.class);
+        order.setPrice(calcularPrecioTotal(order.getId()));
         orderRepository.save(order);
-        return mapToResponseDto(order);
+        return modelMapper.map(order, OrderResponseDto.class);
     }
+
 
     public void deleteOrder(Long id) {
         if (!orderRepository.existsById(id)) {
@@ -60,18 +63,19 @@ public class OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + id));
 
-        if (patchOrderDto.getPrice() != null && patchOrderDto.getPrice().compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Price cannot be negative");
-        }
-
-        if (patchOrderDto.getPrice() != null) {
-            order.setPrice(patchOrderDto.getPrice());
-        }
         if (patchOrderDto.getDetails() != null) {
             order.setDetails(patchOrderDto.getDetails());
         }
+        if (patchOrderDto.getProducts() != null) {
+            List<Product> products = patchOrderDto.getProducts().stream()
+                    .map(productDto -> modelMapper.map(productDto, Product.class))
+                    .collect(Collectors.toList()); // Recoger los productos mapeados en una lista
+            order.setProducts(products); // Asignar la lista de productos al pedido
+            order.setPrice(calcularPrecioTotal(order.getId()));
+        }
+
         orderRepository.save(order);
-        return mapToResponseDto(order);
+        return modelMapper.map(order, OrderResponseDto.class); // Devolver el DTO de respuesta
     }
 
     public void addProducto(Long idOrden, Long idProducto, int cantidad) {
@@ -89,17 +93,24 @@ public class OrderService {
             order.getProducts().add(product);
         }
 
+        order.setPrice(calcularPrecioTotal(order.getId()));
         orderRepository.save(order);
     }
 
-    private OrderResponseDto mapToResponseDto(Order order) {
-        return new OrderResponseDto(order.getId(), order.getPrice(), order.getProducts(), order.getDetails());
+    // adicional
+
+    public BigDecimal calcularPrecioTotal(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + orderId));
+
+        List<Product> productos = order.getProducts();
+
+        // Sumar el precio de cada producto
+        BigDecimal total = productos.stream()
+                .map(Product::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add); // Sumar los precios
+
+        return total; // Retornar el precio total
     }
 
-    private Order mapToEntity(OrderRequestDto dto) {
-        Order order = new Order();
-        order.setPrice(dto.getPrice());
-        order.setDetails(dto.getDetails());
-        return order;
-    }
 }

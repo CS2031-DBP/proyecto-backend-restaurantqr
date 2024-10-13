@@ -5,10 +5,13 @@ import com.example.proydbp.client.dto.ClientResponseDto;
 import com.example.proydbp.client.dto.PatchClientDto;
 
 import com.example.proydbp.client.infrastructure.ClientRepository;
+import com.example.proydbp.delivery.domain.StatusDelivery;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
-import com.example.proydbp.exception.ResourceNotFoundException;
+import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
-import com.example.proydbp.reservation.dto.ReservationDto;
+import com.example.proydbp.reservation.domain.StatusReservation;
+import com.example.proydbp.reservation.dto.ReservationResponseDto;
+import com.example.proydbp.user.domain.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -36,7 +39,7 @@ public class ClientService {
 
     public ClientResponseDto getClient(Long id) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente con id "+ id +"no encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con id "+ id +"no encontrado."));
         return modelMapper.map(client, ClientResponseDto.class);
     }
 
@@ -61,13 +64,14 @@ public class ClientService {
 
     public ClientResponseDto saveClientDto(ClientRequestDto clientRequestDto) {
         Client client = modelMapper.map(clientRequestDto, Client.class);
+        client.setRole(Role.CLIENT);
         clientRepository.save(client);
         return modelMapper.map(client, ClientResponseDto.class);
     }
 
     public String getIdClient(ClientRequestDto clientRequestDto){
         Client client = clientRepository.findByEmail(clientRequestDto.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente con email " + clientRequestDto.getEmail() + " no encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con email " + clientRequestDto.getEmail() + " no encontrado."));
         return String.valueOf(client.getId());
     }
 
@@ -76,12 +80,14 @@ public class ClientService {
     }
 
     public void deleteClient(Long id) {
+        clientRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con id "+ id +"no encontrado."));
         clientRepository.deleteById(id);
     }
 
     public void updateClient(Long id, PatchClientDto patchClientDto) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente con id "+ id +"no encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con id "+ id +"no encontrado."));
 
 
         client.setFirstName(patchClientDto.getFirstName());
@@ -89,7 +95,6 @@ public class ClientService {
         client.setEmail(patchClientDto.getEmail());
         client.setPassword(patchClientDto.getPassword());
         client.setPhoneNumber(patchClientDto.getPhoneNumber());
-        client.setAddress(patchClientDto.getAddress());
         clientRepository.save(client);
     }
 
@@ -122,40 +127,39 @@ public class ClientService {
         client.setEmail(patchClientDto.getEmail());
         client.setPassword(patchClientDto.getPassword());
         client.setPhoneNumber(patchClientDto.getPhoneNumber());
-        client.setAddress(patchClientDto.getAddress());
         clientRepository.save(client);
     }
 
-    public List<PedidoLocalResponseDto> getActualPedidoLocal(){
+    public List<PedidoLocalResponseDto> getAllPedidoLocal(){
         String clientName = SecurityContextHolder.getContext().getAuthentication().getName();
         Client client = clientRepository
                 .findByEmail(clientName)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
-        return client.getPedidoLocal()
+        return client.getPedidoLocales()
                 .stream()
                 .map(pedidoLocal -> modelMapper.map(pedidoLocal, PedidoLocalResponseDto.class))
                 .collect(Collectors.toList());
     }
 
-    public List<DeliveryResponseDto> getActualDelivery(){
+    public List<DeliveryResponseDto> getAllDelivery(){
         String clientName = SecurityContextHolder.getContext().getAuthentication().getName();
         Client client = clientRepository
                 .findByEmail(clientName)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
-        return client.getDelivery()
+        return client.getDeliveries()
                 .stream()
                 .map(delivery -> modelMapper.map(delivery, DeliveryResponseDto.class))
                 .collect(Collectors.toList());
     }
 
-    public List<ReservationDto> getActualReservation(){
+    public List<ReservationResponseDto> getAllReservation(){
         String clientName = SecurityContextHolder.getContext().getAuthentication().getName();
         Client client = clientRepository
                 .findByEmail(clientName)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
-        return client.getReservation()
+        return client.getReservations()
                 .stream()
-                .map(reservation -> modelMapper.map(reservation, ReservationDto.class))
+                .map(reservation -> modelMapper.map(reservation, ReservationResponseDto.class))
                 .collect(Collectors.toList());
     }
 
@@ -173,8 +177,48 @@ public class ClientService {
         } else {
             client.setRango(Rango.PLATINUM);
         }
-        System.out.println(String.format("Felicidades, tu rango actual es: %s", client.getRango()));
+
+        // Incluir el evento
         return null;
     }
 
+
+    // adicional
+
+    public List<PedidoLocalResponseDto> getActualPedidoLocal(){
+        String clientName = SecurityContextHolder.getContext().getAuthentication().getName();
+        Client client = clientRepository
+                .findByEmail(clientName)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+
+        return client.getPedidoLocales().stream()
+                .filter(pedidoLocal -> pedidoLocal.getStatus() == StatusPedidoLocal.ENTREGADO || pedidoLocal.getStatus() == StatusPedidoLocal.CANCELADO)  // Filtrar por estado enum
+                .map(delivery -> modelMapper.map(delivery, PedidoLocalResponseDto.class))  // Mapear usando ModelMapper
+                .collect(Collectors.toList());  // Recoger la lista filtrada
+    }
+
+    public List<DeliveryResponseDto> getActualDelivery(){
+        String clientName = SecurityContextHolder.getContext().getAuthentication().getName();
+        Client client = clientRepository
+                .findByEmail(clientName)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+        // Filtrar los deliveries que no están en estado "ENTREGADO" y mapear a DeliveryResponseDto usando ModelMapper
+
+        return client.getDeliveries().stream()
+                .filter(delivery -> delivery.getStatus() != StatusDelivery.ENTREGADO && delivery.getStatus() != StatusDelivery.CANCELADO)  // Filtrar por estado enum
+                .map(delivery -> modelMapper.map(delivery, DeliveryResponseDto.class))  // Mapear usando ModelMapper
+                .collect(Collectors.toList());  // Recoger la lista filtrada
+    }
+
+    public List<ReservationResponseDto> getActualReservation(){
+        String clientName = SecurityContextHolder.getContext().getAuthentication().getName();
+        Client client = clientRepository
+                .findByEmail(clientName)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+
+        return client.getReservations().stream()
+                .filter(reservation -> reservation.getStatusReservation() != StatusReservation.CONFIRMADO && reservation.getStatusReservation() != StatusReservation.CANCELADO)  // Filtrar por estado enum
+                .map(delivery -> modelMapper.map(delivery, ReservationResponseDto.class))  // Mapear usando ModelMapper
+                .collect(Collectors.toList());  // Recoger la lista filtrada
+    }
 }

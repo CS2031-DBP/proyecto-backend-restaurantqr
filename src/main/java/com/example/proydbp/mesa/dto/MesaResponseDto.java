@@ -1,5 +1,6 @@
 package com.example.proydbp.mesa.dto;
 
+import com.example.proydbp.reservation.dto.ReservationResponseDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,15 +12,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
+import java.util.List;
+
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class MesaResponseDto {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
 
     private String qr;
 
@@ -29,5 +28,5 @@ public class MesaResponseDto {
 
     private boolean isAvailable;
 
-
+    private List<ReservationResponseDto> reservations;
 }

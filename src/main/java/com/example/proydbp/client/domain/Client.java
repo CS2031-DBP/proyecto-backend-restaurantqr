@@ -27,27 +27,20 @@ public class Client extends User {
     @Column(name = "loyalty_points", columnDefinition = "int default 0")
     private int loyaltyPoints;
 
-    @OneToMany(mappedBy = "pedidoLocal")
-    private List<PedidoLocal> pedidoLocal;
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<PedidoLocal> pedidoLocales;
 
-    @OneToMany(mappedBy = "delivery")
-    private List<Delivery> delivery;
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<Delivery> deliveries;
 
-    @OneToMany(mappedBy = "reservation")
-    private List<Reservation> reservation;
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<Reservation> reservations;
 
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<ReviewMesero> reviewMesero;
 
-    @OneToOne
-    private ReviewMesero reviewMesero;
-
-    @OneToMany
-    private List<PedidoLocal> pedidoLocal;
-
-    @OneToOne
-    private ReviewMesero reviewMesero;
-
-    @OneToOne
-    private ReviewDelivery reviewDelivery;
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<ReviewDelivery> reviewDelivery;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "membership_level")

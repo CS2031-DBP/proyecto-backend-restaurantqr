@@ -2,14 +2,11 @@ package com.example.proydbp.repartidor.dto;
 
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryResponseDto;
-import com.example.proydbp.user.domain.Role;
 import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.*;
 
 import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,4 +28,5 @@ public class RepartidorRequestDto {
 
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
+
 }

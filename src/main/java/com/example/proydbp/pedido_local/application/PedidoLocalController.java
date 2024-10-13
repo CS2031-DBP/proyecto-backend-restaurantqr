@@ -31,19 +31,19 @@ public class PedidoLocalController {
         return pedidoLocalService.findAllPedidoLocals();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MESERO') or hasRole('CLIENT')")
     @PostMapping
     public PedidoLocalResponseDto createPedidoLocal(@RequestBody PedidoLocalRequestDto dto) {
         return pedidoLocalService.createPedidoLocal(dto);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MESERO') or hasRole('CLIENT')")
     @DeleteMapping("/{id}")
     public void deletePedidoLocal(@PathVariable Long id) {
         pedidoLocalService.deletePedidoLocal(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MESERO') or hasRole('CLIENT')")
     @PatchMapping("/{id}")
     public PedidoLocalResponseDto updatePedidoLocal(@PathVariable Long id, @RequestBody PatchPedidoLocalDto dto) {
         return pedidoLocalService.updatePedidoLocal(id, dto);
@@ -63,7 +63,14 @@ public class PedidoLocalController {
 
     @PreAuthorize("hasRole('CHEF')")
     @GetMapping("/pedidosLocalesRecibidos")
-    public List<PedidoLocalResponseDto> getPedidosLocalesRecibidos() {
-        return pedidoLocalService.findPedidosLocalesRecibidos();
+    public List<PedidoLocalResponseDto> getPedidosLocalesActuales() {
+        return pedidoLocalService.findPedidosLocalesActuales();
     }
+
+    @PreAuthorize("hasRole('MESERO')")
+    @PatchMapping("/entregado/{id}")
+    public PedidoLocalResponseDto entregadoPedidoLocal(@PathVariable Long id) {
+        return pedidoLocalService.entregadoPedidoLocal(id);
+    }
+
 }

@@ -6,6 +6,8 @@ import com.example.proydbp.mesa.dto.MesaResponseDto;
 import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.reservation.domain.Reservation;
 import com.example.proydbp.mesa.infrastructure.MesaRepository;
+import com.example.proydbp.reservation.dto.ReservationResponseDto;
+import com.example.proydbp.reservation.infrastructure.ReservationRepository;
 import org.hibernate.type.TrueFalseConverter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +21,14 @@ public class MesaService {
 
     private final MesaRepository mesaRepository;
     private final ModelMapper modelMapper;
+    private final ReservationRepository reservationRepository;
 
     // Inyección de dependencias
-    public MesaService(MesaRepository mesaRepository, ModelMapper modelMapper) {
+    public MesaService(MesaRepository mesaRepository, ModelMapper modelMapper,
+                       ReservationRepository reservationRepository) {
         this.mesaRepository = mesaRepository;
         this.modelMapper = modelMapper;
+        this.reservationRepository = reservationRepository;
     }
 
     public List<MesaResponseDto> findAllMesas() {
@@ -53,7 +58,7 @@ public class MesaService {
         newMesa.setNumero(request.getNumero());
         newMesa.setCapacity(request.getCapacity());
         String ip = "192.168.1.100";
-        newMesa.setQr("http://" + ip + "/pedidoLocal/" + request.getNumero());
+        newMesa.setQr("https://" + ip + "auth/login/");
         return mesaRepository.save(newMesa);
     }
 
@@ -85,6 +90,7 @@ public class MesaService {
         List<Mesa> mesas = mesaRepository.findByAvailableTrue();
 
         return mesas.stream()
+                .filter(Mesa::isAvailable)  // Filtrar solo las mesas disponibles
                 .map(mesa -> modelMapper.map(mesa, MesaResponseDto.class))
                 .collect(Collectors.toList());
     }
@@ -97,5 +103,22 @@ public class MesaService {
                 .map(mesa -> modelMapper.map(mesa, MesaResponseDto.class))
                 .collect(Collectors.toList());
     }
+
+    // adicional
+
+    public List<ReservationResponseDto> getReservationsDeMesa(Long idMesa) {
+        // Buscar la mesa por su ID
+        Mesa mesa = mesaRepository.findById(idMesa)
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa not found with id " + idMesa));
+
+        // Buscar las reservas asociadas a esa mesa
+        List<Reservation> reservations = reservationRepository.findByMesa(mesa);
+
+        // Mapear las entidades de Reservation a ReservationResponseDto
+        return reservations.stream()
+                .map(reservation -> modelMapper.map(reservation, ReservationResponseDto.class))
+                .collect(Collectors.toList());
+    }
+
 
 }

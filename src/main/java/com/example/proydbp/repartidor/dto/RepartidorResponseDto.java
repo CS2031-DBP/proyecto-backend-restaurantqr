@@ -27,7 +27,7 @@ public class RepartidorResponseDto {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    private List<DeliveryResponseDto> deliverys; // Suponiendo que tienes un DTO para Delivery
+    private List<DeliveryResponseDto> deliveries; // Suponiendo que tienes un DTO para Delivery
 
     private List<ReviewDeliveryResponseDto> reviewsRepartidor; // Suponiendo que tienes un DTO para ReviewDelivery
 

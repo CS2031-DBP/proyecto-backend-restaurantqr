@@ -41,12 +41,9 @@ public class User implements UserDetails {
     @Column(name = "avg_rating", columnDefinition = "float default 0")
     private Float avgRating;
 
-    @Transient
-    private String rolePrefix = "ROLE_";
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(rolePrefix + role.name()));
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

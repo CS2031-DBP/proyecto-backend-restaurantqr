@@ -1,17 +1,25 @@
 package com.example.proydbp.repartidor.domain;
 
 import com.example.proydbp.delivery.domain.Delivery;
-import com.example.proydbp.delivery.domain.DeliveryService;
+import com.example.proydbp.delivery.domain.StatusDelivery;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
-import com.example.proydbp.repartidor.domain.Repartidor;
+import com.example.proydbp.mesero.domain.Mesero;
+import com.example.proydbp.mesero.dto.MeseroSelfResponseDto;
+import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
+import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import com.example.proydbp.repartidor.dto.PatchRepartidorDto;
 import com.example.proydbp.repartidor.dto.RepartidorRequestDto;
 import com.example.proydbp.repartidor.dto.RepartidorResponseDto;
 import com.example.proydbp.repartidor.infrastructure.RepartidorRepository;
+import com.example.proydbp.reviewDelivery.domain.ReviewDelivery;
+import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryResponseDto;
+import com.example.proydbp.reviewMesero.domain.ReviewMesero;
+import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import com.example.proydbp.user.domain.Role;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -70,6 +78,11 @@ public class RepartidorService {
         Repartidor repartidor = repartidorRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Repartidor not found with id " + id));
 
+        repartidor.setEmail(dto.getEmail());
+        repartidor.setFirstName(dto.getFirstName());
+        repartidor.setLastName(dto.getLastName());
+        repartidor.setPhoneNumber(dto.getPhoneNumber());
+        repartidor.setPassword(dto.getPassword());
 
         Repartidor updatedRepartidor = repartidorRepository.save(repartidor);
         return modelMapper.map(updatedRepartidor, RepartidorResponseDto.class);
@@ -77,67 +90,70 @@ public class RepartidorService {
 
 
     public RepartidorResponseDto findAuthenticatedRepartidor(Long id) {
-        return findRepartidorById(id); // Aquí podrías agregar lógica para el usuario autenticado
+        // Here get the current user identifier (email) using Spring Security
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Repartidor repartidor = repartidorRepository
+                .findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+
+        return modelMapper.map(repartidor, RepartidorResponseDto.class);
     }
 
 
-    public List<DeliveryResponseDto> findDeliverysActuales(Long id) {
-        Repartidor repartidor = repartidorRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor not found with id " + id));
+    public List<DeliveryResponseDto> findDeliverysActuales() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        List<Delivery> deliverys = repartidor.getDeliverys().stream()
-                .filter(delivery -> delivery.getEstado().equals("LISTO"))
-                .collect(Collectors.toList());
+        Repartidor repartidor = repartidorRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor not found with username " + username));
 
-        return deliverys.stream()
+        return repartidor.getDeliveries().stream()
+                .filter(pedido ->
+                        pedido.getStatus() == StatusDelivery.LISTO ||
+                                pedido.getStatus() == StatusDelivery.EN_CAMINO)
                 .map(delivery -> modelMapper.map(delivery, DeliveryResponseDto.class))
                 .collect(Collectors.toList());
     }
 
 
-    public void enCaminoDelivery(Long idDelivery) {
-            //Logica para saber si es el repartidor autenticado
-        Delivery delivery= deliveryRepository.findById(idDelivery);
-        delivery.setEstado(estado.EN_CAMINO);
-    }
+    // adicional
 
-
-    public void endDelivery(Long idDelivery) {
-        Delivery delivery= deliveryRepository.findById(idDelivery);
-        delivery.setEstado(estado.ENTREGADO);
+    private int countPedidosEnEstado(Repartidor repartidor) {
+        return (int) repartidor.getDeliveries().stream()
+                .filter(pedido -> pedido.getStatus() == StatusDelivery.EN_CAMINO || pedido.getStatus() == StatusDelivery.LISTO)
+                .count();
     }
 
     public Repartidor asignarRepartidor() {
-        // Obtén todos los repartidores
-        List<Repartidor> repartidores = repartidorRepository.findAll();
-
-        // Encuentra el repartidor con la menor cantidad de deliverys en total
-        Optional<Repartidor> repartidorAsignado = repartidores.stream()
-                .min(Comparator.comparingInt(repartidor ->
-                        repartidor.getDeliverys().size())); // Contar todos los deliverys
-
-        // Si se encuentra un repartidor, devuélvelo, de lo contrario, puedes lanzar una excepción o manejarlo como desees
-        return repartidorAsignado.orElseThrow(() -> new RuntimeException("No hay repartidores disponibles"));
+        return repartidorRepository.findAll().stream()
+                .min((m1, m2) -> Integer.compare(
+                        countPedidosEnEstado(m1),
+                        countPedidosEnEstado(m2)))
+                .orElseThrow(() -> new IllegalStateException("No hay repartidores disponibles"));
     }
 
-    public void updateRatingScore(Long repartidorId) {
-        Repartidor repartidor = repartidorRepository.findById(repartidorId)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor not found with id " + repartidorId));
+    public void updateRatingScore(Long id) {
+        Repartidor repartidor = repartidorRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor no encontrado"));
 
-        double averageRating = repartidor.getReviewsRepartidor().stream()
-                .mapToDouble(ReviewDelivery::getRating) //
+        // Actualiza el ratingScore promedio a partir de las reseñas
+        double promedio = repartidor.getReviewsRepartidor().stream()
+                .mapToDouble(ReviewDelivery::getRatingScore)
                 .average()
-                .orElse(0.0); // Si no hay reseñas, el promedio es 0
+                .orElse(0.0);
+        repartidor.setRatingScore(promedio);
 
-        repartidor.setRatingScore(averageRating);
         repartidorRepository.save(repartidor);
     }
 
 
+    public List<ReviewDeliveryResponseDto> findMisReviews(Long id){
+        Repartidor repartidor = repartidorRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor no encontrado"));
 
-
-
-
-
+        return repartidor.getReviewsRepartidor().stream()
+                .map(review -> modelMapper.map(review, ReviewDeliveryResponseDto.class))
+                .toList();
+    }
 
 }

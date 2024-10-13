@@ -21,7 +21,7 @@ public class PedidoLocalDeletedEvent extends ApplicationEvent {
         // Configuración del correo electrónico
         Map<String, Object> properties = new HashMap<>();
         properties.put("ID del Pedido", pedidoLocal.getId());
-        properties.put("Estado", pedidoLocal.getEstado());
+        properties.put("Estado", pedidoLocal.getStatus());
         properties.put("Precio", pedidoLocal.getPrecio());
 
         Mail mail = Mail.builder()

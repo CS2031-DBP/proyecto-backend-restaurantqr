@@ -7,12 +7,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
 @Data
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Repartidor extends User {
@@ -22,7 +21,7 @@ public class Repartidor extends User {
     private Long id;
 
     @OneToMany(mappedBy = "repartidor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Delivery> deliverys;
+    private List<Delivery> deliveries;
 
     @OneToMany(mappedBy = "repartidor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ReviewDelivery> reviewsRepartidor;
