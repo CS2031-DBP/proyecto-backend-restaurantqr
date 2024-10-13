@@ -24,7 +24,9 @@ public class Mesa {
 
     private boolean isAvailable;
 
-    @OneToMany
-    private List<Reservation> reservations;
+    // Relación con Mesa (parte dueña)
+    @ManyToOne
+    @JoinColumn(name = "table_id", nullable = false)
+    private Mesa mesa;
 
 }
