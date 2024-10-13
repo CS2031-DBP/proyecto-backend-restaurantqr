@@ -25,12 +25,22 @@ public class Order {
 
     private String details;
 
-    @ManyToMany(mappedBy = "product_id",cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany
+    @JoinTable(
+            name = "order_products",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
     private List<Product> products;
 
     @ManyToOne
+    @JoinColumn(name = "deliery_id", nullable = false)
     private Delivery delivery;
 
     @ManyToOne
     private PedidoLocal pedidoLocals;
+
+    @ManyToOne
+    @JoinColumn(name = "pedido_local_id", nullable = false)
+    private PedidoLocal pedidoLocal;
 }

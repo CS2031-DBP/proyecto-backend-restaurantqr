@@ -23,7 +23,7 @@ public class PedidoLocal {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @OneToMany(mappedBy = "pedidoLocal", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "pedidoLocal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
 
     @ManyToOne

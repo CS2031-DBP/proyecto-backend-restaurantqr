@@ -40,11 +40,6 @@ public class Product {
     @NotNull
     private Boolean isAvailable;
 
-    @ManyToMany
-    @JoinTable(
-            name = "relacion_order-product",
-            joinColumns = @JoinColumn(name = "product_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name ="order_id", nullable = false)
-    )
+    @ManyToMany(mappedBy = "products")
     private List<Order> orders;
 }
