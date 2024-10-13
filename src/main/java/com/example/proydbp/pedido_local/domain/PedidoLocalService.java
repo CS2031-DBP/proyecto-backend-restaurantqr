@@ -2,13 +2,8 @@ package com.example.proydbp.pedido_local.domain;
 
 import com.example.proydbp.events.email_event.*;
 import com.example.proydbp.exception.ResourceNotFoundException;
-import com.example.proydbp.mesero.domain.Mesero;
 import com.example.proydbp.mesero.domain.MeseroService;
-import com.example.proydbp.mesero.dto.MeseroResponseDto;
-import com.example.proydbp.mesero.infrastructure.MeseroRepository;
 import com.example.proydbp.order.domain.Order;
-import com.example.proydbp.order.dto.OrderResponseDto;
-import com.example.proydbp.order.infrastructure.OrderRepository;
 import com.example.proydbp.pedido_local.dto.PatchPedidoLocalDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalRequestDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
@@ -18,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -149,7 +143,7 @@ public class PedidoLocalService {
 
     // adicional
 
-    public BigDecimal calcularPrecioTotal(Long idPedidoLocal) {
+    public double calcularPrecioTotal(Long idPedidoLocal) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(idPedidoLocal)
                 .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
 
@@ -157,12 +151,13 @@ public class PedidoLocalService {
         List<Order> orders = pedidoLocal.getOrders();
 
         // Calcular el precio total sumando el precio de cada orden
-        BigDecimal totalPrecio = orders.stream()
-                .map(Order::getPrice) // Obtener el precio de cada orden
-                .reduce(BigDecimal.ZERO, BigDecimal::add); // Sumar los precios
+        double totalPrecio = orders.stream()
+                .mapToDouble(Order::getPrice) // Obtener el precio de cada orden como double
+                .sum(); // Sumar los precios
 
-        return totalPrecio;
+        return totalPrecio; // Retornar el precio total
     }
+
 
     public PedidoLocalResponseDto entregadoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)

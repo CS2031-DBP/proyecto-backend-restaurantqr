@@ -39,7 +39,7 @@ public class PedidoLocal {
     private StatusPedidoLocal status;
 
     @Column(name = "precio", nullable = false)
-    private BigDecimal precio;
+    private Double precio;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_pago", nullable = false)

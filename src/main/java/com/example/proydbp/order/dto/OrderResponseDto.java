@@ -19,7 +19,7 @@ public class OrderResponseDto {
 
     @NotNull
     @Positive
-    private BigDecimal price;
+    private Double price;
 
     private List<ProductResponseDto> products;
 

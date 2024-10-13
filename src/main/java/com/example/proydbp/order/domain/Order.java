@@ -21,14 +21,14 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    private BigDecimal price;
+    private Double price;
 
     private String details;
 
     @ManyToMany(mappedBy = "product_id",cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private List<Product> products;
 
-    @OneToOne(mappedBy = "delivery_id", cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     private Delivery delivery;
 
     @ManyToOne
