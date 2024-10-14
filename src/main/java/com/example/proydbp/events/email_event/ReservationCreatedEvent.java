@@ -20,7 +20,7 @@ public class ReservationCreatedEvent extends ApplicationEvent {
         Map<String, Object> properties = new HashMap<>();
         properties.put("ID de la Reserva", reservation.getId());
         properties.put("Cliente", reservation.getClient().getEmail());
-        properties.put("Mesa", reservation.getTable().getNumero());
+        properties.put("Mesa", reservation.getMesa().getNumero());
         properties.put("Fecha", reservation.getReservationTime());
         properties.put("Hora", reservation.getReservationDate());
         properties.put("Estado", reservation.getStatusReservation());
