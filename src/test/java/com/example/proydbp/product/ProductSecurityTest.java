@@ -1,4 +1,4 @@
 package com.example.proydbp.product;
 
-public class se {
+public class ProductSecurityTest {
 }
