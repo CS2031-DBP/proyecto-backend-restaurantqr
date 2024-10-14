@@ -47,7 +47,7 @@ public class PedidoLocal {
     private TipoPago tipoPago;
 
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "client_id")
     private Client client;
 
 
