@@ -1,4 +1,4 @@
 package com.example.proydbp.mesero;
 
-public class se {
+public class MeseroSecurityTest {
 }
