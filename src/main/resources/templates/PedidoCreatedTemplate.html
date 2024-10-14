@@ -2,9 +2,94 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PedidoLocalCreated</title>
+    <title>Pedido Local Creado</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9; /* Color de fondo suave */
+            margin: 0;
+            padding: 20px;
+            background-image: url('https://png.pngtree.com/background/20230613/original/pngtree-dragon-art-wallpapers-and-backgrounds-picture-image_3385724.jpg'); /* Imagen de fondo del dragón */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con opacidad */
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: auto;
+            border: 2px solid #28a745; /* Borde verde para indicar creación */
+            position: relative; /* Para posicionar los adornos */
+        }
+        .container::before {
+            content: "";
+            background-image: url('https://img.freepik.com/foto-gratis/casa-blanco-negro-cerca-montanas-cielo-azul_198523-3.jpg?w=1480&t=st=1728866754~exp=1728867354~hmac=6803a33013a3cdec568e1d00832a955155f652549b708138e3d9228117bffb6d'); /* Imagen de los muros chinos */
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3; /* Opacidad para que no opaque el contenido */
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 8px;
+            z-index: 0; /* Asegura que quede detrás del contenido */
+        }
+        h1, h2, p {
+            position: relative; /* Para asegurar que el texto esté sobre el fondo */
+            z-index: 1;
+        }
+        h1 {
+            color: #28a745; /* Color verde para el estado de creación */
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            font-size: 18px;
+            text-align: center;
+        }
+        p {
+            color: #666;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+        .highlight {
+            color: #28a745; /* Color verde para destacar información importante */
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
-
+<div class="container">
+    <h1>Tu Pedido Local ha Sido Creado</h1>
+    <h2>Detalles del Pedido</h2>
+    <p>
+        Estimado cliente,
+    </p>
+    <p>
+        Te informamos que tu pedido con el ID <span class="highlight">${ID del Pedido}</span> ha sido creado exitosamente.
+    </p>
+    <p>
+        <strong>Estado:</strong> <span class="highlight">${Estado}</span><br>
+        <strong>Precio Total:</strong> <span class="highlight">${Precio Total}</span><br>
+        <strong>Tipo de Pago:</strong> <span class="highlight">${Tipo de Pago}</span><br>
+        <strong>Mesero:</strong> <span class="highlight">${Mesero != null ? Mesero : 'No asignado'}</span><br>
+    </p>
+    <p>
+        ¡Gracias por elegir <strong>Dragón Chifero</strong>! Si tienes alguna pregunta, no dudes en contactarnos.
+    </p>
+    <div class="footer">
+        <p>El equipo de <strong>Dragón Chifero</strong></p>
+    </div>
+</div>
 </body>
 </html>

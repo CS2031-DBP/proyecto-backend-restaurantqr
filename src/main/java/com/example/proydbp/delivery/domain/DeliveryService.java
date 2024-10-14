@@ -1,5 +1,6 @@
 package com.example.proydbp.delivery.domain;
 
+import com.example.proydbp.events.email_event.*;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.order.domain.Order;
@@ -69,11 +70,10 @@ public class DeliveryService {
 
         String recipientEmail = savedDelivery.getRepartidor().getEmail();
 
-        //eventPublisher.publishEvent(new DeliveryCreatedEvent(savedDelivery, recipientEmail));
+        eventPublisher.publishEvent(new DeliveryCreatedEvent(savedDelivery, recipientEmail));
 
         return modelMapper.map(savedDelivery, DeliveryResponseDto.class);
     }
-
 
 
     public void deleteDelivery(Long id) {
@@ -81,7 +81,7 @@ public class DeliveryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
 
         String recipientEmail = "fernando.munoz.p@utec.edu.pe";
-        //eventPublisher.publishEvent(new DeliveryDeletedEvent(id, delivery, recipientEmail));
+        eventPublisher.publishEvent(new DeliveryDeletedEvent(delivery, recipientEmail));
 
         deliveryRepository.deleteById(id);
     }
@@ -92,12 +92,12 @@ public class DeliveryService {
 
         modelMapper.map(dto, delivery);
 
-        Delivery savedDelivery = deliveryRepository.save(delivery);
+        Delivery updatedDelivery = deliveryRepository.save(delivery);
 
-        String recipientEmail = savedDelivery.getRepartidor().getEmail();
+        String recipientEmail = updatedDelivery.getRepartidor().getEmail();
 
-        //eventPublisher.publishEvent(new DeliveryUpdatedEvent(savedDelivery, recipientEmail));
-        return modelMapper.map(savedDelivery, DeliveryResponseDto.class);
+        eventPublisher.publishEvent(new DeliveryUpdatedEvent(updatedDelivery, recipientEmail));
+        return modelMapper.map(updatedDelivery, DeliveryResponseDto.class);
     }
 
     public DeliveryResponseDto enCaminoDelivery(Long id) {
@@ -106,12 +106,12 @@ public class DeliveryService {
 
         delivery.setStatus(StatusDelivery.EN_CAMINO);
 
-        Delivery updatedDelivery = deliveryRepository.save(delivery);
-        String recipientEmail = updatedDelivery.getRepartidor().getEmail();
+        Delivery enRutaDelivery = deliveryRepository.save(delivery);
+        String recipientEmail = enRutaDelivery.getRepartidor().getEmail();
 
-        //eventPublisher.publishEvent(new DeliveryEnRutaEvent(updatedDelivery, recipientEmail));
+        eventPublisher.publishEvent(new DeliveryEnRutaEvent(enRutaDelivery, recipientEmail));
 
-        return modelMapper.map(updatedDelivery, DeliveryResponseDto.class);
+        return modelMapper.map(enRutaDelivery, DeliveryResponseDto.class);
     }
 
     public DeliveryResponseDto entregadoDelivery(Long id) {
@@ -120,12 +120,12 @@ public class DeliveryService {
 
         delivery.setStatus(StatusDelivery.ENTREGADO);
 
-        Delivery updatedDelivery = deliveryRepository.save(delivery);
-        String recipientEmail = updatedDelivery.getRepartidor().getEmail();
+        Delivery entregadoDelivery = deliveryRepository.save(delivery);
+        String recipientEmail = entregadoDelivery.getRepartidor().getEmail();
 
-        //eventPublisher.publishEvent(new DeliveryEntregadoEvent(updatedDelivery, recipientEmail));
+        eventPublisher.publishEvent(new DeliveryEntregadoEvent(entregadoDelivery, recipientEmail));
 
-        return modelMapper.map(updatedDelivery, DeliveryResponseDto.class);
+        return modelMapper.map(entregadoDelivery, DeliveryResponseDto.class);
     }
 
     public List<DeliveryResponseDto> findCurrentDeliveries() {
@@ -144,12 +144,12 @@ public class DeliveryService {
 
         delivery.setStatus(StatusDelivery.LISTO);
 
-        Delivery updatedDelivery = deliveryRepository.save(delivery);
-        String recipientEmail = updatedDelivery.getRepartidor().getEmail();
+        Delivery listoDelivery = deliveryRepository.save(delivery);
+        String recipientEmail = listoDelivery.getRepartidor().getEmail();
 
-        //eventPublisher.publishEvent(new DeliveryEnRutaEvent(updatedDelivery, recipientEmail));
+        eventPublisher.publishEvent(new DeliveryListoEvent(listoDelivery, recipientEmail));
 
-        return modelMapper.map(updatedDelivery, DeliveryResponseDto.class);
+        return modelMapper.map(listoDelivery, DeliveryResponseDto.class);
     }
 
     public DeliveryResponseDto enPreparacionDelivery(Long id) {
@@ -158,12 +158,12 @@ public class DeliveryService {
 
         delivery.setStatus(StatusDelivery.EN_PREPARACION);
 
-        Delivery updatedDelivery = deliveryRepository.save(delivery);
-        String recipientEmail = updatedDelivery.getRepartidor().getEmail();
+        Delivery enPreparacionDelivery = deliveryRepository.save(delivery);
+        String recipientEmail = enPreparacionDelivery.getRepartidor().getEmail();
 
-        //eventPublisher.publishEvent(new DeliveryEnRutaEvent(updatedDelivery, recipientEmail));
+        eventPublisher.publishEvent(new DeliveryPreparandoEvent(enPreparacionDelivery, recipientEmail));
 
-        return modelMapper.map(updatedDelivery, DeliveryResponseDto.class);
+        return modelMapper.map(enPreparacionDelivery, DeliveryResponseDto.class);
     }
 
     public DeliveryResponseDto canceladoDelivery(Long id) {
@@ -178,11 +178,11 @@ public class DeliveryService {
 
         delivery.setStatus(StatusDelivery.CANCELADO);
 
-        Delivery updatedDelivery = deliveryRepository.save(delivery);
-        String recipientEmail = updatedDelivery.getRepartidor().getEmail();
+        Delivery canceladoDelivery = deliveryRepository.save(delivery);
+        String recipientEmail = canceladoDelivery.getRepartidor().getEmail();
 
-        //eventPublisher.publishEvent(new DeliveryEnRutaEvent(updatedDelivery, recipientEmail));
+        eventPublisher.publishEvent(new DeliveryCanceladoEvent(canceladoDelivery, recipientEmail));
 
-        return modelMapper.map(updatedDelivery, DeliveryResponseDto.class);
+        return modelMapper.map(canceladoDelivery, DeliveryResponseDto.class);
     }
 }

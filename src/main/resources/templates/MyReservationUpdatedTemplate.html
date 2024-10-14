@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Pedido Preparando</title>
+    <title>Mi Reserva Actualizada</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f9f9f9; /* Color de fondo suave */
+            background-color: #e7f0f2; /* Color de fondo suave */
             margin: 0;
             padding: 20px;
             background-image: url('https://png.pngtree.com/background/20230613/original/pngtree-dragon-art-wallpapers-and-backgrounds-picture-image_3385724.jpg'); /* Imagen de fondo del dragón */
@@ -21,7 +21,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             max-width: 600px;
             margin: auto;
-            border: 2px solid #28a745; /* Borde verde para indicar que el pedido está en preparación */
+            border: 2px solid #5cb85c; /* Borde verde claro */
             position: relative; /* Para posicionar los adornos */
         }
         .container::before {
@@ -43,7 +43,7 @@
             z-index: 1;
         }
         h1 {
-            color: #28a745; /* Color verde para el estado de "Preparando" */
+            color: #5cb85c; /* Color verde claro */
             text-align: center;
         }
         h2 {
@@ -57,7 +57,7 @@
             font-size: 16px;
         }
         .highlight {
-            color: #28a745; /* Color verde para destacar información importante */
+            color: #5cb85c; /* Color verde claro */
             font-weight: bold;
         }
         .footer {
@@ -70,20 +70,23 @@
 </head>
 <body>
 <div class="container">
-    <h1>Tu Pedido Está en Preparación</h1>
-    <h2>Detalles del Pedido</h2>
+    <h1>¡Tu Reserva ha sido Actualizada!</h1>
+    <h2>Detalles de la Reserva</h2>
     <p>
-        Estimado cliente,
+        Estimado <span class="highlight">${Cliente}</span>,
     </p>
     <p>
-        Nos gustaría informarte que tu pedido con el ID <span class="highlight">${ID del Pedido}</span> está actualmente en preparación.
+        Nos complace informarte que tu reserva con el <span class="highlight">${ID de la Reserva}</span> ha sido actualizada.
     </p>
     <p>
-        <strong>Estado:</strong> <span class="highlight">Preparando</span>
+        <strong>Mesa:</strong> <span class="highlight">${Mesa}</span><br>
+        <strong>Número de Personas:</strong> <span class="highlight">${Número de Personas}</span><br>
+        <strong>Estado:</strong> <span class="highlight">${Estado}</span><br>
     </p>
     <p>
-        Apreciamos tu paciencia. Si tienes alguna pregunta o inquietud, no dudes en contactarnos.
+        Si tienes alguna pregunta o necesitas asistencia adicional, no dudes en contactarnos.
     </p>
+    <p>¡Gracias por elegir <strong>Dragón Chifero</strong>!</p>
     <div class="footer">
         <p>El equipo de <strong>Dragón Chifero</strong></p>
     </div>

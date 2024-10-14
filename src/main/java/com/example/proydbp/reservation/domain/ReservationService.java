@@ -2,6 +2,7 @@ package com.example.proydbp.reservation.domain;
 
 import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.client.infrastructure.ClientRepository;
+import com.example.proydbp.events.email_event.*;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.mesa.domain.Mesa;
@@ -72,10 +73,12 @@ public class ReservationService {
 
         newReservation.setClient(client);
 
+        String recipientEmail = newReservation.getClient().getEmail();
+
         Reservation savedReservation = reservationRepository.save(newReservation);
 
         // Publicar el evento de creación de reserva
-        // eventPublisher.publishEvent(new ReservationCreadaEvent(savedReservation));
+        eventPublisher.publishEvent(new ReservationCreatedEvent(savedReservation, recipientEmail));
 
         return modelMapper.map(savedReservation, ReservationResponseDto.class);
     }
@@ -93,8 +96,9 @@ public class ReservationService {
 
         Reservation updatedReservation = reservationRepository.save(existingReservation);
 
+        String recipientEmail = updatedReservation.getClient().getEmail();
         // Publicar el evento de actualización de reserva
-        //eventPublisher.publishEvent(new ReservationActualizadaEvent(updatedReservation));
+        eventPublisher.publishEvent(new ReservationUpdatedEvent(updatedReservation, recipientEmail));
 
         return modelMapper.map(updatedReservation, ReservationResponseDto.class);
     }
@@ -106,7 +110,8 @@ public class ReservationService {
         reservationRepository.delete(reservation);
 
         // Publicar el evento de eliminación de reserva
-        //eventPublisher.publishEvent(new ReservationEliminadaEvent(reservation));
+        String recipientEmail = "fernando.munoz.p@utec.edu.pe";
+        eventPublisher.publishEvent(new ReservationDeletedEvent(reservation, recipientEmail));
     }
 
 
@@ -122,12 +127,14 @@ public class ReservationService {
 
         reservation.setStatusReservation(StatusReservation.valueOf("CANCELADO"));
 
-        Reservation completedReservation = reservationRepository.save(reservation);
+        Reservation canceledReservation = reservationRepository.save(reservation);
+
+        String recipientEmail = canceledReservation.getClient().getEmail();
 
         // Publicar el evento de finalización de reserva
-        //eventPublisher.publishEvent(new ReservationFinalizadaEvent(completedReservation));
+        eventPublisher.publishEvent(new ReservationCanceladoEvent(canceledReservation, recipientEmail));
 
-        return modelMapper.map(completedReservation, ReservationResponseDto.class);
+        return modelMapper.map(canceledReservation, ReservationResponseDto.class);
     }
 
 
@@ -148,12 +155,14 @@ public class ReservationService {
 
         existingReservation.setTable(mesa);
 
-        Reservation updatedReservation = reservationRepository.save(existingReservation);
+        Reservation updatedMyReservation = reservationRepository.save(existingReservation);
+
+        String recipientEmail = updatedMyReservation.getClient().getEmail();
 
         // Publicar el evento de actualización de reserva
-        //eventPublisher.publishEvent(new ReservationActualizadaEvent(updatedReservation));
+        eventPublisher.publishEvent(new MyReservationUpdatedEvent(updatedMyReservation, recipientEmail));
 
-        return modelMapper.map(updatedReservation, ReservationResponseDto.class);
+        return modelMapper.map(updatedMyReservation, ReservationResponseDto.class);
     }
 
     public ReservationResponseDto finishedReservation(Long id) {
@@ -168,12 +177,13 @@ public class ReservationService {
 
         reservation.setStatusReservation(StatusReservation.valueOf("FINALIZADA"));
 
-        Reservation completedReservation = reservationRepository.save(reservation);
+        Reservation finishedReservation = reservationRepository.save(reservation);
 
+        String recipientEmail = finishedReservation.getClient().getEmail();
         // Publicar el evento de finalización de reserva
-        //eventPublisher.publishEvent(new ReservationFinalizadaEvent(completedReservation));
+        eventPublisher.publishEvent(new ReservationFinishedEvent(finishedReservation, recipientEmail));
 
-        return modelMapper.map(completedReservation, ReservationResponseDto.class);
+        return modelMapper.map(finishedReservation, ReservationResponseDto.class);
     }
 
     public ReservationResponseDto confirmedReservation(Long id) {
@@ -188,13 +198,13 @@ public class ReservationService {
 
         reservation.setStatusReservation(StatusReservation.valueOf("CONFIRMADO"));
 
-        Reservation completedReservation = reservationRepository.save(reservation);
+        Reservation confirmedReservation = reservationRepository.save(reservation);
+
+        String recipientEmail = confirmedReservation.getClient().getEmail();
 
         // Publicar el evento de finalización de reserva
-        //eventPublisher.publishEvent(new ReservationFinalizadaEvent(completedReservation));
+        eventPublisher.publishEvent(new ReservationConfirmedEvent(confirmedReservation, recipientEmail));
 
-        return modelMapper.map(completedReservation, ReservationResponseDto.class);
+        return modelMapper.map(confirmedReservation, ReservationResponseDto.class);
     }
-
-
 }
