@@ -504,7 +504,7 @@ Representa la evaluación del servicio prestado por el mesero.
 
 2. **Pruebas de Sistema**
 
-- Simulación de los procesos de negocio.
+- Simulación de los procesos de negocio implementados en postman: https://www.postman.com/orbital-module-architect-9093820/workspace/restaurante-qr/collection/33970905-308323e9-7bb9-45b3-a848-0c3c4a64fcf9?action=share&creator=33970905
 
 | **Nombre de prueba**             | **Descripción**                                                                                                                                                                                                                                                                                                                                                                                                           |
 |----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
