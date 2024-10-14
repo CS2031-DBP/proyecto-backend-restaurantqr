@@ -17,7 +17,7 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-    @Value("y8J#7xZ5v!3F%wP$A9sH@1tGzU*Qm2Lc")
+    @Value("${jwt.signing.key}")
     private String secret;
 
     private final UserService userService;
