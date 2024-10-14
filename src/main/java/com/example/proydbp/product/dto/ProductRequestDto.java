@@ -3,6 +3,7 @@ package com.example.proydbp.product.dto;
 import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.product.domain.Category;
 import jakarta.persistence.*;
+import jakarta.validation.MessageInterpolator;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;

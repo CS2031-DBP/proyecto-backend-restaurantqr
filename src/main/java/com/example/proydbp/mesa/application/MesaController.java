@@ -5,12 +5,15 @@ import com.example.proydbp.mesa.dto.MesaRequestDto;
 import com.example.proydbp.mesa.dto.MesaResponseDto;
 import com.example.proydbp.mesa.domain.MesaService;
 import com.example.proydbp.reservation.dto.ReservationResponseDto;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -40,15 +43,18 @@ public class MesaController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<Mesa> createTable(@RequestBody MesaRequestDto tableDto) {
+    public ResponseEntity<Mesa> createTable(@RequestBody @Valid MesaRequestDto tableDto) {
         Mesa newTable = mesaService.createMesa(tableDto);
-
-        return new ResponseEntity<>(newTable, HttpStatus.CREATED);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(newTable.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(newTable);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{id}")
-    public ResponseEntity<Mesa> updateTable(@PathVariable Long id, @RequestBody MesaRequestDto tableDto) {
+    @PatchMapping("/{id}")
+    public ResponseEntity<Mesa> updateTable(@PathVariable Long id, @RequestBody @Valid MesaRequestDto tableDto) {
         Mesa updatedTable = mesaService.updateMesa(id, tableDto);
         return new ResponseEntity<>(updatedTable, HttpStatus.OK);
     }
@@ -60,14 +66,14 @@ public class MesaController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PreAuthorize("hasRole('MESERO')")
+    @PreAuthorize("hasRole('MESERO') or hasRole('ADMIN')")
     @GetMapping("/available")
     public ResponseEntity<List<MesaResponseDto>> getAvailableTables() {
         List<MesaResponseDto> availableTables = mesaService.getAvailableMesas();
         return new ResponseEntity<>(availableTables, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('MESERO')")
+    @PreAuthorize("hasRole('MESERO') or hasRole('ADMIN')")
     @GetMapping("/capacity/{capacity}")
     public ResponseEntity<List<MesaResponseDto>> getTablesByCapacity(@PathVariable int capacity) {
         List<MesaResponseDto> tablesByCapacity = mesaService.getMesasByCapacity(capacity);
@@ -75,10 +81,12 @@ public class MesaController {
     }
 
     // adicional
-    @PreAuthorize("hasRole('MESERO')")
-    @GetMapping("/mesa/{idMesa}")
+    @PreAuthorize("hasRole('MESERO') or hasRole('ADMIN')")
+    @GetMapping("/reservacionesMesa/{idMesa}")
     public ResponseEntity<List<ReservationResponseDto>> getReservationsDeMesa(@PathVariable Long idMesa) {
         List<ReservationResponseDto> reservations = mesaService.getReservationsDeMesa(idMesa);
         return ResponseEntity.ok(reservations);
     }
+
+
 }

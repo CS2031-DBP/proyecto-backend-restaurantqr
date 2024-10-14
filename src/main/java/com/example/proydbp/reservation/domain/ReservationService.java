@@ -66,7 +66,7 @@ public class ReservationService {
 
         Reservation newReservation = modelMapper.map(reservationRequestDto, Reservation.class);
         newReservation.setStatusReservation(StatusReservation.PENDIENTE);
-        newReservation.setTable(mesa);
+        newReservation.setMesa(mesa);
 
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Client not found with email " + username));
@@ -92,7 +92,7 @@ public class ReservationService {
         Mesa mesa = mesaRepository.findByNumero(reservationRequestDto.getTable())
                 .orElseThrow(() -> new ResourceNotFoundException("Table not found with id " + reservationRequestDto.getTable()));
 
-        existingReservation.setTable(mesa);
+        existingReservation.setMesa(mesa);
 
         Reservation updatedReservation = reservationRepository.save(existingReservation);
 
@@ -153,7 +153,7 @@ public class ReservationService {
         Mesa mesa = mesaRepository.findByNumero(reservationRequestDto.getTable())
                 .orElseThrow(() -> new ResourceNotFoundException("Table not found with id " + reservationRequestDto.getTable()));
 
-        existingReservation.setTable(mesa);
+        existingReservation.setMesa(mesa);
 
         Reservation updatedMyReservation = reservationRepository.save(existingReservation);
 

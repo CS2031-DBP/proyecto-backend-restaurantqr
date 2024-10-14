@@ -17,7 +17,6 @@ import java.util.List;
 @Setter
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class MesaResponseDto {
 
     private String qr;
@@ -29,4 +28,7 @@ public class MesaResponseDto {
     private boolean isAvailable;
 
     private List<ReservationResponseDto> reservations;
+
+    public MesaResponseDto(int numero, int capacity, boolean available) {
+    }
 }

@@ -2,6 +2,7 @@ package com.example.proydbp.product.domain;
 
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
+import com.example.proydbp.product.dto.PatchAvailability;
 import com.example.proydbp.product.dto.PatchProductDto;
 import com.example.proydbp.product.dto.ProductRequestDto;
 import com.example.proydbp.product.dto.ProductResponseDto;
@@ -84,7 +85,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public ProductResponseDto changeAvailability(Long id, PatchProductDto dto) {
+    public ProductResponseDto changeAvailability(Long id, PatchAvailability dto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 

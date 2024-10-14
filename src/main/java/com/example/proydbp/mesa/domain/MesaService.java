@@ -10,6 +10,7 @@ import com.example.proydbp.reservation.infrastructure.ReservationRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,12 +51,14 @@ public class MesaService {
         if (request.getCapacity() <= 1) {
             throw new IllegalArgumentException("La capacidad debe ser mayor o igual a 1.");
         }
+
         Mesa newMesa = new Mesa();
         newMesa.setAvailable(true);
         newMesa.setNumero(request.getNumero());
         newMesa.setCapacity(request.getCapacity());
         String ip = "192.168.1.100";
         newMesa.setQr("https://" + ip + "auth/login/");
+        newMesa.setReservations(new ArrayList<>());
         return mesaRepository.save(newMesa);
     }
 
@@ -71,6 +74,7 @@ public class MesaService {
         }
         mesa.setNumero(mesaDto.getNumero());
         mesa.setCapacity(mesaDto.getCapacity());
+        mesa.setAvailable(mesaDto.isAvailable());
 
         return mesaRepository.save(mesa);
     }
@@ -109,12 +113,20 @@ public class MesaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa not found with id " + idMesa));
 
         // Buscar las reservas asociadas a esa mesa
-        List<Reservation> reservations = reservationRepository.findByTable(mesa);
+        List<Reservation> reservations = reservationRepository.findByMesa(mesa);
 
         // Mapear las entidades de Reservation a ReservationResponseDto
         return reservations.stream()
                 .map(reservation -> modelMapper.map(reservation, ReservationResponseDto.class))
                 .collect(Collectors.toList());
+    }
+
+    public void changeAvailability(Long id){
+        Mesa mesa = mesaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa not found with id " + id));
+        mesa.setAvailable(!mesa.isAvailable());
+        mesaRepository.save(mesa);
+
     }
 
 

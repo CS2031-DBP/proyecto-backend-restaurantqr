@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "mesa")
 public class Mesa {
 
     @Id
@@ -19,9 +20,10 @@ public class Mesa {
     private int numero;
     private int capacity;
 
+    @Column(name = "is_available", nullable = false)
     private boolean available;
 
     // Relación con Reservas
-    @OneToMany(mappedBy = "table") // Cambiado a "table" para coincidir con el campo en Reservation
+    @OneToMany(mappedBy = "mesa") // Cambiado a "table" para coincidir con el campo en Reservation
     private List<Reservation> reservations;
 }

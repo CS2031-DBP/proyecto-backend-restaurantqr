@@ -25,8 +25,6 @@ public class PatchMeseroDto {
     @Size(min = 9, max = 12)
     private String phoneNumber;
 
-    @NotNull
-    private Double ratingScore;
 
     @NotNull
     @Size(min = 6)

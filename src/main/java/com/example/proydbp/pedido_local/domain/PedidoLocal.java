@@ -26,7 +26,7 @@ public class PedidoLocal {
     @OneToMany(mappedBy = "pedidoLocal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "mesero_id", nullable = false)
     private Mesero mesero;
 

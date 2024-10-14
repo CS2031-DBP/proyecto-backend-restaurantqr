@@ -9,6 +9,7 @@ import com.example.proydbp.mesero.dto.PatchMeseroDto;
 import com.example.proydbp.mesero.infrastructure.MeseroRepository;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +53,7 @@ public class MeseroController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MeseroResponseDto> createMesero(@RequestBody MeseroRequestDto dto) {
+    public ResponseEntity<MeseroResponseDto> createMesero(@RequestBody @Valid MeseroRequestDto dto) {
         MeseroResponseDto createdMesero = meseroService.createMesero(dto);
         return new ResponseEntity<>(createdMesero, HttpStatus.CREATED);
     }
@@ -66,7 +67,7 @@ public class MeseroController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
-    public ResponseEntity<MeseroResponseDto> updateMesero(@PathVariable Long id, @RequestBody PatchMeseroDto dto) {
+    public ResponseEntity<MeseroResponseDto> updateMesero(@PathVariable Long id, @RequestBody @Valid PatchMeseroDto dto) {
         MeseroResponseDto updatedMesero = meseroService.updateMesero(id, dto);
         return ResponseEntity.ok(updatedMesero);
     }

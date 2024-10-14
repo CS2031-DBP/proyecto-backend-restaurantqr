@@ -37,8 +37,6 @@ public class User implements UserDetails {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @Column(name = "avg_rating", columnDefinition = "float default 0")
-    private Float avgRating;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
