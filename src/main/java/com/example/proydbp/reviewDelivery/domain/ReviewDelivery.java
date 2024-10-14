@@ -26,11 +26,11 @@ public class ReviewDelivery {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "repartidor_id", nullable = false)
+    @JoinColumn(name = "repartidor_id")
     private Repartidor repartidor;
 
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "client_id")
     private Client client;
 
     @Column(nullable = false)
@@ -44,9 +44,9 @@ public class ReviewDelivery {
     @JoinColumn(name = "delivery_id", nullable = false)
     private Delivery delivery;
 
-    @Column(name = "fecha", nullable = false)
+    @Column(name = "fecha")
     private LocalDate fecha;
 
-    @Column(name = "hora", nullable = false)
+    @Column(name = "hora")
     private LocalTime hora;
 }

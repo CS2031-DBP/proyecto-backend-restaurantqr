@@ -1,9 +1,10 @@
-package com.example.proydbp.reviewDelivery.application;
+package com.example.proydbp.reviewDelivery;
 
 import com.example.proydbp.reviewDelivery.domain.ReviewDeliveryService;
 import com.example.proydbp.reviewDelivery.dto.PatchReviewDeliveryDto;
 import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryRequestDto;
 import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryResponseDto;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,7 +35,7 @@ public class ReviewDeliveryController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/")
-    public ResponseEntity<ReviewDeliveryResponseDto> createReviewDelivery(@RequestBody ReviewDeliveryRequestDto dto) {
+    public ResponseEntity<ReviewDeliveryResponseDto> createReviewDelivery(@RequestBody @Valid ReviewDeliveryRequestDto dto) {
         ReviewDeliveryResponseDto createdReview = reviewDeliveryService.createReviewDelivery(dto);
         return ResponseEntity.ok(createdReview);
     }
@@ -48,7 +49,7 @@ public class ReviewDeliveryController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
-    public ResponseEntity<ReviewDeliveryResponseDto> updateReviewDelivery(@PathVariable Long id, @RequestBody PatchReviewDeliveryDto dto) {
+    public ResponseEntity<ReviewDeliveryResponseDto> updateReviewDelivery(@PathVariable Long id, @Valid @RequestBody PatchReviewDeliveryDto dto) {
         ReviewDeliveryResponseDto updatedReview = reviewDeliveryService.updateReviewDelivery(id, dto);
         return ResponseEntity.ok(updatedReview);
     }

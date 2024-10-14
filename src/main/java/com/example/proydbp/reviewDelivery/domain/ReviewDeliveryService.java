@@ -96,7 +96,12 @@ public class ReviewDeliveryService {
             existingReview.setCalificacion(dto.getCalificacion());
         }
 
+        if (dto.getComentario() != null){
+            existingReview.setComentario(dto.getComentario());
+        }
+
         existingReview.setComentario(dto.getComentario());
+        existingReview.setCalificacion(dto.getCalificacion());
 
         ReviewDelivery updatedReview = reviewDeliveryRepository.save(existingReview);
         return modelMapper.map(updatedReview, ReviewDeliveryResponseDto.class);

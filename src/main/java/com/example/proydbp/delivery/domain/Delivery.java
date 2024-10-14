@@ -26,7 +26,7 @@ public class Delivery {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "cliente_id", nullable = false)
+    @JoinColumn(name = "cliente_id")
     private Client client;
 
     @NotNull(message = "La dirección no puede estar vacía")
@@ -52,7 +52,7 @@ public class Delivery {
     private List<Order> order;
 
     @ManyToOne
-    @JoinColumn(name = "repartidor_id", nullable = false)
+    @JoinColumn(name = "repartidor_id")
     private Repartidor repartidor;
 
     @NotNull(message = "El precio del pedido no puede ser nulo")
