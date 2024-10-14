@@ -8,24 +8,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-public class ReviewMeseroDeletedEvent extends ApplicationEvent {
+public class ReviewDeliveryDeletedEvent extends ApplicationEvent {
 
-    final private Long reviewMeseroId;
+    final private Long reviewId;
     final private Mail mail;
 
-    public ReviewMeseroDeletedEvent(Long reviewMeseroId, String recipientEmail) {
-        super(reviewMeseroId);
-        this.reviewMeseroId = reviewMeseroId;
+    public ReviewDeliveryDeletedEvent(Long reviewId, String recipientEmail) {
+        super(reviewId);
+        this.reviewId = reviewId;
 
         // Configuración del correo electrónico
         Map<String, Object> properties = new HashMap<>();
-        properties.put("ID de Reseña", reviewMeseroId);
-
+        properties.put("ID de Reseña", reviewId);
 
         Mail mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")
-                .htmlTemplate(new Mail.HtmlTemplate("ReviewMeseroDeletedTemplate", new HashMap<>()))
-                .subject("Reseña de Mesero Eliminada")
+                .to(recipientEmail)
+                .htmlTemplate(new Mail.HtmlTemplate("ReviewDeliveryDeletedTemplate", properties))
+                .subject("Reseña de Repartidor Eliminada")
                 .build();
 
         this.mail = mail;

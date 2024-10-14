@@ -5,6 +5,9 @@ import com.example.proydbp.client.infrastructure.ClientRepository;
 //import com.example.proydbp.events.email_event.ReviewDeliveryCreatedEvent;
 import com.example.proydbp.delivery.domain.Delivery;
 import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
+import com.example.proydbp.events.email_event.ReviewDeliveryCreatedEvent;
+import com.example.proydbp.events.email_event.ReviewDeliveryDeletedEvent;
+import com.example.proydbp.events.email_event.ReviewDeliveryUpdatedEvent;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.reviewDelivery.dto.PatchReviewDeliveryDto;
 import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryRequestDto;
@@ -76,15 +79,21 @@ public class ReviewDeliveryService {
 
         String recipientEmail = savedReview.getRepartidor().getEmail();
 
-        //eventPublisher.publishEvent(new ReviewDeliveryCreatedEvent(savedReview, recipientEmail));
+        // Publicar el evento de creación de reseña
+        eventPublisher.publishEvent(new ReviewDeliveryCreatedEvent(savedReview, recipientEmail));
 
         return modelMapper.map(savedReview, ReviewDeliveryResponseDto.class);
     }
 
     public void deleteReviewDelivery(Long id) {
-        if (!reviewDeliveryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("ReviewRepartidor not found");
-        }
+        ReviewDelivery existingReview = reviewDeliveryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ReviewRepartidor not found"));
+
+        String recipientEmail = existingReview.getRepartidor().getEmail();
+
+        // Publicar el evento de eliminación de reseña
+        eventPublisher.publishEvent(new ReviewDeliveryDeletedEvent(id, recipientEmail));
+
         reviewDeliveryRepository.deleteById(id);
     }
 
@@ -99,6 +108,13 @@ public class ReviewDeliveryService {
         existingReview.setComentario(dto.getComentario());
 
         ReviewDelivery updatedReview = reviewDeliveryRepository.save(existingReview);
+
+        String recipientEmail = updatedReview.getRepartidor().getEmail();
+
+        // Publicar el evento de actualización de reseña
+        eventPublisher.publishEvent(new ReviewDeliveryUpdatedEvent(updatedReview, recipientEmail));
+
         return modelMapper.map(updatedReview, ReviewDeliveryResponseDto.class);
     }
+
 }

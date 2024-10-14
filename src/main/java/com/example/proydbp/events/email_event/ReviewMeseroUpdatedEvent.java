@@ -27,7 +27,7 @@ public class ReviewMeseroUpdatedEvent extends ApplicationEvent {
         Mail mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")
                 .to(recipientEmail)
-                .htmlTemplate(new Mail.HtmlTemplate("ReviewUpdatedTemplate", properties))
+                .htmlTemplate(new Mail.HtmlTemplate("ReviewMeseroUpdatedTemplate", properties))
                 .subject("Reseña de Mesero Actualizada")
                 .build();
 

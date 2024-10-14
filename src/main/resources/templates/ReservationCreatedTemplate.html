@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Pedido Preparando</title>
+    <title>Reserva Creada</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -21,7 +21,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             max-width: 600px;
             margin: auto;
-            border: 2px solid #28a745; /* Borde verde para indicar que el pedido está en preparación */
+            border: 2px solid #5bc0de; /* Borde azul claro */
             position: relative; /* Para posicionar los adornos */
         }
         .container::before {
@@ -43,7 +43,7 @@
             z-index: 1;
         }
         h1 {
-            color: #28a745; /* Color verde para el estado de "Preparando" */
+            color: #5bc0de; /* Color azul claro para el estado creado */
             text-align: center;
         }
         h2 {
@@ -57,7 +57,7 @@
             font-size: 16px;
         }
         .highlight {
-            color: #28a745; /* Color verde para destacar información importante */
+            color: #d9534f; /* Color rojo para destacar información importante */
             font-weight: bold;
         }
         .footer {
@@ -70,20 +70,24 @@
 </head>
 <body>
 <div class="container">
-    <h1>Tu Pedido Está en Preparación</h1>
-    <h2>Detalles del Pedido</h2>
+    <h1>¡Tu Reserva ha Sido Creada!</h1>
+    <h2>Detalles de la Reserva</h2>
     <p>
-        Estimado cliente,
+        Estimado <span class="highlight">${Cliente}</span>,
     </p>
     <p>
-        Nos gustaría informarte que tu pedido con el ID <span class="highlight">${ID del Pedido}</span> está actualmente en preparación.
+        Nos complace informarte que tu reserva con el <span class="highlight">${ID de la Reserva}</span> ha sido creada exitosamente.
     </p>
     <p>
-        <strong>Estado:</strong> <span class="highlight">Preparando</span>
+        <strong>Mesa:</strong> <span class="highlight">${Mesa}</span><br>
+        <strong>Fecha:</strong> <span class="highlight">${Fecha}</span><br>
+        <strong>Hora:</strong> <span class="highlight">${Hora}</span><br>
+        <strong>Estado:</strong> <span class="highlight">${Estado}</span><br>
     </p>
     <p>
-        Apreciamos tu paciencia. Si tienes alguna pregunta o inquietud, no dudes en contactarnos.
+        Si tienes alguna pregunta o necesitas asistencia adicional, no dudes en contactarnos.
     </p>
+    <p>¡Gracias por elegir <strong>Dragón Chifero</strong>!</p>
     <div class="footer">
         <p>El equipo de <strong>Dragón Chifero</strong></p>
     </div>
