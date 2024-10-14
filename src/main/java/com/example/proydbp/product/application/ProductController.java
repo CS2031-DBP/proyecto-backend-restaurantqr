@@ -1,6 +1,7 @@
 package com.example.proydbp.product.application;
 
 import com.example.proydbp.product.domain.ProductService;
+import com.example.proydbp.product.dto.PatchAvailability;
 import com.example.proydbp.product.dto.PatchProductDto;
 import com.example.proydbp.product.dto.ProductRequestDto;
 import com.example.proydbp.product.dto.ProductResponseDto;
@@ -68,7 +69,7 @@ public class ProductController {
 
     @PatchMapping("/changeAvailability/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductResponseDto> changeProductAvailability(@PathVariable Long id, @Valid @RequestBody PatchProductDto dto) {
+    public ResponseEntity<ProductResponseDto> changeProductAvailability(@PathVariable Long id, @Valid @RequestBody PatchAvailability dto) {
         ProductResponseDto updatedProduct = productService.changeAvailability(id, dto);
         return ResponseEntity.ok(updatedProduct);
     }

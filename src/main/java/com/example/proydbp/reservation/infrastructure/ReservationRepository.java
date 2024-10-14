@@ -10,5 +10,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByClientId(Long clientId);
 
 
-    List<Reservation> findByTable(Mesa table); // Cambiado a findByTable
+    List<Reservation> findByMesa(Mesa table); // Cambiado a findByTable
 }

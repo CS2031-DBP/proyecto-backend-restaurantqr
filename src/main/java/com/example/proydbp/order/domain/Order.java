@@ -35,14 +35,14 @@ public class Order {
     private List<Product> products;
 
     @ManyToOne
-    @JoinColumn(name = "deliery_id", nullable = false)
+    @JoinColumn(name = "deliery_id")
     private Delivery delivery;
 
     @ManyToOne
     private PedidoLocal pedidoLocals;
 
     @ManyToOne
-    @JoinColumn(name = "pedido_local_id", nullable = false)
+    @JoinColumn(name = "pedido_local_id")
     private PedidoLocal pedidoLocal;
 }
 

@@ -5,6 +5,7 @@ import com.example.proydbp.mesero.dto.MeseroResponseDto;
 import com.example.proydbp.mesero.dto.MeseroSelfResponseDto;
 import com.example.proydbp.mesero.dto.PatchMeseroDto;
 import com.example.proydbp.mesero.infrastructure.MeseroRepository;
+import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import com.example.proydbp.reviewMesero.domain.ReviewMesero;
@@ -16,7 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,7 +73,9 @@ public class MeseroService {
         Mesero mesero = meseroRepository.findById(idMesero)
                 .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
 
-        return mesero.getPedidosLocales().stream()
+        List<PedidoLocal> pedidosLocales = Optional.ofNullable(mesero.getPedidosLocales()).orElse(Collections.emptyList());
+
+        return pedidosLocales.stream()
                 .filter(pedido ->
                         pedido.getStatus() == StatusPedidoLocal.LISTO ||
                                 pedido.getStatus() == StatusPedidoLocal.EN_PREPARACION)
@@ -120,11 +125,14 @@ public class MeseroService {
     }
 
 
-    public List<ReviewMeseroResponseDto> findMisReviews(Long id){
+    public List<ReviewMeseroResponseDto> findMisReviews(Long id) {
         Mesero mesero = meseroRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
 
-        return mesero.getReviewMesero().stream()
+        // Verifica si la lista de reseñas está inicializada, si no, devuelve una lista vacía.
+        List<ReviewMesero> reviews = Optional.ofNullable(mesero.getReviewMesero()).orElse(Collections.emptyList());
+
+        return reviews.stream()
                 .map(review -> modelMapper.map(review, ReviewMeseroResponseDto.class))
                 .toList();
     }

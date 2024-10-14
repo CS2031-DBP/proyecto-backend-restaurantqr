@@ -13,4 +13,5 @@ public interface MesaRepository extends JpaRepository<Mesa, Long> {
     List<Mesa> findByCapacity(int capacity);
 
     Optional<Mesa> findByNumero(int numero);
+    Optional<Mesa> findById(Long id);
 }

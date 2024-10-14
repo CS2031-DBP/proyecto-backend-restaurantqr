@@ -23,7 +23,8 @@ public class ReviewMesero {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @ManyToOne
+
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "mesero_id", nullable = false)
     private Mesero mesero;
 
