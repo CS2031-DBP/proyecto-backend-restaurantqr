@@ -99,10 +99,13 @@ public class ClientService {
     }
 
     public ClientResponseDto getAuthenticatedClient(){
+
         String clientName = SecurityContextHolder.getContext().getAuthentication().getName();
+
         Client client = clientRepository
                 .findByEmail(clientName)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado " + clientName));
+
         return modelMapper.map(client, ClientResponseDto.class);
 
     }

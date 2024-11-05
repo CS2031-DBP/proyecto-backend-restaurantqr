@@ -90,7 +90,8 @@ public class ClientController {
     @PatchMapping("/me")
     @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<Void> updateAuthenticatedClient(@RequestBody PatchClientDto patchClientDto) {
-        if (clientService.clientExists(patchClientDto)) {
+        System.out.println("No entre");
+        if (!clientService.clientExists(patchClientDto)) {
             return ResponseEntity.notFound().build();
         }
         clientService.updateAuthenticatedClient(patchClientDto);

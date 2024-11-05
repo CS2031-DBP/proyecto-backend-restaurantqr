@@ -17,7 +17,7 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-    @Value("${jwt.signing.key}")
+    @Value("sdfi0olkftdnrbftyui0ifdbzdfvxggui9poymftdnrgbgyuhoiuyfntbdz")
     private String secret;
 
     private final UserService userService;
@@ -25,6 +25,10 @@ public class JwtService {
     public String extractUsername(String token) {
         return JWT.decode(token).getSubject();
     }
+    public String extractClaim(String token, String claim) {
+        return JWT.decode(token).getClaim(claim).asString();
+    }
+
 
     public String generateToken(UserDetails data){
         Date now = new Date();
@@ -42,13 +46,14 @@ public class JwtService {
 
     public void validateToken(String token, String userEmail) throws AuthenticationException {
         JWT.require(Algorithm.HMAC256(secret)).build().verify(token);
+
+        final String userRole = this.extractClaim(token, "role");
+
         UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
+
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                userDetails,
-                token,
-                userDetails.getAuthorities()
-        );
+                userDetails, token, userDetails.getAuthorities());
         context.setAuthentication(authToken);
         SecurityContextHolder.setContext(context);
     }

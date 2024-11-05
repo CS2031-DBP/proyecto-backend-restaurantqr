@@ -22,6 +22,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Client extends User {
 
     @Column(name = "loyalty_points", columnDefinition = "int default 0")
