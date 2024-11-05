@@ -1,10 +1,25 @@
+# Env files
 HELP.md
+
+# Virtual Environments
+.env/
+.venv/
+ENV/
+env/
+venv/
+# En caso de que el entorno virtual esté en una subcarpeta del proyecto
+**/env/
+**/venv/
+**/.env/
+**/.venv/
+
+# Maven
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# Spring Tool Suite (STS)
 .apt_generated
 .classpath
 .factorypath
@@ -13,13 +28,13 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
+# IntelliJ IDEA
 .idea
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -29,5 +44,5 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+# Visual Studio Code
 .vscode/
