@@ -19,25 +19,11 @@ import java.util.List;
 public class MeseroRequestDto {
 
 
-    @NotNull
-    @Size(min = 1, max = 50)
     private String firstName;
-
-    @NotNull
-    @Size(min = 1, max = 50)
     private String lastName;
-
-    @Email
     private String email;
-
-    @NotNull
-    @Size(min = 9, max = 12)
-    private String phoneNumber;
-
-    @NotNull
-    private Double ratingScore;
-
-    @NotNull
-    @Size(min = 6)
     private String password;
+    private String phone;
+
+
 }

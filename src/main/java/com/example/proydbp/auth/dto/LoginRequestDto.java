@@ -1,9 +1,9 @@
-package com.example.proydbp.configuration.dto;
+package com.example.proydbp.auth.dto;
 
 import lombok.Data;
 
 @Data
-public class SigninRequest {
+public class LoginRequestDto {
     private String email;
     private String password;
 }

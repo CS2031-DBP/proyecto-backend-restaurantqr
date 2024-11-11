@@ -34,31 +34,26 @@ public class MeseroController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<MeseroResponseDto> getMeseroById(@PathVariable Long id) {
         return ResponseEntity.ok(meseroService.findMeseroById(id));
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<MeseroSelfResponseDto> findMesero() {
-        return ResponseEntity.ok(meseroService.getMeseroOwnInfo());
-    }
-
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<MeseroResponseDto>> findAllMeseros() {
         List<MeseroResponseDto> meseros = meseroService.findAllMeseros();
         return ResponseEntity.ok(meseros);
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<MeseroResponseDto> createMesero(@RequestBody @Valid MeseroRequestDto dto) {
         MeseroResponseDto createdMesero = meseroService.createMesero(dto);
         return new ResponseEntity<>(createdMesero, HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMesero(@PathVariable Long id) {
         meseroService.deleteMesero(id);
@@ -70,6 +65,11 @@ public class MeseroController {
     public ResponseEntity<MeseroResponseDto> updateMesero(@PathVariable Long id, @RequestBody @Valid PatchMeseroDto dto) {
         MeseroResponseDto updatedMesero = meseroService.updateMesero(id, dto);
         return ResponseEntity.ok(updatedMesero);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MeseroSelfResponseDto> findMesero() {
+        return ResponseEntity.ok(meseroService.getMeseroOwnInfo());
     }
 
     @PreAuthorize("hasRole('MESERO')")
