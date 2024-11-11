@@ -1,9 +1,8 @@
-package com.example.proydbp.configuration.domain;
+package com.example.proydbp.config;
 import com.auth0.jwt.JWT;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.example.proydbp.user.domain.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -15,24 +14,27 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 
 @Service
-@RequiredArgsConstructor
+
 public class JwtService {
+
     @Value("sdfi0olkftdnrbftyui0ifdbzdfvxggui9poymftdnrgbgyuhoiuyfntbdz")
     private String secret;
 
-    private final UserService userService;
+    final private UserService userService;
+
+    JwtService(UserService userService) {
+        this.userService = userService;
+    }
+
 
     public String extractUsername(String token) {
         return JWT.decode(token).getSubject();
     }
-    public String extractClaim(String token, String claim) {
-        return JWT.decode(token).getClaim(claim).asString();
-    }
-
 
     public String generateToken(UserDetails data){
         Date now = new Date();
         Date expiration = new Date(now.getTime() + 1000 * 60 * 60 * 10);
+
         Algorithm algorithm = Algorithm.HMAC256(secret);
 
         return JWT.create()
@@ -43,11 +45,9 @@ public class JwtService {
                 .sign(algorithm);
     }
 
-
     public void validateToken(String token, String userEmail) throws AuthenticationException {
-        JWT.require(Algorithm.HMAC256(secret)).build().verify(token);
 
-        final String userRole = this.extractClaim(token, "role");
+        JWT.require(Algorithm.HMAC256(secret)).build().verify(token);
 
         UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
 

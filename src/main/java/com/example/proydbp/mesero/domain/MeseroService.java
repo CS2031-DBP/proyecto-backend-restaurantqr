@@ -15,8 +15,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,11 +29,13 @@ public class MeseroService {
 
     final private MeseroRepository meseroRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public MeseroService(MeseroRepository meseroRepository) {
+    public MeseroService(MeseroRepository meseroRepository , ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.meseroRepository = meseroRepository;
         this.modelMapper = new ModelMapper();
+        this.passwordEncoder = passwordEncoder;
     }
 
     public MeseroResponseDto findMeseroById(Long id) {
@@ -47,7 +51,15 @@ public class MeseroService {
     }
 
     public MeseroResponseDto createMesero(MeseroRequestDto dto) {
-        Mesero mesero = modelMapper.map(dto, Mesero.class);
+        Mesero mesero = new Mesero();
+        mesero.setCreatedAt(ZonedDateTime.now());
+        mesero.setRole(Role.ADMIN);
+        mesero.setFirstName(dto.getFirstName());
+        mesero.setLastName(dto.getLastName());
+        mesero.setEmail(dto.getEmail());
+        mesero.setPassword(passwordEncoder.encode(dto.getPassword()));
+        mesero.setPhoneNumber(dto.getPhone());
+        mesero.setUpdatedAt(ZonedDateTime.now());
         mesero.setRole(Role.MESERO);
         mesero.setRatingScore(0.0);
         return modelMapper.map(meseroRepository.save(mesero), MeseroResponseDto.class);

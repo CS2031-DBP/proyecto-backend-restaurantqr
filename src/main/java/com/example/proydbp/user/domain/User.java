@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -37,11 +38,20 @@ public class User implements UserDetails {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
+    @Column(name = "created_at", nullable = false)
+    private ZonedDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private ZonedDateTime updatedAt;
+
+    @Transient
+    private String rolePrefix = "ROLE_";
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of(new SimpleGrantedAuthority(rolePrefix + role.name()));
     }
+
 
     @Override
     public String getUsername() {

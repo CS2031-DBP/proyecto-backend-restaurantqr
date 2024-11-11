@@ -19,25 +19,12 @@ import java.util.List;
 @AllArgsConstructor
 public class Mesero extends User {
 
-    // Esto debe ser una colección mutable
-    @Getter
     @OneToMany(mappedBy = "mesero", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReviewMesero> reviewMesero = new ArrayList<>(); // Asegúrate de que sea una ArrayList
+    private List<ReviewMesero> reviewMesero = new ArrayList<>();
 
-    // Esto debe ser una colección mutable
-    @Getter
     @OneToMany(mappedBy = "mesero", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PedidoLocal> pedidosLocales = new ArrayList<>(); // Asegúrate de que sea una ArrayList
-
+    private List<PedidoLocal> pedidosLocales = new ArrayList<>();
 
     private Double ratingScore;
-
-    public Mesero(String firstName, String lastName, String email, String phoneNumber, String password) {
-        this.setFirstName(firstName);
-        this.setLastName(lastName);
-        this.setEmail(email);
-        this.setPhoneNumber(phoneNumber);
-        this.setPassword(password);
-    }
 
 }
