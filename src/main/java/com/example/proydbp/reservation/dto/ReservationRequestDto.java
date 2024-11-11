@@ -20,7 +20,7 @@ public class ReservationRequestDto {
 
     private Integer numOfPeople;
 
-    private Integer table;
+    private Long table;
 
     private String specialRequests;
 }

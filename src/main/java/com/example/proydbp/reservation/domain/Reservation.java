@@ -32,7 +32,7 @@ public class Reservation {
 
     @ManyToOne
     @JoinColumn(name = "table_id", nullable = false)
-    private Mesa mesa; // Este es el nombre correcto de la propiedad
+    private Mesa mesa;
 
 
     @Enumerated(EnumType.STRING)

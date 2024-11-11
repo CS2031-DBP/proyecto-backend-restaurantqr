@@ -61,7 +61,7 @@ public class ReservationService {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Mesa mesa = mesaRepository.findByNumero(reservationRequestDto.getTable())
+        Mesa mesa = mesaRepository.findById(reservationRequestDto.getTable())
                 .orElseThrow(() -> new ResourceNotFoundException("Table not found with id " + reservationRequestDto.getTable()));
 
         Reservation newReservation = modelMapper.map(reservationRequestDto, Reservation.class);
@@ -89,7 +89,7 @@ public class ReservationService {
 
         modelMapper.map(reservationRequestDto, existingReservation);
 
-        Mesa mesa = mesaRepository.findByNumero(reservationRequestDto.getTable())
+        Mesa mesa = mesaRepository.findById(reservationRequestDto.getTable())
                 .orElseThrow(() -> new ResourceNotFoundException("Table not found with id " + reservationRequestDto.getTable()));
 
         existingReservation.setMesa(mesa);
@@ -150,7 +150,7 @@ public class ReservationService {
             throw new UnauthorizeOperationException("Client wit email" + existingReservation.getClient().getEmail()+" not authorized");
         }
 
-        Mesa mesa = mesaRepository.findByNumero(reservationRequestDto.getTable())
+        Mesa mesa = mesaRepository.findById(reservationRequestDto.getTable())
                 .orElseThrow(() -> new ResourceNotFoundException("Table not found with id " + reservationRequestDto.getTable()));
 
         existingReservation.setMesa(mesa);
