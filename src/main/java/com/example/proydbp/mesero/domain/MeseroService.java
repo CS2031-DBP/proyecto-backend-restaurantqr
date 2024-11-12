@@ -1,5 +1,8 @@
 package com.example.proydbp.mesero.domain;
 
+import com.example.proydbp.auth.utils.AuthorizationUtils;
+import com.example.proydbp.client.dto.PatchClientDto;
+import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.mesero.dto.MeseroRequestDto;
 import com.example.proydbp.mesero.dto.MeseroResponseDto;
 import com.example.proydbp.mesero.dto.MeseroSelfResponseDto;
@@ -13,12 +16,12 @@ import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import com.example.proydbp.user.domain.Role;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,20 +30,24 @@ import java.util.stream.Collectors;
 @Service
 public class MeseroService {
 
-    final private MeseroRepository meseroRepository;
+    private final MeseroRepository meseroRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final AuthorizationUtils authorizationUtils;
 
     @Autowired
-    public MeseroService(MeseroRepository meseroRepository , ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
+    public MeseroService(MeseroRepository meseroRepository, AuthorizationUtils authorizationUtils , ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.meseroRepository = meseroRepository;
-        this.modelMapper = new ModelMapper();
+        this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
+        this.authorizationUtils = authorizationUtils;
     }
+
 
     public MeseroResponseDto findMeseroById(Long id) {
         Mesero mesero = meseroRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+
         return modelMapper.map(mesero, MeseroResponseDto.class);
     }
 
@@ -53,15 +60,15 @@ public class MeseroService {
     public MeseroResponseDto createMesero(MeseroRequestDto dto) {
         Mesero mesero = new Mesero();
         mesero.setCreatedAt(ZonedDateTime.now());
-        mesero.setRole(Role.ADMIN);
+        mesero.setRole(Role.MESERO);
         mesero.setFirstName(dto.getFirstName());
         mesero.setLastName(dto.getLastName());
         mesero.setEmail(dto.getEmail());
         mesero.setPassword(passwordEncoder.encode(dto.getPassword()));
         mesero.setPhoneNumber(dto.getPhone());
         mesero.setUpdatedAt(ZonedDateTime.now());
-        mesero.setRole(Role.MESERO);
         mesero.setRatingScore(0.0);
+        mesero.setReviewMesero(new ArrayList<>());
         return modelMapper.map(meseroRepository.save(mesero), MeseroResponseDto.class);
     }
 
@@ -75,29 +82,38 @@ public class MeseroService {
         Mesero mesero = meseroRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
 
-        modelMapper.map(dto, mesero);
-        Mesero updatedMesero = meseroRepository.save(mesero);
+        mesero.setUpdatedAt(ZonedDateTime.now());
+        mesero.setFirstName(dto.getFirstName());
+        mesero.setLastName(dto.getLastName());
+        mesero.setPassword(passwordEncoder.encode(dto.getPassword()));
+        mesero.setPhoneNumber(dto.getPhone());
 
-        return modelMapper.map(updatedMesero, MeseroResponseDto.class);
+        return modelMapper.map( meseroRepository.save(mesero), MeseroResponseDto.class);
     }
 
-    public List<PedidoLocalResponseDto> findPedidosLocalesActuales(Long idMesero) {
-        Mesero mesero = meseroRepository.findById(idMesero)
+
+
+
+    public List<PedidoLocalResponseDto> findMisPedidosLocalesActuales() {
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (username == null)
+            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+
+        Mesero mesero = meseroRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
 
         List<PedidoLocal> pedidosLocales = Optional.ofNullable(mesero.getPedidosLocales()).orElse(Collections.emptyList());
 
         return pedidosLocales.stream()
-                .filter(pedido ->
-                        pedido.getStatus() == StatusPedidoLocal.LISTO ||
-                                pedido.getStatus() == StatusPedidoLocal.EN_PREPARACION)
-                .map(pedido -> modelMapper.map(pedido, PedidoLocalResponseDto.class))
-                .toList();
+                .filter(pedido -> pedido.getStatus() == StatusPedidoLocal.LISTO || pedido.getStatus() == StatusPedidoLocal.EN_PREPARACION)
+                .map(pedido -> modelMapper.map(pedido, PedidoLocalResponseDto.class)).toList();
     }
 
+
     public MeseroSelfResponseDto getMeseroOwnInfo() {
-        // Here get the current user identifier (email) using Spring Security
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (username == null)
+            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
 
         Mesero mesero = meseroRepository
                 .findByEmail(username)
@@ -106,6 +122,61 @@ public class MeseroService {
         return modelMapper.map(mesero, MeseroSelfResponseDto.class);
 
     }
+
+
+
+
+    public List<ReviewMeseroResponseDto> findMisReviews() {
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (username == null)
+            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+
+        Mesero mesero = meseroRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+
+        List<ReviewMesero> reviewMesero = Optional.ofNullable(mesero.getReviewMesero()).orElse(Collections.emptyList());
+
+
+        return reviewMesero.stream()
+                .map(review -> modelMapper.map(review, ReviewMeseroResponseDto.class)).toList();
+    }
+
+    public List<PedidoLocalResponseDto> findPedidosLocales() {
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (username == null)
+            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+
+        Mesero mesero = meseroRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+
+        List<PedidoLocal> pedidos = Optional.ofNullable(mesero.getPedidosLocales()).orElse(Collections.emptyList());
+
+
+        return pedidos.stream()
+                .map(pedido -> modelMapper.map(pedido, PedidoLocalResponseDto.class)).toList();
+
+    }
+
+
+    public MeseroSelfResponseDto updateAuthenticatedMesero(PatchClientDto dto) {
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (username == null)
+            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+        Mesero mesero = meseroRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+
+        mesero.setUpdatedAt(ZonedDateTime.now());
+        mesero.setFirstName(dto.getFirstName());
+        mesero.setLastName(dto.getLastName());
+        mesero.setPassword(passwordEncoder.encode(dto.getPassword()));
+        mesero.setPhoneNumber(dto.getPhone());
+        return modelMapper.map( meseroRepository.save(mesero), MeseroSelfResponseDto.class);
+    }
+
+
+
+
+
 
     // Métodos adicionales
     public void updateRatingScore(Long id) {
@@ -135,18 +206,4 @@ public class MeseroService {
                 .filter(pedido -> pedido.getStatus() == StatusPedidoLocal.EN_PREPARACION || pedido.getStatus() == StatusPedidoLocal.LISTO)
                 .count();
     }
-
-
-    public List<ReviewMeseroResponseDto> findMisReviews(Long id) {
-        Mesero mesero = meseroRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
-
-        // Verifica si la lista de reseñas está inicializada, si no, devuelve una lista vacía.
-        List<ReviewMesero> reviews = Optional.ofNullable(mesero.getReviewMesero()).orElse(Collections.emptyList());
-
-        return reviews.stream()
-                .map(review -> modelMapper.map(review, ReviewMeseroResponseDto.class))
-                .toList();
-    }
-
 }

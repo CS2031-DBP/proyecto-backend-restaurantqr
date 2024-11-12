@@ -25,22 +25,19 @@ public class ProductController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long id) {
-        ProductResponseDto productResponseDto = productService.findProductById(id);
-        return ResponseEntity.ok(productResponseDto);
+        return ResponseEntity.ok(productService.findProductById(id));
     }
 
     @GetMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
-        List<ProductResponseDto> productResponseDtos = productService.findAllProducts();
-        return ResponseEntity.ok(productResponseDtos);
+        return ResponseEntity.ok(productService.findAllProducts());
     }
 
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ProductResponseDto> createProduct(@Valid @RequestBody ProductRequestDto dto) {
-        ProductResponseDto createdProduct = productService.createProduct(dto);
-        return ResponseEntity.status(201).body(createdProduct);
+        return ResponseEntity.status(201).body(productService.createProduct(dto));
     }
 
     @DeleteMapping("/{id}")
@@ -53,9 +50,10 @@ public class ProductController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDto dto) {
-        ProductResponseDto updatedProduct = productService.updateProduct(id, dto);
-        return ResponseEntity.ok(updatedProduct);
+        return ResponseEntity.ok(productService.updateProduct(id, dto));
     }
+
+
 
     @GetMapping("/category/{category}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")

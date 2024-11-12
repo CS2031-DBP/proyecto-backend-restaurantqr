@@ -8,20 +8,9 @@ import lombok.Data;
 @Data
 public class PatchClientDto {
 
-    @NotNull
-    @NotEmpty
+
     private String firstName;
-
-    @NotNull
     private String lastName;
-
-    @NotNull
-    private String email;
-
-    @NotNull
-    @Size(min = 6)
     private String password;
-
-    @NotNull
-    private String phoneNumber;
+    private String phone;
 }

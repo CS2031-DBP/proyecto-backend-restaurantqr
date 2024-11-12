@@ -10,23 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PatchMeseroDto {
 
-    @NotNull
-    @Size(min = 1, max = 50)
+
     private String firstName;
 
-    @NotNull
-    @Size(min = 1, max = 50)
     private String lastName;
 
-    @Email
-    private String email;
+    private String phone;
 
-    @NotNull
-    @Size(min = 9, max = 12)
-    private String phoneNumber;
-
-
-    @NotNull
-    @Size(min = 6)
     private String password;
 }
