@@ -1,7 +1,6 @@
 package com.example.proydbp.client.domain;
 
 import com.example.proydbp.delivery.domain.Delivery;
-import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.reservation.domain.Reservation;
 import com.example.proydbp.reviewDelivery.domain.ReviewDelivery;
@@ -29,7 +28,7 @@ public class Client extends User {
     private int loyaltyPoints;
 
     @OneToMany(mappedBy = "client")
-    private List<PedidoLocal> pedidoLocales;
+    private List<PedidoLocal> pedidosLocales;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<Delivery> deliveries;
@@ -38,10 +37,10 @@ public class Client extends User {
     private List<Reservation> reservations;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
-    private List<ReviewMesero> reviewMesero;
+    private List<ReviewMesero> reviewMeseros;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
-    private List<ReviewDelivery> reviewDelivery;
+    private List<ReviewDelivery> reviewDeliveries;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "membership_level")

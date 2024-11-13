@@ -1,5 +1,7 @@
 package com.example.proydbp.mesero.application;
 
+import com.example.proydbp.client.dto.ClientResponseDto;
+import com.example.proydbp.client.dto.PatchClientDto;
 import com.example.proydbp.mesero.domain.Mesero;
 import com.example.proydbp.mesero.domain.MeseroService;
 import com.example.proydbp.mesero.dto.MeseroRequestDto;
@@ -42,15 +44,13 @@ public class MeseroController {
     @GetMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<MeseroResponseDto>> findAllMeseros() {
-        List<MeseroResponseDto> meseros = meseroService.findAllMeseros();
-        return ResponseEntity.ok(meseros);
+        return ResponseEntity.ok(meseroService.findAllMeseros());
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<MeseroResponseDto> createMesero(@RequestBody @Valid MeseroRequestDto dto) {
-        MeseroResponseDto createdMesero = meseroService.createMesero(dto);
-        return new ResponseEntity<>(createdMesero, HttpStatus.CREATED);
+        return new ResponseEntity<>(meseroService.createMesero(dto), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -60,39 +60,50 @@ public class MeseroController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/{id}")
-    public ResponseEntity<MeseroResponseDto> updateMesero(@PathVariable Long id, @RequestBody @Valid PatchMeseroDto dto) {
-        MeseroResponseDto updatedMesero = meseroService.updateMesero(id, dto);
-        return ResponseEntity.ok(updatedMesero);
+    public ResponseEntity<MeseroSelfResponseDto> updateMesero(@PathVariable Long id, @RequestBody PatchMeseroDto dto) {
+        return ResponseEntity.ok(meseroService.updateMesero(id, dto));
     }
 
+
+
+
+    @PreAuthorize("hasRole('ROLE_MESERO')")
     @GetMapping("/me")
     public ResponseEntity<MeseroSelfResponseDto> findMesero() {
         return ResponseEntity.ok(meseroService.getMeseroOwnInfo());
     }
 
-    @PreAuthorize("hasRole('MESERO')")
+    @PreAuthorize("hasRole('ROLE_MESERO')")
     @GetMapping("/me/pedidosLocalesActuales")
-    public ResponseEntity<List<PedidoLocalResponseDto>> findPedidosLocalesActuales() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        Mesero mesero = meseroRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
-
-        List<PedidoLocalResponseDto> pedidosLocales = meseroService.findPedidosLocalesActuales(mesero.getId());
-        return ResponseEntity.ok(pedidosLocales);
+    public ResponseEntity<List<PedidoLocalResponseDto>> findMisPedidosLocalesActuales() {
+        return ResponseEntity.ok(meseroService.findMisPedidosLocalesActuales());
     }
 
-    @PreAuthorize("hasRole('MESERO')")
+
+    @PreAuthorize("hasRole('ROLE_MESERO')")
     @GetMapping("/me/misReviews")
     public ResponseEntity<List<ReviewMeseroResponseDto>> findMisReviews() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        Mesero mesero = meseroRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
-
-        List<ReviewMeseroResponseDto> reviews = meseroService.findMisReviews(mesero.getId());
-        return ResponseEntity.ok(reviews);
+        return ResponseEntity.ok(meseroService.findMisReviews());
     }
+
+
+    @PreAuthorize("hasRole('ROLE_MESERO')")
+    @GetMapping("/me/pedidosLocales")
+    public ResponseEntity<List<PedidoLocalResponseDto>> findPedidosLocales() {
+        return ResponseEntity.ok(meseroService.findPedidosLocales());
+    }
+
+
+    @PatchMapping("/me")
+    @PreAuthorize("hasRole('ROLE_MESERO')")
+    public ResponseEntity<MeseroSelfResponseDto> updateAuthenticatedClient(@RequestBody PatchClientDto dto) {
+        return ResponseEntity.ok(meseroService.updateAuthenticatedMesero(dto));
+    }
+
+
+
+
+
 }

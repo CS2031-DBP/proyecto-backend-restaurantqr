@@ -11,13 +11,9 @@ import lombok.*;
 public class ReviewDeliveryRequestDto {
 
 
-    private String emailRepartidor;
+    private Long repartidorId;
 
-    @Column(nullable = false)
     private Double ratingScore;
 
-    @Size(min = 0, max = 250)
     private String comment;
-
-    private Long idDelivery;
 }

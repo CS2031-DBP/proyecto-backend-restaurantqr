@@ -1,20 +1,7 @@
 package com.example.proydbp.ReviewMesero;
 
-import com.example.proydbp.client.domain.Client;
-import com.example.proydbp.client.domain.Rango;
-import com.example.proydbp.mesero.domain.Mesero;
 import com.example.proydbp.order.domain.Order;
-import com.example.proydbp.pedido_local.domain.PedidoLocal;
-import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
-import com.example.proydbp.pedido_local.domain.TipoPago;
-import com.example.proydbp.product.domain.Category;
-import com.example.proydbp.product.domain.Product;
-import com.example.proydbp.reviewMesero.domain.ReviewMesero;
-import com.example.proydbp.reviewMesero.dto.PatchReviewMeseroDto;
-import com.example.proydbp.reviewMesero.dto.ReviewMeseroRequestDto;
-import com.example.proydbp.user.domain.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,17 +10,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.shaded.com.github.dockerjava.core.MediaType;
 
-import static java.lang.reflect.Array.get;
-import org.testcontainers.shaded.com.github.dockerjava.core.MediaType;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
-
-import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.post;
-import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;

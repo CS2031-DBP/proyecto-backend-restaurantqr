@@ -21,7 +21,7 @@ public class MesaResponseDto {
 
     private String qr;
 
-    private int numero;
+    private Long id;
 
     private int capacity;
 
@@ -29,6 +29,4 @@ public class MesaResponseDto {
 
     private List<ReservationResponseDto> reservations;
 
-    public MesaResponseDto(int numero, int capacity, boolean available) {
-    }
 }

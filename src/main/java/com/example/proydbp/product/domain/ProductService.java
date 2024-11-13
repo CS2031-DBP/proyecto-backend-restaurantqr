@@ -1,18 +1,13 @@
 package com.example.proydbp.product.domain;
 
 import com.example.proydbp.exception.ResourceNotFoundException;
-import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
-import com.example.proydbp.product.dto.PatchAvailability;
-import com.example.proydbp.product.dto.PatchProductDto;
 import com.example.proydbp.product.dto.ProductRequestDto;
 import com.example.proydbp.product.dto.ProductResponseDto;
 import com.example.proydbp.product.infrastructure.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,11 +24,14 @@ public class ProductService {
     }
 
     public ProductResponseDto createProduct(ProductRequestDto dto) {
-        // Mapeo usando ModelMapper
-        Product product = modelMapper.map(dto, Product.class);
-        Product savedProduct = productRepository.save(product);
+        Product product = new Product();
+        product.setNombre(dto.getNombre());
+        product.setDescripcion(dto.getDescripcion());
+        product.setPrice(dto.getPrice());
+        product.setCategory(dto.getCategory());
+        product.setIsAvailable(dto.getIsAvailable());
 
-        // Mapea el producto guardado a ProductResponseDto y retorna
+        Product savedProduct = productRepository.save(product);
         return modelMapper.map(savedProduct, ProductResponseDto.class);
     }
 
@@ -56,11 +54,10 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    public ProductResponseDto updateProduct(Long id, PatchProductDto dto) {
+    public ProductResponseDto updateProduct(Long id, ProductRequestDto dto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
 
-        // Actualizar atributos solo si no son nulos
         if (dto.getNombre() != null) {
             product.setNombre(dto.getNombre());
         }
@@ -73,6 +70,10 @@ public class ProductService {
         if (dto.getIsAvailable() != null) {
             product.setIsAvailable(dto.getIsAvailable());
         }
+        if (dto.getPrice() != null) {
+            product.setPrice(dto.getPrice());
+        }
+
 
         Product updatedProduct = productRepository.save(product);
         return modelMapper.map(updatedProduct, ProductResponseDto.class);
@@ -85,14 +86,11 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public ProductResponseDto changeAvailability(Long id, PatchAvailability dto) {
+    public ProductResponseDto changeAvailability(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
-        // Asumiendo que en PatchProductDto tienes un campo `isAvailable`
-        if (dto.getIsAvailable() != null) {
-            product.setIsAvailable(dto.getIsAvailable());
-        }
+        product.setIsAvailable(!product.getIsAvailable());
 
         Product updatedProduct = productRepository.save(product);
         return modelMapper.map(updatedProduct, ProductResponseDto.class);

@@ -23,7 +23,6 @@ public class DeliveryEnRutaEvent extends ApplicationEvent {
         properties.put("ID de la Entrega", delivery.getId());
         properties.put("Repartidor", delivery.getRepartidor().getFirstName() + " " + delivery.getRepartidor().getLastName());
         properties.put("Direccion", delivery.getDireccion());
-        properties.put("Hora", delivery.getHora());
         properties.put("Fecha", delivery.getFecha());
         properties.put("Costo delivery", delivery.getCostoDelivery());
         properties.put("Total", delivery.getCostoDelivery() + delivery.getPrecio());

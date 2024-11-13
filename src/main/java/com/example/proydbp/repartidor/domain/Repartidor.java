@@ -6,8 +6,6 @@ import com.example.proydbp.reviewDelivery.domain.ReviewDelivery;
 import com.example.proydbp.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -21,7 +19,7 @@ public class Repartidor extends User {
     private List<Delivery> deliveries;
 
     @OneToMany(mappedBy = "repartidor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ReviewDelivery> reviewsRepartidor;
+    private List<ReviewDelivery> reviewDeliveries;
 
     @Column(name = "rating_score")
     private Double ratingScore;

@@ -21,13 +21,14 @@ public class MesaService {
     private final ModelMapper modelMapper;
     private final ReservationRepository reservationRepository;
 
-    // Inyección de dependencias
     public MesaService(MesaRepository mesaRepository, ModelMapper modelMapper,
                        ReservationRepository reservationRepository) {
         this.mesaRepository = mesaRepository;
         this.modelMapper = modelMapper;
         this.reservationRepository = reservationRepository;
     }
+
+
 
     public List<MesaResponseDto> findAllMesas() {
 
@@ -45,16 +46,13 @@ public class MesaService {
     }
 
     public Mesa createMesa(MesaRequestDto request) {
-        if (mesaRepository.existsByNumero(request.getNumero())) {
-            throw new IllegalArgumentException("La mesa con el número " + request.getNumero() + " ya existe.");
-        }
+
         if (request.getCapacity() <= 1) {
             throw new IllegalArgumentException("La capacidad debe ser mayor o igual a 1.");
         }
 
         Mesa newMesa = new Mesa();
         newMesa.setAvailable(true);
-        newMesa.setNumero(request.getNumero());
         newMesa.setCapacity(request.getCapacity());
         String ip = "192.168.1.100";
         newMesa.setQr("https://" + ip + "auth/login/");
@@ -66,13 +64,10 @@ public class MesaService {
     public Mesa updateMesa(Long id, MesaRequestDto mesaDto) {
         Mesa mesa = mesaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa not found with id " + id));
-        if (mesaRepository.existsByNumero(mesaDto.getNumero())) {
-            throw new IllegalArgumentException("La mesa con el número " + mesaDto.getNumero() + " ya existe.");
-        }
+
         if (mesaDto.getCapacity() <= 1) {
             throw new IllegalArgumentException("La capacidad debe ser mayor o igual a 1.");
         }
-        mesa.setNumero(mesaDto.getNumero());
         mesa.setCapacity(mesaDto.getCapacity());
         mesa.setAvailable(mesaDto.isAvailable());
 
@@ -91,7 +86,7 @@ public class MesaService {
         List<Mesa> mesas = mesaRepository.findByAvailable(true);
 
         return mesas.stream()
-                .filter(Mesa::isAvailable)  // Filtrar solo las mesas disponibles
+                .filter(Mesa::isAvailable)
                 .map(mesa -> modelMapper.map(mesa, MesaResponseDto.class))
                 .collect(Collectors.toList());
     }

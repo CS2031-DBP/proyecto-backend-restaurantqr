@@ -1,12 +1,17 @@
 package com.example.proydbp.reservation.dto;
 
+import com.example.proydbp.client.domain.Client;
+import com.example.proydbp.mesa.domain.Mesa;
 import com.example.proydbp.mesa.dto.MesaResponseDto;
+import com.example.proydbp.reservation.domain.StatusReservation;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 
 @Data
 @AllArgsConstructor
@@ -14,13 +19,15 @@ import java.time.LocalTime;
 public class ReservationRequestDto {
 
 
-    private LocalDate reservationDate;
+    private Long id;
 
-    private LocalTime reservationTime;
+    private ZonedDateTime fecha;
 
-    private Integer numOfPeople;
+    private Integer Npersonas;
 
-    private Integer table;
+    private Long mesaId;
 
-    private String specialRequests;
+    private StatusReservation statusReservation;
+
+    private String descripcion;
 }

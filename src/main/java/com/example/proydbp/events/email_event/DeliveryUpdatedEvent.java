@@ -24,7 +24,6 @@ public class DeliveryUpdatedEvent extends ApplicationEvent {
         properties.put("Usuario", delivery.getClient().getFirstName() + " " + delivery.getClient().getLastName());
         properties.put("Email", delivery.getClient().getEmail());
         properties.put("Nueva Direccion", delivery.getDireccion());
-        properties.put("Hora", delivery.getHora());
         properties.put("Fecha", delivery.getFecha());
         properties.put("Estado", "Actualizado");
 

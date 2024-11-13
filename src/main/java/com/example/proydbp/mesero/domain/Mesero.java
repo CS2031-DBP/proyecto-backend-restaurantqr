@@ -12,17 +12,16 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Mesero extends User {
 
-    @OneToMany(mappedBy = "mesero", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReviewMesero> reviewMesero = new ArrayList<>();
+    @OneToMany(mappedBy = "mesero",  cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ReviewMesero> reviewMeseros = new ArrayList<>();
 
-    @OneToMany(mappedBy = "mesero", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "mesero",  cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PedidoLocal> pedidosLocales = new ArrayList<>();
 
     private Double ratingScore;

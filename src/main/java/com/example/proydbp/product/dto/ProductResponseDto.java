@@ -1,6 +1,5 @@
 package com.example.proydbp.product.dto;
 
-import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.product.domain.Category;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +15,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductResponseDto {
+
+    private Long id;
 
     @NotNull
     @Size(min = 1, max = 100)

@@ -1,7 +1,7 @@
 package com.example.proydbp.pedido_local.dto;
 
 import com.example.proydbp.mesero.dto.MeseroResponseDto;
-import com.example.proydbp.order.dto.OrderResponseDto;
+
 import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
 import com.example.proydbp.pedido_local.domain.TipoPago;
 import lombok.Data;
@@ -13,14 +13,8 @@ import java.util.List;
 
 @Data
 public class PedidoLocalRequestDto {
-
-    private LocalDate fecha;
-
-    private LocalTime hora;
-
+    private Long mesaId;
     private TipoPago tipoPago;
-
-    private List<OrderResponseDto> orders;
-
-
+    private List<Long> idProducts;
+    private String descripcion;
 }

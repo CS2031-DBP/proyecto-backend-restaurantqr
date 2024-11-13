@@ -13,14 +13,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MesaRequestDto {
-    @NotNull
-    @Column(unique = true)
-    private int numero;
+
     @NotNull
     @Min(1)
     private int capacity;
-
-
     @NotNull
     private boolean isAvailable;
 

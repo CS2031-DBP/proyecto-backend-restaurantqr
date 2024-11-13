@@ -20,9 +20,8 @@ public class ReservationFinishedEvent extends ApplicationEvent {
         Map<String, Object> properties = new HashMap<>();
         properties.put("ID de la Reserva", reservation.getId());
         properties.put("Cliente", reservation.getClient().getEmail());
-        properties.put("Mesa", reservation.getMesa().getNumero());
-        properties.put("Fecha", reservation.getReservationDate());
-        properties.put("Hora", reservation.getReservationTime());
+        properties.put("Mesa", reservation.getMesa().getId());
+        properties.put("Fecha", reservation.getFecha());
         properties.put("Estado", reservation.getStatusReservation());
 
         Mail mail = Mail.builder()

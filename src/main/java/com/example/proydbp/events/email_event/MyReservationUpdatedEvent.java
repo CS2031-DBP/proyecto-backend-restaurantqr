@@ -22,8 +22,8 @@ public class MyReservationUpdatedEvent extends ApplicationEvent {
         Map<String, Object> properties = new HashMap<>();
         properties.put("ID de la Reserva", reservation.getId());
         properties.put("Cliente", reservation.getClient().getFirstName() + " " + reservation.getClient().getLastName());
-        properties.put("Mesa", reservation.getMesa().getNumero());
-        properties.put("Número de Personas", reservation.getNumOfPeople());
+        properties.put("Mesa", reservation.getMesa().getId());
+        properties.put("Número de Personas", reservation.getNpersonas());
         properties.put("Estado", reservation.getStatusReservation());
 
         Mail mail = Mail.builder()

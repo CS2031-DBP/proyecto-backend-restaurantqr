@@ -16,22 +16,21 @@ import java.util.List;
 @AllArgsConstructor
 public class MeseroResponseDto {
 
-    @NotNull
-    @NotEmpty
+
+    private Long id;
+
+
     private String firstName;
 
-    @NotNull
     private String lastName;
 
-    @NotNull
     private String email;
 
-    @NotNull
-    private String phoneNumber;
+    private String phone;
 
     private List<PedidoLocalResponseDto> pedidosLocales;
 
-    private List<ReviewMeseroResponseDto> reviewsMesero;
+    private List<ReviewMeseroResponseDto> reviewMeseros;
 
     private Double ratingScore;
 }
