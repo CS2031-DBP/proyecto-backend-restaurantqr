@@ -68,7 +68,7 @@ public class MeseroService {
         mesero.setPhoneNumber(dto.getPhone());
         mesero.setUpdatedAt(ZonedDateTime.now());
         mesero.setRatingScore(0.0);
-        mesero.setReviewMesero(new ArrayList<>());
+        mesero.setReviewMeseros(new ArrayList<>());
         return modelMapper.map(meseroRepository.save(mesero), MeseroResponseDto.class);
     }
 
@@ -134,7 +134,7 @@ public class MeseroService {
         Mesero mesero = meseroRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
 
-        List<ReviewMesero> reviewMesero = Optional.ofNullable(mesero.getReviewMesero()).orElse(Collections.emptyList());
+        List<ReviewMesero> reviewMesero = Optional.ofNullable(mesero.getReviewMeseros()).orElse(Collections.emptyList());
 
 
         return reviewMesero.stream()
@@ -184,7 +184,7 @@ public class MeseroService {
                 .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
 
         // Actualiza el ratingScore promedio a partir de las reseñas
-        double promedio = mesero.getReviewMesero().stream()
+        double promedio = mesero.getReviewMeseros().stream()
                 .mapToDouble(ReviewMesero::getRatingScore)
                 .average()
                 .orElse(0.0);

@@ -20,7 +20,7 @@ import java.util.List;
 public class Mesero extends User {
 
     @OneToMany(mappedBy = "mesero", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReviewMesero> reviewMesero = new ArrayList<>();
+    private List<ReviewMesero> reviewMeseros = new ArrayList<>();
 
     @OneToMany(mappedBy = "mesero", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PedidoLocal> pedidosLocales = new ArrayList<>();

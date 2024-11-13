@@ -2,7 +2,7 @@ package com.example.proydbp.pedido_local.domain;
 
 import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.mesero.domain.Mesero;
-import com.example.proydbp.order.domain.Order;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,9 +22,6 @@ public class PedidoLocal {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-
-    @OneToMany(mappedBy = "pedidoLocal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Order> orders;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "mesero_id", nullable = false)

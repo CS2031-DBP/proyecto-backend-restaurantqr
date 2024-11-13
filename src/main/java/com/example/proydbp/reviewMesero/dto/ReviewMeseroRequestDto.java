@@ -2,7 +2,7 @@ package com.example.proydbp.reviewMesero.dto;
 
 import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.mesero.domain.Mesero;
-import com.example.proydbp.order.domain.Order;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

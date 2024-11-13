@@ -21,7 +21,7 @@ public class Repartidor extends User {
     private List<Delivery> deliveries;
 
     @OneToMany(mappedBy = "repartidor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ReviewDelivery> reviewsRepartidor;
+    private List<ReviewDelivery> reviewDeliveries;
 
     @Column(name = "rating_score")
     private Double ratingScore;

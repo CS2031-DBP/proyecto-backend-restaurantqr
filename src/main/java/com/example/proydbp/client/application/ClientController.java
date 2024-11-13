@@ -3,6 +3,7 @@ package com.example.proydbp.client.application;
 import com.example.proydbp.client.domain.ClientService;
 import com.example.proydbp.client.dto.ClientRequestDto;
 import com.example.proydbp.client.dto.ClientResponseDto;
+import com.example.proydbp.client.dto.ClientSelfResponseDto;
 import com.example.proydbp.client.dto.PatchClientDto;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
@@ -59,7 +60,7 @@ public class ClientController {
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<ClientResponseDto> getAuthenticatedClient() {
+    public ResponseEntity<ClientSelfResponseDto> getAuthenticatedClient() {
         return ResponseEntity.ok(clientService.getAuthenticatedClient());
 
     }
@@ -73,7 +74,7 @@ public class ClientController {
 
     @PatchMapping("/me")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<ClientResponseDto> updateAuthenticatedClient(@RequestBody PatchClientDto patchClientDto) {
+    public ResponseEntity<ClientSelfResponseDto> updateAuthenticatedClient(@RequestBody PatchClientDto patchClientDto) {
         return ResponseEntity.ok(clientService.updateAuthenticatedClient(patchClientDto));
     }
 

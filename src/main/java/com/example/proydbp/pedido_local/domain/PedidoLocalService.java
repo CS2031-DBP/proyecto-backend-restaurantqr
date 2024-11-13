@@ -5,7 +5,7 @@ import com.example.proydbp.client.infrastructure.ClientRepository;
 import com.example.proydbp.events.email_event.*;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.mesero.domain.MeseroService;
-import com.example.proydbp.order.domain.Order;
+
 import com.example.proydbp.pedido_local.dto.PatchPedidoLocalDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalRequestDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
@@ -164,13 +164,7 @@ public class PedidoLocalService {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(idPedidoLocal)
                 .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
 
-        // Obtener todas las órdenes asociadas al pedido local
-        List<Order> orders = pedidoLocal.getOrders();
-
-        // Calcular el precio total sumando el precio de cada orden
-        double totalPrecio = orders.stream()
-                .mapToDouble(Order::getPrice) // Obtener el precio de cada orden como double
-                .sum(); // Sumar los precios
+        Double totalPrecio = 0.0;
 
         return totalPrecio; // Retornar el precio total
     }

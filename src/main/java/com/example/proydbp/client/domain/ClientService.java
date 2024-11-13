@@ -3,8 +3,11 @@ package com.example.proydbp.client.domain;
 import com.example.proydbp.auth.utils.AuthorizationUtils;
 import com.example.proydbp.client.dto.ClientRequestDto;
 import com.example.proydbp.client.dto.ClientResponseDto;
+import com.example.proydbp.client.dto.ClientSelfResponseDto;
 import com.example.proydbp.client.dto.PatchClientDto;
 import com.example.proydbp.client.infrastructure.ClientRepository;
+import com.example.proydbp.delivery.domain.Delivery;
+import com.example.proydbp.delivery.domain.DeliveryService;
 import com.example.proydbp.delivery.domain.StatusDelivery;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.exception.UnauthorizeOperationException;
@@ -22,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,29 +36,37 @@ public class ClientService {
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthorizationUtils authorizationUtils;
+    private final DeliveryService deliveryService;
 
 
     @Autowired
-    public ClientService(AuthorizationUtils authorizationUtils, ClientRepository clientRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
+    public ClientService(AuthorizationUtils authorizationUtils,DeliveryService deliveryService , ClientRepository clientRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
         this.clientRepository = clientRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
         this.authorizationUtils = authorizationUtils;
+        this.deliveryService = deliveryService;
     }
 
 
     public ClientResponseDto getClient(Long id) {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente con id "+ id +"no encontrado."));
-        return modelMapper.map(client, ClientResponseDto.class);
+        return convertirADto(client);
     }
 
     public List<ClientResponseDto> getAllClients() {
         List<Client> clients = clientRepository.findAll();
-        return clients.stream()
-                .map(client -> modelMapper.map(client, ClientResponseDto.class))
-                .collect(Collectors.toList());
+        List<ClientResponseDto> clientsResponse = new ArrayList<>();
+
+        for (Client client : clients) {
+            ClientResponseDto clientDto = convertirADto(client);
+            clientsResponse.add(clientDto);
+        }
+
+        return clientsResponse;
     }
+
 
 
     public ClientResponseDto saveClientDto(ClientRequestDto clientRequestDto) {
@@ -69,7 +81,8 @@ public class ClientService {
         client.setCreatedAt(ZonedDateTime.now());
         client.setRango(Rango.BRONZE);
         clientRepository.save(client);
-        return modelMapper.map(client, ClientResponseDto.class);
+
+        return convertirADto(client);
     }
 
     public void deleteClient(Long id) {
@@ -88,10 +101,10 @@ public class ClientService {
         client.setPhoneNumber(patchClientDto.getPhone());
         client.setUpdatedAt(ZonedDateTime.now());
         clientRepository.save(client);
-        return modelMapper.map(client, ClientResponseDto.class);
+        return convertirADto(client);
     }
 
-    public ClientResponseDto getAuthenticatedClient(){
+    public ClientSelfResponseDto getAuthenticatedClient(){
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
             throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
@@ -99,7 +112,7 @@ public class ClientService {
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado " + username));
 
-        return modelMapper.map(client, ClientResponseDto.class);
+        return modelMapper.map(client, ClientSelfResponseDto.class);
     }
 
 
@@ -114,7 +127,7 @@ public class ClientService {
         clientRepository.deleteById(client.getId());
     }
 
-    public ClientResponseDto updateAuthenticatedClient(PatchClientDto patchClientDto) {
+    public ClientSelfResponseDto updateAuthenticatedClient(PatchClientDto patchClientDto) {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
             throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
@@ -127,7 +140,7 @@ public class ClientService {
         client.setPhoneNumber(patchClientDto.getPhone());
         client.setUpdatedAt(ZonedDateTime.now());
         clientRepository.save(client);
-        return modelMapper.map(client, ClientResponseDto.class);
+        return modelMapper.map(client, ClientSelfResponseDto.class);
     }
 
 
@@ -139,7 +152,7 @@ public class ClientService {
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
 
-        return client.getPedidoLocales()
+        return client.getPedidosLocales()
                 .stream()
                 .map(pedidoLocal -> modelMapper.map(pedidoLocal, PedidoLocalResponseDto.class))
                 .collect(Collectors.toList());
@@ -153,10 +166,14 @@ public class ClientService {
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
 
-        return client.getDeliveries()
-                .stream()
-                .map(delivery -> modelMapper.map(delivery, DeliveryResponseDto.class))
-                .collect(Collectors.toList());
+
+        List<DeliveryResponseDto> deliverys = new ArrayList<>();
+
+        for (Delivery delivery : client.getDeliveries()) {
+            DeliveryResponseDto deliveryDto = deliveryService.convertirADto(delivery);
+            deliverys.add(deliveryDto);
+        }
+        return deliverys;
     }
 
     public List<ReservationResponseDto> getAllReservation(){
@@ -209,7 +226,7 @@ public class ClientService {
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
 
 
-        return client.getPedidoLocales().stream()
+        return client.getPedidosLocales().stream()
                 .filter(pedidoLocal -> pedidoLocal.getStatus() == StatusPedidoLocal.EN_PREPARACION || pedidoLocal.getStatus() == StatusPedidoLocal.LISTO || pedidoLocal.getStatus() == StatusPedidoLocal.RECIBIDO)  // Filtrar por estado enum
                 .map(delivery -> modelMapper.map(delivery, PedidoLocalResponseDto.class))  // Mapear usando ModelMapper
                 .collect(Collectors.toList());
@@ -224,11 +241,16 @@ public class ClientService {
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
 
+        List<DeliveryResponseDto> deliverys = new ArrayList<>();
+        for(Delivery delivery : client.getDeliveries()){
+            if(delivery.getStatus() != StatusDelivery.ENTREGADO && delivery.getStatus() != StatusDelivery.CANCELADO){
+                DeliveryResponseDto deliveryDto = deliveryService.convertirADto(delivery);
+                deliverys.add(deliveryDto);
+            }
 
-        return client.getDeliveries().stream()
-                .filter(delivery -> delivery.getStatus() != StatusDelivery.ENTREGADO && delivery.getStatus() != StatusDelivery.CANCELADO)  // Filtrar por estado enum
-                .map(delivery -> modelMapper.map(delivery, DeliveryResponseDto.class))
-                .collect(Collectors.toList());
+        }
+        return deliverys;
+
     }
 
     public List<ReservationResponseDto> getActualReservation(){
@@ -254,7 +276,7 @@ public class ClientService {
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
 
-        return client.getReviewMesero()
+        return client.getReviewMeseros()
                 .stream()
                 .map(reviewMesero -> modelMapper.map(reviewMesero, ReviewMeseroResponseDto.class))
                 .collect(Collectors.toList());
@@ -268,9 +290,24 @@ public class ClientService {
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
 
-        return client.getReviewDelivery()
+        return client.getReviewDeliveries()
                 .stream()
                 .map(reviewDelivery -> modelMapper.map(reviewDelivery, ReviewDeliveryResponseDto.class))
                 .collect(Collectors.toList());
     }
+
+
+    public ClientResponseDto convertirADto(Client client) {
+
+            ClientResponseDto clientDto = modelMapper.map(client, ClientResponseDto.class);
+
+            List<DeliveryResponseDto> deliveriesResponse = new ArrayList<>();
+            for (Delivery delivery : client.getDeliveries()) {
+                deliveriesResponse.add(deliveryService.convertirADto(delivery));
+            }
+            clientDto.setDeliveries(deliveriesResponse);
+
+        return clientDto;
+    }
+
 }

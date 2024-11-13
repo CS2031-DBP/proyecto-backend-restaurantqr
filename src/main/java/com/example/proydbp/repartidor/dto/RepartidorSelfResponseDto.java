@@ -1,21 +1,21 @@
 package com.example.proydbp.repartidor.dto;
-
-import lombok.*;
+import lombok.Data;
 
 @Data
+public class RepartidorSelfResponseDto {
 
-public class RepartidorRequestDto {
-
+    private Long id;
 
     private String firstName;
-
 
     private String lastName;
 
     private String email;
 
-    private String password;
-
     private String phone;
+
+    private Double ratingScore;
+
+
 
 }

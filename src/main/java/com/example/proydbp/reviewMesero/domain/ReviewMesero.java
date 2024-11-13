@@ -2,7 +2,6 @@ package com.example.proydbp.reviewMesero.domain;
 
 import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.mesero.domain.Mesero;
-import com.example.proydbp.order.domain.Order;
 import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
