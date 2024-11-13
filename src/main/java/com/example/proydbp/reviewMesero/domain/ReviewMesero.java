@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 
 @Data
 @Entity
@@ -21,7 +22,6 @@ public class ReviewMesero {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "mesero_id", nullable = false)
@@ -38,12 +38,6 @@ public class ReviewMesero {
     private Client client;
 
     @Column(name = "fecha", nullable = false)
-    private LocalDate fecha;
+    private ZonedDateTime fecha;
 
-    @Column(name = "hora", nullable = false)
-    private LocalTime hora;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "pedido_id", nullable = false)
-    private PedidoLocal pedidoLocal;
 }

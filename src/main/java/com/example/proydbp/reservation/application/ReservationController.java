@@ -24,28 +24,28 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<ReservationResponseDto>> getAllReservations() {
         List<ReservationResponseDto> reservations = reservationService.findAllReservations();
         return ResponseEntity.ok(reservations);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<ReservationResponseDto> getReservationById(@PathVariable Long id) {
         ReservationResponseDto reservation = reservationService.findReservationById(id);
         return ResponseEntity.ok(reservation);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @PostMapping
     public ResponseEntity<ReservationResponseDto> createReservation(@Validated @RequestBody ReservationRequestDto reservationRequestDto) {
         ReservationResponseDto newReservation = reservationService.createReservation(reservationRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newReservation);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @PutMapping("/{id}")
     public ResponseEntity<ReservationResponseDto> updateReservation(@PathVariable Long id,
                                                                     @Validated @RequestBody ReservationRequestDto reservationRequestDto) {
@@ -53,39 +53,32 @@ public class ReservationController {
         return ResponseEntity.ok(updatedReservation);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
         reservationService.deleteReservation(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @PutMapping("/{id}/cancel")
     public ResponseEntity<ReservationResponseDto> cancelReservation(@PathVariable Long id) {
         ReservationResponseDto canceledReservation = reservationService.canceledReservation(id);
         return ResponseEntity.ok(canceledReservation);
     }
 
-    @PreAuthorize("hasRole('MESERO')")
+    @PreAuthorize("hasRole('ROLE_MESERO')")
     @PutMapping("/{id}/confirm")
     public ResponseEntity<ReservationResponseDto> confirmReservation(@PathVariable Long id) {
         ReservationResponseDto confirmedReservation = reservationService.confirmedReservation(id);
         return ResponseEntity.ok(confirmedReservation);
     }
 
-    @PreAuthorize("hasRole('MESERO')")
+    @PreAuthorize("hasRole('ROLE_MESERO')")
     @PutMapping("/{id}/finish")
     public ResponseEntity<ReservationResponseDto> finishReservation(@PathVariable Long id) {
         ReservationResponseDto finishedReservation = reservationService.finishedReservation(id);
         return ResponseEntity.ok(finishedReservation);
     }
 
-    @PreAuthorize("hasRole('CLIENT')")
-    @PutMapping("/me/{id}/editReservation")
-    public ResponseEntity<ReservationResponseDto> updateMyReservation(@PathVariable Long id,
-                                                                      @Validated @RequestBody ReservationRequestDto reservationRequestDto) {
-        ReservationResponseDto updatedReservation = reservationService.updateMyReservation(id, reservationRequestDto);
-        return ResponseEntity.ok(updatedReservation);
-    }
 }

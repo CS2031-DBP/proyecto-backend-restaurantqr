@@ -1,26 +1,39 @@
 package com.example.proydbp.pedido_local.domain;
 
+import com.example.proydbp.auth.utils.AuthorizationUtils;
 import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.client.infrastructure.ClientRepository;
+import com.example.proydbp.delivery.domain.Delivery;
+import com.example.proydbp.delivery.domain.StatusDelivery;
+import com.example.proydbp.delivery.dto.DeliveryResponseDto;
+import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
 import com.example.proydbp.events.email_event.*;
 import com.example.proydbp.exception.ResourceNotFoundException;
+import com.example.proydbp.exception.UnauthorizeOperationException;
+import com.example.proydbp.mesa.domain.Mesa;
+import com.example.proydbp.mesa.infrastructure.MesaRepository;
 import com.example.proydbp.mesero.domain.MeseroService;
 
 import com.example.proydbp.pedido_local.dto.PatchPedidoLocalDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalRequestDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import com.example.proydbp.pedido_local.infrastructure.PedidoLocalRepository;
+import com.example.proydbp.product.dto.ProductResponseDto;
+import com.example.proydbp.product.infrastructure.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,53 +44,84 @@ public class PedidoLocalService {
     final private ModelMapper modelMapper;
     final private MeseroService meseroService;
     private final ClientRepository clientRepository;
+    private final ProductRepository productRepository;
+    private final AuthorizationUtils authorizationUtils;
+    private final MesaRepository mesaRepository;
 
     @Autowired
     public PedidoLocalService(PedidoLocalRepository pedidoLocalRepository
-            , ApplicationEventPublisher eventPublisher, ModelMapper modelMapper, MeseroService meseroService, ClientRepository clientRepository) {
+            , ApplicationEventPublisher eventPublisher, MesaRepository mesaRepository,AuthorizationUtils authorizationUtils, ProductRepository productRepository, ModelMapper modelMapper, @Lazy MeseroService meseroService, ClientRepository clientRepository) {
         this.pedidoLocalRepository = pedidoLocalRepository;
         this.eventPublisher = eventPublisher;
+        this.productRepository = productRepository;
         this.modelMapper = modelMapper;
         this.meseroService = meseroService;
+        this.mesaRepository = mesaRepository;
         this.clientRepository = clientRepository;
+        this.authorizationUtils = authorizationUtils;
     }
 
     public PedidoLocalResponseDto findPedidoLocalById(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
-
-        return modelMapper.map(pedidoLocal, PedidoLocalResponseDto.class);
+        return convertirADto(pedidoLocal);
     }
 
     public List<PedidoLocalResponseDto> findAllPedidoLocals() {
-        return pedidoLocalRepository.findAll().stream()
-                .map(pedidoLocal -> modelMapper.map(pedidoLocal, PedidoLocalResponseDto.class))
-                .collect(Collectors.toList());
+        List<PedidoLocalResponseDto> Pedidos = new ArrayList<>();
+
+        for (PedidoLocal pedidoLocal : pedidoLocalRepository.findAll()) {
+
+            PedidoLocalResponseDto responseDto =convertirADto(pedidoLocal);
+
+            Pedidos.add(responseDto);
+        }
+
+        return Pedidos;
     }
 
     public PedidoLocalResponseDto createPedidoLocal(PedidoLocalRequestDto dto) {
-        PedidoLocal pedidoLocal = modelMapper.map(dto, PedidoLocal.class); // Mapeo directo desde DTO a entidad
-        pedidoLocal.setMesero(meseroService.asignarMesero());
-        pedidoLocal.setStatus(StatusPedidoLocal.RECIBIDO);
-        pedidoLocal.setFecha(LocalDate.now());
-        pedidoLocal.setHora(LocalTime.now());
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (username == null)
+            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
 
+        Mesa mesa = mesaRepository.findById(dto.getMesaId())
+                .orElseThrow(() -> new UsernameNotFoundException("Mesa No encontrada"));
+        mesa.setAvailable(false);
+        mesaRepository.save(mesa);
+
+        PedidoLocal pedidoLocal = new PedidoLocal();
+        pedidoLocal.setMesa(mesa);
         pedidoLocal.setClient(client);
-        PedidoLocal pedidoLocal2 = pedidoLocalRepository.save(pedidoLocal);
+        pedidoLocal.setTipoPago(dto.getTipoPago());
+        pedidoLocal.setStatus(StatusPedidoLocal.RECIBIDO);
+        pedidoLocal.setFecha(ZonedDateTime.now());
+        pedidoLocal.setDescripcion(dto.getDescripcion());
+        pedidoLocal.setIdProducts(dto.getIdProducts());
+        pedidoLocal.setPrecio(0.0);
+        pedidoLocal.setMesero(meseroService.asignarMesero());
 
-        pedidoLocal2.setPrecio(calcularPrecioTotal(pedidoLocal.getId()));
 
-        PedidoLocal savedPedidoLocal = pedidoLocalRepository.save(pedidoLocal2);
+        List<ProductResponseDto> productos = new ArrayList<>();
+        for (Long id : dto.getIdProducts()) {
+            productRepository.findById(id).ifPresent(product -> {
+                ProductResponseDto productDto = modelMapper.map(product, ProductResponseDto.class);
+                productos.add(productDto);
+                pedidoLocal.setPrecio(pedidoLocal.getPrecio()+ product.getPrice());
+            });
+        }
 
-        String recipientEmail = savedPedidoLocal.getMesero().getEmail();
+        PedidoLocalResponseDto pedidoLocalResponseDto = convertirADto( pedidoLocalRepository.save(pedidoLocal));
 
-        eventPublisher.publishEvent(new PedidoLocalCreatedEvent(savedPedidoLocal, recipientEmail));
+        //String recipientEmail = savedPedidoLocal.getMesero().getEmail();
 
-        return modelMapper.map(savedPedidoLocal, PedidoLocalResponseDto.class);
+        //eventPublisher.publishEvent(new PedidoLocalCreatedEvent(savedPedidoLocal, recipientEmail));
+
+        return pedidoLocalResponseDto;
     }
 
 
@@ -86,8 +130,8 @@ public class PedidoLocalService {
                 .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
 
         // Publicar el evento antes de eliminar el pedido
-        String recipientEmail = "fernando.munoz.p@utec.edu.pe";
-        eventPublisher.publishEvent(new PedidoLocalDeletedEvent(id, pedidoLocal, recipientEmail));
+       // String recipientEmail = "fernando.munoz.p@utec.edu.pe";
+       // eventPublisher.publishEvent(new PedidoLocalDeletedEvent(id, pedidoLocal, recipientEmail));
 
         pedidoLocalRepository.deleteById(id);
     }
@@ -97,49 +141,50 @@ public class PedidoLocalService {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
 
-        // Mapear solo los campos que se actualizan desde el DTO
-        modelMapper.map(dto, pedidoLocal);
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (!Objects.equals(username, pedidoLocal.getClient().getEmail()))
+        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");}
 
-        PedidoLocal pedidoLocal2 = pedidoLocalRepository.save(pedidoLocal);
 
-        pedidoLocal2.setPrecio(calcularPrecioTotal(pedidoLocal.getId()));
+        pedidoLocal.setDescripcion(dto.getDescripcion());
+        pedidoLocal.setTipoPago(dto.getTipoPago());
 
-        PedidoLocal savedPedidoLocal = pedidoLocalRepository.save(pedidoLocal2);
 
-        String recipientEmail = savedPedidoLocal.getMesero().getEmail();
+        PedidoLocalResponseDto responseDto = convertirADto(pedidoLocalRepository.save(pedidoLocal));
 
-        eventPublisher.publishEvent(new PedidoLocalUpdatedEvent(savedPedidoLocal, recipientEmail));
-        return modelMapper.map(savedPedidoLocal, PedidoLocalResponseDto.class);
+        //String recipientEmail = savedPedidoLocal.getMesero().getEmail();
+
+        //eventPublisher.publishEvent(new PedidoLocalUpdatedEvent(savedPedidoLocal, recipientEmail));
+
+        return responseDto;
     }
 
     public PedidoLocalResponseDto cocinandoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
 
         pedidoLocal.setStatus(StatusPedidoLocal.EN_PREPARACION);
 
-        PedidoLocal updatedPedidoLocal = pedidoLocalRepository.save(pedidoLocal);
-        String recipientEmail = updatedPedidoLocal.getMesero().getEmail();
+        PedidoLocalResponseDto response = convertirADto(pedidoLocalRepository.save(pedidoLocal));
 
         // Publicar el evento
-        eventPublisher.publishEvent(new EstadoPedidoLocalPreparandoEvent(updatedPedidoLocal, recipientEmail));
+        //eventPublisher.publishEvent(new EstadoPedidoLocalListoEvent(updatedPedidoLocal, recipientEmail));
 
-        return modelMapper.map(updatedPedidoLocal, PedidoLocalResponseDto.class);
+        return response;
     }
 
     public PedidoLocalResponseDto listoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
 
         pedidoLocal.setStatus(StatusPedidoLocal.LISTO);
 
-        PedidoLocal updatedPedidoLocal = pedidoLocalRepository.save(pedidoLocal);
-        String recipientEmail = updatedPedidoLocal.getMesero().getEmail();
+        PedidoLocalResponseDto response = convertirADto(pedidoLocalRepository.save(pedidoLocal));
 
         // Publicar el evento
-        eventPublisher.publishEvent(new EstadoPedidoLocalListoEvent(updatedPedidoLocal, recipientEmail));
+        //eventPublisher.publishEvent(new EstadoPedidoLocalListoEvent(updatedPedidoLocal, recipientEmail));
 
-        return modelMapper.map(updatedPedidoLocal, PedidoLocalResponseDto.class);
+        return response;
     }
 
     public List<PedidoLocalResponseDto> findPedidosLocalesActuales() {
@@ -158,31 +203,55 @@ public class PedidoLocalService {
     }
 
 
-    // adicional
-
-    public double calcularPrecioTotal(Long idPedidoLocal) {
-        PedidoLocal pedidoLocal = pedidoLocalRepository.findById(idPedidoLocal)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
-
-        Double totalPrecio = 0.0;
-
-        return totalPrecio; // Retornar el precio total
-    }
-
-
     public PedidoLocalResponseDto entregadoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (!Objects.equals(username, pedidoLocal.getMesero().getEmail()))
+        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource: " + username);}
 
         pedidoLocal.setStatus(StatusPedidoLocal.ENTREGADO);
 
-        PedidoLocal updatedPedidoLocal = pedidoLocalRepository.save(pedidoLocal);
-        String recipientEmail = updatedPedidoLocal.getMesero().getEmail();
+        PedidoLocalResponseDto response = convertirADto(pedidoLocalRepository.save(pedidoLocal));
 
         // Publicar el evento
-        eventPublisher.publishEvent(new EstadoPedidoLocalListoEvent(updatedPedidoLocal, recipientEmail));
+        //eventPublisher.publishEvent(new EstadoPedidoLocalListoEvent(updatedPedidoLocal, recipientEmail));
 
-        return modelMapper.map(updatedPedidoLocal, PedidoLocalResponseDto.class);
+        return response;
     }
 
+
+    public PedidoLocalResponseDto convertirADto(PedidoLocal pedidoLocal){
+        PedidoLocalResponseDto responseDto = modelMapper.map(pedidoLocal, PedidoLocalResponseDto.class);
+
+        List<ProductResponseDto> productos = new ArrayList<>();
+        for (Long id1 : pedidoLocal.getIdProducts()) {
+            productRepository.findById(id1).ifPresent(product -> {
+                ProductResponseDto productDto = modelMapper.map(product, ProductResponseDto.class);
+                productos.add(productDto);
+               // pedidoLocal.setPrecio(pedidoLocal.getPrecio()+ product.getPrice());
+            });
+        }
+        responseDto.setProducts(productos);
+        return  responseDto;
+    }
+
+    public PedidoLocalResponseDto canceladoPedidoLocal(Long id) {
+        PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (!Objects.equals(username, pedidoLocal.getMesero().getEmail()))
+        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource: " + username);}
+
+        pedidoLocal.setStatus(StatusPedidoLocal.CANCELADO);
+
+        PedidoLocalResponseDto response = convertirADto(pedidoLocalRepository.save(pedidoLocal));
+
+        // Publicar el evento
+        //eventPublisher.publishEvent(new EstadoPedidoLocalListoEvent(updatedPedidoLocal, recipientEmail));
+
+        return response;
+    }
 }

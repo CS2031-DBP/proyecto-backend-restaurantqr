@@ -79,7 +79,7 @@ public class DeliveryController {
         return ResponseEntity.ok(deliveryResponse);
     }
 
-    @PatchMapping("/{id}/en-preparacion")
+    @PatchMapping("/{id}/cocinando")
     @PreAuthorize("hasRole('ROLE_CHEF')") // Acceso para chefs
     public ResponseEntity<DeliveryResponseDto> enPreparacionDelivery(@PathVariable Long id) {
         DeliveryResponseDto deliveryResponse = deliveryService.enPreparacionDelivery(id);

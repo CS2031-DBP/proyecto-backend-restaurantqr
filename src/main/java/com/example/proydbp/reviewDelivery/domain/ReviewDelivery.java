@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 
 @Data
 @Entity
@@ -34,19 +35,11 @@ public class ReviewDelivery {
     private Client client;
 
     @Column(nullable = false)
-    private Double calificacion;
+    private Double ratingScore;
 
-    @NotNull(message = "El comentario no puede estar vacío")
     @Size(min = 0, max = 250)
-    private String comentario;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "delivery_id", nullable = false)
-    private Delivery delivery;
+    private String comment;
 
     @Column(name = "fecha", nullable = false)
-    private LocalDate fecha;
-
-    @Column(name = "hora", nullable = false)
-    private LocalTime hora;
+    private ZonedDateTime fecha;
 }

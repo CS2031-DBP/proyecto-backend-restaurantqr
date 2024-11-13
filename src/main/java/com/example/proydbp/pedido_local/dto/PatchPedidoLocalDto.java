@@ -15,8 +15,6 @@ import java.util.List;
 @Data
 public class PatchPedidoLocalDto {
 
-    private StatusPedidoLocal status;
-
     private TipoPago tipoPago;
-
+    private String descripcion;
 }

@@ -1,4 +1,5 @@
 package com.example.proydbp.mesa.domain;
+import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.reservation.domain.Reservation;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,4 +24,8 @@ public class Mesa {
 
     @OneToMany(mappedBy = "mesa")
     private List<Reservation> reservations;
+
+    @OneToMany(mappedBy = "mesa")
+    private List<PedidoLocal> pedidosLocales;
+
 }

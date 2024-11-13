@@ -65,7 +65,7 @@ public class RepartidorController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/{id}")
-    public ResponseEntity<RepartidorResponseDto> updateRepartidor(@PathVariable Long id, @RequestBody PatchRepartidorDto patchDto) {
+    public ResponseEntity<RepartidorSelfResponseDto> updateRepartidor(@PathVariable Long id, @RequestBody PatchRepartidorDto patchDto) {
         return ResponseEntity.ok(repartidorService.updateRepartidor(id, patchDto));
     }
 

@@ -21,8 +21,8 @@ public class ReviewDeliveryUpdatedEvent extends ApplicationEvent {
         // Configuración del correo electrónico
         Map<String, Object> properties = new HashMap<>();
         properties.put("Nombre de Repartidor", reviewDelivery.getRepartidor().getFirstName() + " " + reviewDelivery.getRepartidor().getLastName());
-        properties.put("Nueva Puntuación", reviewDelivery.getCalificacion());
-        properties.put("Nuevo Comentario", reviewDelivery.getComentario());
+        properties.put("Nueva Puntuación", reviewDelivery.getRatingScore());
+        properties.put("Nuevo Comentario", reviewDelivery.getComment());
 
         Mail mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")

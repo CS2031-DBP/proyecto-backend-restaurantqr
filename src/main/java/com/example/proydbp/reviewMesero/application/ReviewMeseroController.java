@@ -1,7 +1,6 @@
 package com.example.proydbp.reviewMesero.application;
 
 import com.example.proydbp.reviewMesero.domain.ReviewMeseroService;
-import com.example.proydbp.reviewMesero.dto.PatchReviewMeseroDto;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroRequestDto;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import jakarta.validation.Valid;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/reviewmesero")
+@RequestMapping("/reviewMesero")
 public class ReviewMeseroController {
 
     final private ReviewMeseroService reviewMeseroService;
@@ -24,36 +23,31 @@ public class ReviewMeseroController {
         this.reviewMeseroService = reviewMeseroService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<ReviewMeseroResponseDto> getReviewMeseroById(@PathVariable Long id) {
         return ResponseEntity.ok(reviewMeseroService.findReviewMeseroById(id));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<ReviewMeseroResponseDto>> getAllReviewMeseros() {
         return ResponseEntity.ok(reviewMeseroService.findAllReviewMeseros());
     }
 
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @PostMapping
     public ResponseEntity<ReviewMeseroResponseDto> createReviewMesero(@Valid @RequestBody ReviewMeseroRequestDto dto) {
         ReviewMeseroResponseDto createdReview = reviewMeseroService.createReviewMesero(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdReview);
     }
 
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReviewMesero(@PathVariable Long id) {
         reviewMeseroService.deleteReviewMesero(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('CLIENT')")
-    @PatchMapping("/{id}")
-    public ResponseEntity<ReviewMeseroResponseDto> updateReviewMesero(@PathVariable Long id, @Valid @RequestBody PatchReviewMeseroDto dto) {
-        ReviewMeseroResponseDto updatedReview = reviewMeseroService.updateReviewMesero(id, dto);
-        return ResponseEntity.ok(updatedReview);
-    }
+
 }

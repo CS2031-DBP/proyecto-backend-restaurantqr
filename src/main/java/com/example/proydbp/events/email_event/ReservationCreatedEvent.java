@@ -21,8 +21,7 @@ public class ReservationCreatedEvent extends ApplicationEvent {
         properties.put("ID de la Reserva", reservation.getId());
         properties.put("Cliente", reservation.getClient().getEmail());
         properties.put("Mesa", reservation.getMesa().getId());
-        properties.put("Fecha", reservation.getReservationTime());
-        properties.put("Hora", reservation.getReservationDate());
+        properties.put("Fecha", reservation.getFecha());
         properties.put("Estado", reservation.getStatusReservation());
 
         Mail mail = Mail.builder()

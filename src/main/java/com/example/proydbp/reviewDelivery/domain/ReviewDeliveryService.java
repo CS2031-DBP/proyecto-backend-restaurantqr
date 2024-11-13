@@ -1,28 +1,24 @@
 package com.example.proydbp.reviewDelivery.domain;
 
+import com.example.proydbp.auth.utils.AuthorizationUtils;
 import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.client.infrastructure.ClientRepository;
-//import com.example.proydbp.events.email_event.ReviewDeliveryCreatedEvent;
-import com.example.proydbp.delivery.domain.Delivery;
 import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
-import com.example.proydbp.events.email_event.ReviewDeliveryCreatedEvent;
-import com.example.proydbp.events.email_event.ReviewDeliveryDeletedEvent;
-import com.example.proydbp.events.email_event.ReviewDeliveryUpdatedEvent;
 import com.example.proydbp.exception.ResourceNotFoundException;
-import com.example.proydbp.reviewDelivery.dto.PatchReviewDeliveryDto;
+import com.example.proydbp.exception.UnauthorizeOperationException;
+import com.example.proydbp.repartidor.domain.Repartidor;
+import com.example.proydbp.repartidor.domain.RepartidorService;
+import com.example.proydbp.repartidor.infrastructure.RepartidorRepository;
 import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryRequestDto;
 import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryResponseDto;
 import com.example.proydbp.reviewDelivery.infrastructure.ReviewDeliveryRepository;
-import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -33,15 +29,22 @@ public class ReviewDeliveryService {
     final private ApplicationEventPublisher eventPublisher;
     private final ClientRepository clientRepository;
     private final DeliveryRepository deliveryRepository;
+    private final AuthorizationUtils authorizationUtils;
+    private final RepartidorRepository repartidorRepository;
+    private final RepartidorService repartidorService;
 
     @Autowired
     public ReviewDeliveryService (ReviewDeliveryRepository reviewDeliveryRepository,
-                                ModelMapper modelMapper, ApplicationEventPublisher eventPublisher, ClientRepository clientRepository, DeliveryRepository deliveryRepository) {
+                                  AuthorizationUtils authorizationUtils,
+                                  ModelMapper modelMapper, ApplicationEventPublisher eventPublisher, ClientRepository clientRepository, DeliveryRepository deliveryRepository, RepartidorRepository repartidorRepository, RepartidorService repartidorService) {
         this.reviewDeliveryRepository = reviewDeliveryRepository;
         this.modelMapper = modelMapper;
+        this.authorizationUtils = authorizationUtils;
         this.eventPublisher = eventPublisher;
         this.clientRepository = clientRepository;
         this.deliveryRepository = deliveryRepository;
+        this.repartidorRepository = repartidorRepository;
+        this.repartidorService = repartidorService;
     }
 
     public ReviewDeliveryResponseDto findReviewDeliveryById(Long id) {
@@ -57,30 +60,35 @@ public class ReviewDeliveryService {
     }
 
     public ReviewDeliveryResponseDto createReviewDelivery(ReviewDeliveryRequestDto dto) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (username == null)
+            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+
 
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Client not found with email " + username));
 
         ReviewDelivery reviewDelivery = new ReviewDelivery();
-        reviewDelivery.setFecha(LocalDate.now());
-        reviewDelivery.setHora(LocalTime.now());
+        reviewDelivery.setFecha(ZonedDateTime.now());
+        reviewDelivery.setRatingScore(dto.getRatingScore());
+
+
         reviewDelivery.setClient(client);
-        reviewDelivery.setCalificacion(dto.getRatingScore());
-        reviewDelivery.setComentario(dto.getComment());
+        reviewDelivery.setRatingScore(dto.getRatingScore());
+        reviewDelivery.setComment(dto.getComment());
 
-        Delivery delivery = deliveryRepository.findById(dto.getIdDelivery())
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery not found"));
+        Repartidor repartidor= repartidorRepository.findById(dto.getRepartidorId())
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
 
-        reviewDelivery.setDelivery(delivery);
-        reviewDelivery.setRepartidor(delivery.getRepartidor());
+        reviewDelivery.setRepartidor(repartidor);
 
         ReviewDelivery savedReview = reviewDeliveryRepository.save(reviewDelivery);
 
-        String recipientEmail = savedReview.getRepartidor().getEmail();
+        repartidorService.updateRatingScore(repartidor.getId());
 
-        // Publicar el evento de creación de reseña
-        eventPublisher.publishEvent(new ReviewDeliveryCreatedEvent(savedReview, recipientEmail));
+        //String recipientEmail = savedReview.getMesero().getEmail();
+        //eventPublisher.publishEvent(new ReviewMeseroCreatedEvent(savedReview, recipientEmail));
 
         return modelMapper.map(savedReview, ReviewDeliveryResponseDto.class);
     }
@@ -91,30 +99,9 @@ public class ReviewDeliveryService {
 
         String recipientEmail = existingReview.getRepartidor().getEmail();
 
-        // Publicar el evento de eliminación de reseña
-        eventPublisher.publishEvent(new ReviewDeliveryDeletedEvent(id, recipientEmail));
-
         reviewDeliveryRepository.deleteById(id);
     }
 
-    public ReviewDeliveryResponseDto updateReviewDelivery(Long id, @Valid PatchReviewDeliveryDto dto) {
-        ReviewDelivery existingReview = reviewDeliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("ReviewRepartidor not found"));
 
-        if (dto.getCalificacion() != null) {
-            existingReview.setCalificacion(dto.getCalificacion());
-        }
-
-        existingReview.setComentario(dto.getComentario());
-
-        ReviewDelivery updatedReview = reviewDeliveryRepository.save(existingReview);
-
-        String recipientEmail = updatedReview.getRepartidor().getEmail();
-
-        // Publicar el evento de actualización de reseña
-        eventPublisher.publishEvent(new ReviewDeliveryUpdatedEvent(updatedReview, recipientEmail));
-
-        return modelMapper.map(updatedReview, ReviewDeliveryResponseDto.class);
-    }
 
 }

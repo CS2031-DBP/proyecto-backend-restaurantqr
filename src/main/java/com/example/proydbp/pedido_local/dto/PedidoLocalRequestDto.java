@@ -13,14 +13,8 @@ import java.util.List;
 
 @Data
 public class PedidoLocalRequestDto {
-
-    private LocalDate fecha;
-
-    private LocalTime hora;
-
+    private Long mesaId;
     private TipoPago tipoPago;
-
-
-
-
+    private List<Long> idProducts;
+    private String descripcion;
 }

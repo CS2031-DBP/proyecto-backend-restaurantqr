@@ -12,6 +12,8 @@ import com.example.proydbp.delivery.domain.StatusDelivery;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.exception.UserAlreadyExistException;
+import com.example.proydbp.pedido_local.domain.PedidoLocal;
+import com.example.proydbp.pedido_local.domain.PedidoLocalService;
 import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import com.example.proydbp.reservation.domain.StatusReservation;
@@ -37,15 +39,17 @@ public class ClientService {
     private final PasswordEncoder passwordEncoder;
     private final AuthorizationUtils authorizationUtils;
     private final DeliveryService deliveryService;
+    private final PedidoLocalService pedidoLocalService;
 
 
     @Autowired
-    public ClientService(AuthorizationUtils authorizationUtils,DeliveryService deliveryService , ClientRepository clientRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
+    public ClientService(PedidoLocalService pedidoLocalService ,AuthorizationUtils authorizationUtils,DeliveryService deliveryService , ClientRepository clientRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
         this.clientRepository = clientRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
         this.authorizationUtils = authorizationUtils;
         this.deliveryService = deliveryService;
+        this.pedidoLocalService = pedidoLocalService;
     }
 
 
@@ -306,6 +310,12 @@ public class ClientService {
                 deliveriesResponse.add(deliveryService.convertirADto(delivery));
             }
             clientDto.setDeliveries(deliveriesResponse);
+
+            List<PedidoLocalResponseDto> pedidosResponse = new ArrayList<>();
+            for (PedidoLocal pedido : client.getPedidosLocales()) {
+            pedidosResponse.add(pedidoLocalService.convertirADto(pedido));
+             }
+            clientDto.setPedidosLocales(pedidosResponse);
 
         return clientDto;
     }

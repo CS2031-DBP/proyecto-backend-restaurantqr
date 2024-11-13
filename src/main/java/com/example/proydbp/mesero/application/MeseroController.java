@@ -62,9 +62,8 @@ public class MeseroController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/{id}")
-    public ResponseEntity<MeseroResponseDto> updateMesero(@PathVariable Long id, @RequestBody PatchMeseroDto dto) {
-        MeseroResponseDto updatedMesero = meseroService.updateMesero(id, dto);
-        return ResponseEntity.ok(updatedMesero);
+    public ResponseEntity<MeseroSelfResponseDto> updateMesero(@PathVariable Long id, @RequestBody PatchMeseroDto dto) {
+        return ResponseEntity.ok(meseroService.updateMesero(id, dto));
     }
 
 

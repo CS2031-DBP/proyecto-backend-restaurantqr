@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Data
@@ -24,19 +25,16 @@ public class Reservation {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    private LocalDate reservationDate;
+    private ZonedDateTime fecha;
 
-    private LocalTime reservationTime;
-
-    private Integer numOfPeople;
+    private Integer Npersonas;
 
     @ManyToOne
     @JoinColumn(name = "table_id", nullable = false)
     private Mesa mesa;
 
-
     @Enumerated(EnumType.STRING)
     private StatusReservation statusReservation;
 
-    private String specialRequests;
+    private String descripcion;
 }

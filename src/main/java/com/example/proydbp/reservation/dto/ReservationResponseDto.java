@@ -11,24 +11,24 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReservationResponseDto {
+    private Long id;
 
     private ClientResponseDto client;
 
-    private LocalDate reservationDate;
+    private ZonedDateTime fecha;
 
-    private LocalTime reservationTime;
-
-    private Integer numOfPeople;
+    private Integer Npersonas;
 
     private MesaResponseDto mesa;
 
     @Enumerated(EnumType.STRING)
     private StatusReservation statusReservation;
 
-    private String specialRequests;
+    private String descripcion;
 }

@@ -60,9 +60,7 @@ public class DeliveryService {
         Delivery delivery = deliveryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
 
-        DeliveryResponseDto response=convertirADto(delivery);
-
-        return response;
+        return convertirADto(delivery);
     }
 
     public List<DeliveryResponseDto> findAllDeliveries() {
@@ -98,8 +96,8 @@ public class DeliveryService {
         delivery.setCostoDelivery(5.0);
         delivery.setIdProducts(dto.getIdProducts());
         delivery.setPrecio(0.0);
-        List<ProductResponseDto> productos = new ArrayList<>();
 
+        List<ProductResponseDto> productos = new ArrayList<>();
         for (Long id : dto.getIdProducts()) {
             productRepository.findById(id).ifPresent(product -> {
                 ProductResponseDto productDto = modelMapper.map(product, ProductResponseDto.class);
@@ -150,7 +148,7 @@ public class DeliveryService {
         //String recipientEmail = updatedDelivery.getRepartidor().getEmail();
         //eventPublisher.publishEvent(new DeliveryUpdatedEvent(updatedDelivery, recipientEmail));
 
-        return responseDto;
+        return convertirADto(updatedDelivery);
     }
 
 
@@ -192,7 +190,7 @@ public class DeliveryService {
         //String recipientEmail = entregadoDelivery.getRepartidor().getEmail();
         //eventPublisher.publishEvent(new DeliveryEntregadoEvent(entregadoDelivery, recipientEmail));
 
-        return modelMapper.map(response, DeliveryResponseDto.class);
+        return response;
     }
 
 
@@ -278,7 +276,7 @@ public class DeliveryService {
             productRepository.findById(id1).ifPresent(product -> {
                 ProductResponseDto productDto = modelMapper.map(product, ProductResponseDto.class);
                 productos.add(productDto);
-                delivery.setPrecio(delivery.getPrecio()+ product.getPrice());
+               // delivery.setPrecio(delivery.getPrecio()+ product.getPrice());
             });
         }
         responseDto.setProducts(productos);

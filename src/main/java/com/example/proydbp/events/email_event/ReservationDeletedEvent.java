@@ -21,8 +21,7 @@ public class ReservationDeletedEvent extends ApplicationEvent {
         properties.put("ID de la Reserva", reservation.getId());
         properties.put("Cliente", reservation.getClient().getEmail());
         properties.put("Mesa", reservation.getMesa().getId());
-        properties.put("Fecha", reservation.getReservationDate());
-        properties.put("Hora", reservation.getReservationTime());
+        properties.put("Fecha", reservation.getFecha());
         properties.put("Estado", reservation.getStatusReservation());
 
         Mail mail = Mail.builder()
