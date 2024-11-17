@@ -55,7 +55,7 @@ public class ReviewMeseroService {
 
     public ReviewMeseroResponseDto findReviewMeseroById(Long id) {
         ReviewMesero reviewMesero = reviewMeseroRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("ReviewMesero not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reseña de mesero con " + id + " no encontrada"));
         return modelMapper.map(reviewMesero, ReviewMeseroResponseDto.class);
     }
 
@@ -69,7 +69,7 @@ public class ReviewMeseroService {
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
 
         ReviewMesero reviewMesero = new ReviewMesero();
@@ -77,7 +77,7 @@ public class ReviewMeseroService {
         reviewMesero.setRatingScore(dto.getRatingScore());
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario " + username + " no encontrado"));
 
 
         reviewMesero.setClient(client);
@@ -85,7 +85,7 @@ public class ReviewMeseroService {
         reviewMesero.setComment(dto.getComment());
 
         Mesero mesero= meseroRepository.findById(dto.getMeseroId())
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con id " + dto.getMeseroId() + " no encontrado"));
 
         reviewMesero.setMesero(mesero);
 
@@ -104,7 +104,7 @@ public class ReviewMeseroService {
     public void deleteReviewMesero(Long id) {
 
         if (!reviewMeseroRepository.existsById(id)) {
-            throw new ResourceNotFoundException("ReviewMesero not found");
+            throw new ResourceNotFoundException("Reseña de mesero con " + id + " no encontrada");
         }
         reviewMeseroRepository.deleteById(id);
     }

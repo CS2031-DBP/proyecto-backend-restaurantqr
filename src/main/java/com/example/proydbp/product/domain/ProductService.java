@@ -37,7 +37,7 @@ public class ProductService {
 
     public ProductResponseDto findProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto con " + id +  " no encontrado"));
         return modelMapper.map(product, ProductResponseDto.class);
     }
 
@@ -49,14 +49,14 @@ public class ProductService {
 
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Product not found with id " + id);
+            throw new ResourceNotFoundException("Producto con " + id +  " no encontrado");
         }
         productRepository.deleteById(id);
     }
 
     public ProductResponseDto updateProduct(Long id, ProductRequestDto dto) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto con " + id +  " no encontrado"));
 
         if (dto.getNombre() != null) {
             product.setNombre(dto.getNombre());
@@ -88,7 +88,7 @@ public class ProductService {
 
     public ProductResponseDto changeAvailability(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto con " + id +  " no encontrado"));
 
         product.setIsAvailable(!product.getIsAvailable());
 

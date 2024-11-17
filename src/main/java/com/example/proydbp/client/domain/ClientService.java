@@ -111,10 +111,10 @@ public class ClientService {
     public ClientSelfResponseDto getAuthenticatedClient(){
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
         return modelMapper.map(client, ClientSelfResponseDto.class);
     }
@@ -123,10 +123,10 @@ public class ClientService {
     public void deleteAuthenticatedClient(){
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
         clientRepository.deleteById(client.getId());
     }
@@ -134,9 +134,9 @@ public class ClientService {
     public ClientSelfResponseDto updateAuthenticatedClient(PatchClientDto patchClientDto) {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
         client.setFirstName(patchClientDto.getFirstName());
         client.setLastName(patchClientDto.getLastName());
@@ -151,10 +151,10 @@ public class ClientService {
     public List<PedidoLocalResponseDto> getAllPedidoLocal(){
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
         return client.getPedidosLocales()
                 .stream()
@@ -165,10 +165,10 @@ public class ClientService {
     public List<DeliveryResponseDto> getAllDelivery(){
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
 
         List<DeliveryResponseDto> deliverys = new ArrayList<>();
@@ -183,10 +183,10 @@ public class ClientService {
     public List<ReservationResponseDto> getAllReservation(){
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
         return client.getReservations()
                 .stream()
@@ -197,10 +197,10 @@ public class ClientService {
     public Void updateLoyaltyPoints(int point){
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
         client.setLoyaltyPoints(point+client.getLoyaltyPoints());
         if (client.getLoyaltyPoints() < 100) {
@@ -224,10 +224,10 @@ public class ClientService {
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
 
         return client.getPedidosLocales().stream()
@@ -240,10 +240,10 @@ public class ClientService {
     public List<DeliveryResponseDto> getActualDelivery(){
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
         List<DeliveryResponseDto> deliverys = new ArrayList<>();
         for(Delivery delivery : client.getDeliveries()){
@@ -260,10 +260,10 @@ public class ClientService {
     public List<ReservationResponseDto> getActualReservation(){
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
 
         return client.getReservations().stream()
@@ -275,10 +275,10 @@ public class ClientService {
     public List<ReviewMeseroResponseDto> getAllReviewMesero() {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
         return client.getReviewMeseros()
                 .stream()
@@ -289,10 +289,10 @@ public class ClientService {
     public List<ReviewDeliveryResponseDto> getAllReviewDelivery() {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
         return client.getReviewDeliveries()
                 .stream()

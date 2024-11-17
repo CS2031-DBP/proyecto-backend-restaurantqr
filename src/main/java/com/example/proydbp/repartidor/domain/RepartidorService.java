@@ -56,7 +56,7 @@ public class RepartidorService {
 
     public RepartidorResponseDto findRepartidorById(Long id) {
         Repartidor repartidor = repartidorRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor not found with id " + id));
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con " + id + " no encontrado" ));
         return convertirADto(repartidor);
     }
 
@@ -74,7 +74,7 @@ public class RepartidorService {
     public RepartidorResponseDto createRepartidor(RepartidorRequestDto dto) {
 
         Optional<User> user = baseUserRepository.findByEmail(dto.getEmail());
-        if (user.isPresent()) throw new UserAlreadyExistException("Email is already registered");
+        if (user.isPresent()) throw new UserAlreadyExistException("El correo electrónico ya ha sido registrado");
 
         Repartidor repartidor = new Repartidor();
         repartidor.setCreatedAt(ZonedDateTime.now());
@@ -94,14 +94,14 @@ public class RepartidorService {
 
     public void deleteRepartidor(Long id) {
         Repartidor repartidor = repartidorRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor not found with id " + id));
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con " + id + " no encontrado" ));
         repartidorRepository.delete(repartidor);
     }
 
 
     public RepartidorSelfResponseDto updateRepartidor(Long id, PatchRepartidorDto dto) {
         Repartidor repartidor = repartidorRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor not found with id " + id));
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con " + id + " no encontrado" ));
 
         repartidor.setUpdatedAt(ZonedDateTime.now());
         repartidor.setFirstName(dto.getFirstName());
@@ -116,7 +116,7 @@ public class RepartidorService {
     public RepartidorSelfResponseDto findAuthenticatedRepartidor() {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Repartidor repartidor = repartidorRepository
                 .findByEmail(username)
@@ -129,11 +129,11 @@ public class RepartidorService {
     public List<DeliveryResponseDto> findDeliverysActuales() {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
 
         Repartidor repartidor = repartidorRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor not found with username " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con nombre de usuario " + username + " no encontrado" ));
 
         List<DeliveryResponseDto> deliverys = new ArrayList<>();
         for(Delivery delivery : repartidor.getDeliveries()){
@@ -166,7 +166,7 @@ public class RepartidorService {
 
     public void updateRatingScore(Long id) {
         Repartidor repartidor = repartidorRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con " + id + " no encontrado"));
 
         // Actualiza el ratingScore promedio a partir de las reseñas
         double promedio = repartidor.getReviewDeliveries().stream()
@@ -182,10 +182,10 @@ public class RepartidorService {
     public List<ReviewDeliveryResponseDto> findMisReviews(){
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Repartidor repartidor = repartidorRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con nombre de usuario " + username + " no encontrado"));
 
         List<ReviewDelivery> reviews = Optional.ofNullable(repartidor.getReviewDeliveries()).orElse(Collections.emptyList());
 
@@ -197,9 +197,9 @@ public class RepartidorService {
     public RepartidorSelfResponseDto updateAuthenticatedRepartidor(PatchRepartidorDto dto) {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
         Repartidor repartidor = repartidorRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con nombre de usuario " + username + " no encontrado"));
 
         repartidor.setUpdatedAt(ZonedDateTime.now());
         repartidor.setFirstName(dto.getFirstName());
@@ -213,9 +213,9 @@ public class RepartidorService {
     public List<DeliveryResponseDto> findDeliverys() {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
         Repartidor repartidor = repartidorRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con nombre de usuario " + username + " no encontrado"));
 
         List<DeliveryResponseDto> deliverys = new ArrayList<>();
         for(Delivery delivery : repartidor.getDeliveries()){

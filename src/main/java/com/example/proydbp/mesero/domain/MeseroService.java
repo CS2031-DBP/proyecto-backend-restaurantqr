@@ -61,7 +61,7 @@ public class MeseroService {
 
     public MeseroResponseDto findMeseroById(Long id) {
         Mesero mesero = meseroRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con " + id + " no encontrado"));
 
         return convertirADto(mesero);
     }
@@ -78,7 +78,7 @@ public class MeseroService {
     public MeseroResponseDto createMesero(MeseroRequestDto dto) {
 
         Optional<User> user = baseUserRepository.findByEmail(dto.getEmail());
-        if (user.isPresent()) throw new UserAlreadyExistException("Email is already registered");
+        if (user.isPresent()) throw new UserAlreadyExistException("El correo ya ha sido registrado");
 
         Mesero mesero = new Mesero();
         mesero.setCreatedAt(ZonedDateTime.now());
@@ -96,13 +96,13 @@ public class MeseroService {
 
     public void deleteMesero(Long id) {
         Mesero mesero = meseroRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con " + id + " no encontrado"));
         meseroRepository.delete(mesero);
     }
 
     public MeseroSelfResponseDto updateMesero(Long id, PatchMeseroDto dto) {
         Mesero mesero = meseroRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con " + id + " no encontrado"));
 
         mesero.setUpdatedAt(ZonedDateTime.now());
         mesero.setFirstName(dto.getFirstName());
@@ -119,11 +119,11 @@ public class MeseroService {
     public List<PedidoLocalResponseDto> findMisPedidosLocalesActuales() {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
 
         Mesero mesero = meseroRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor not found with username " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con nombre de usuario " +username+ " no encontrado"));
 
         List<PedidoLocalResponseDto> pedidos = new ArrayList<>();
         for(PedidoLocal pedidoLocal : mesero.getPedidosLocales()){
@@ -141,11 +141,11 @@ public class MeseroService {
     public MeseroSelfResponseDto getMeseroOwnInfo() {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Mesero mesero = meseroRepository
                 .findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con " + username + " no encontrado"));
 
         return modelMapper.map(mesero, MeseroSelfResponseDto.class);
 
@@ -157,10 +157,10 @@ public class MeseroService {
     public List<ReviewMeseroResponseDto> findMisReviews() {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Mesero mesero = meseroRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con " + username + " no encontrado"));
 
         List<ReviewMesero> reviewMesero = Optional.ofNullable(mesero.getReviewMeseros()).orElse(Collections.emptyList());
 
@@ -172,10 +172,10 @@ public class MeseroService {
     public List<PedidoLocalResponseDto> findPedidosLocales() {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Mesero mesero = meseroRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor not found with username " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con nombre de usuario " +username+ " no encontrado"));
 
         List<PedidoLocalResponseDto> pedidos = new ArrayList<>();
         for(PedidoLocal pedidoLocal : mesero.getPedidosLocales()){
@@ -192,9 +192,9 @@ public class MeseroService {
     public MeseroSelfResponseDto updateAuthenticatedMesero(PatchClientDto dto) {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
         Mesero mesero = meseroRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con " + username + " no encontrado"));
 
         mesero.setUpdatedAt(ZonedDateTime.now());
         mesero.setFirstName(dto.getFirstName());
@@ -212,7 +212,7 @@ public class MeseroService {
     // Métodos adicionales
     public void updateRatingScore(Long id) {
         Mesero mesero = meseroRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con " + id + " no encontrado"));
 
         // Actualiza el ratingScore promedio a partir de las reseñas
         double promedio = mesero.getReviewMeseros().stream()

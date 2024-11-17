@@ -59,7 +59,7 @@ public class ReservationService {
 
     public ReservationResponseDto findReservationById(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
 
         return modelMapper.map(reservation, ReservationResponseDto.class);
     }
@@ -67,18 +67,18 @@ public class ReservationService {
     public ReservationResponseDto createReservation(ReservationRequestDto reservationRequestDto) {
 
         if (reservationRequestDto.getNpersonas() <= 0) {
-            throw new IllegalArgumentException("Number of people must be greater than 0");
+            throw new IllegalArgumentException("El número de personas debe ser mayor a 0");
         }
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Client not found with email " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario " + username + " no encontrado" ));
 
         Mesa mesa = mesaRepository.findById(reservationRequestDto.getMesaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Table not found with id " + reservationRequestDto.getMesaId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa con " + reservationRequestDto.getMesaId() + " no encontrada"));
 
 
         Reservation newReservation = modelMapper.map(reservationRequestDto, Reservation.class);
@@ -98,12 +98,12 @@ public class ReservationService {
 
     public ReservationResponseDto updateReservation(Long id, ReservationRequestDto reservationRequestDto) {
         Reservation existingReservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
 
         modelMapper.map(reservationRequestDto, existingReservation);
 
         Mesa mesa = mesaRepository.findById(reservationRequestDto.getMesaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Table not found with id " + reservationRequestDto.getMesaId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa con  " + reservationRequestDto.getMesaId() + " no encontrada"));
 
         existingReservation.setMesa(mesa);
 
@@ -118,7 +118,7 @@ public class ReservationService {
 
     public void deleteReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
 
         reservationRepository.delete(reservation);
 
@@ -130,11 +130,11 @@ public class ReservationService {
 
     public ReservationResponseDto canceledReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, reservation.getClient().getEmail()))
-        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");}
+        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");}
         reservation.setStatusReservation(StatusReservation.CANCELADO);
 
         Reservation canceledReservation = reservationRepository.save(reservation);
@@ -150,11 +150,11 @@ public class ReservationService {
 
     public ReservationResponseDto finishedReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, reservation.getClient().getEmail()))
-        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");}
+        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");}
         reservation.setStatusReservation(StatusReservation.FINALIZADA);
 
         Reservation canceledReservation = reservationRepository.save(reservation);
@@ -169,11 +169,11 @@ public class ReservationService {
 
     public ReservationResponseDto confirmedReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, reservation.getClient().getEmail()))
-        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");}
+        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");}
         reservation.setStatusReservation(StatusReservation.CONFIRMADO);
 
         Reservation canceledReservation = reservationRepository.save(reservation);

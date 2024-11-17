@@ -58,7 +58,7 @@ public class DeliveryService {
 
 
         Delivery delivery = deliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+ id + " no encontrado"));
 
         return convertirADto(delivery);
     }
@@ -80,11 +80,11 @@ public class DeliveryService {
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client cliente = clientRepository
                 .findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Client not found with username " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario "+ username + "no encontrado"));
 
         Delivery delivery = new Delivery();
         delivery.setDireccion(dto.getDireccion());
@@ -119,7 +119,7 @@ public class DeliveryService {
 
     public void deleteDelivery(Long id) {
         Delivery delivery = deliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+id+ " no encontrado"));
 
         //String recipientEmail = "fernando.munoz.p@utec.edu.pe";
         //eventPublisher.publishEvent(new DeliveryDeletedEvent(delivery, recipientEmail));
@@ -130,11 +130,11 @@ public class DeliveryService {
     public DeliveryResponseDto updateDelivery(Long id, PatchDeliveryDto dto) {
 
         Delivery delivery = deliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+id+ " no encontrado"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, delivery.getClient().getEmail()))
-        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");}
+        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");}
 
 
         delivery.setDescripcion(dto.getDescripcion());
@@ -155,11 +155,11 @@ public class DeliveryService {
     public DeliveryResponseDto enCaminoDelivery(Long id) {
 
         Delivery delivery = deliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+id+ " no encontrado"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, delivery.getRepartidor().getEmail()))
-        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource: " + username + " " + delivery.getRepartidor().getEmail());}
+        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso: " + username + " " + delivery.getRepartidor().getEmail());}
 
 
 
@@ -176,11 +176,11 @@ public class DeliveryService {
 
     public DeliveryResponseDto entregadoDelivery(Long id) {
         Delivery delivery = deliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+id+ " no encontrado"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, delivery.getRepartidor().getEmail()))
-        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource: " + username);}
+        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso: " + username);}
 
         delivery.setStatus(StatusDelivery.ENTREGADO);
 
@@ -197,10 +197,10 @@ public class DeliveryService {
     public DeliveryResponseDto listoDelivery(Long id) {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Delivery delivery = deliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+id+ " no encontrado"));
 
         delivery.setStatus(StatusDelivery.LISTO);
 
@@ -216,10 +216,10 @@ public class DeliveryService {
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Delivery delivery = deliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+id+ " no encontrado"));
 
         delivery.setStatus(StatusDelivery.EN_PREPARACION);
 
@@ -234,16 +234,16 @@ public class DeliveryService {
 
     public DeliveryResponseDto canceladoDelivery(Long id) {
         Delivery delivery = deliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+id+ " no encontrado"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, delivery.getClient().getEmail()))
-        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");}
+        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");}
 
         String clientName = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!clientName.equals(delivery.getRepartidor().getEmail())) {
-            throw new UnauthorizeOperationException("Client no authorized");
+            throw new UnauthorizeOperationException("Cliente no autorizado");
         }
 
         delivery.setStatus(StatusDelivery.CANCELADO);

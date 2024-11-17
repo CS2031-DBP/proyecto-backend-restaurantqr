@@ -36,10 +36,10 @@ public class AuthService {
         Optional<User> user;
         user = userRepository.findByEmail(req.getEmail());
 
-        if (user.isEmpty()) throw new UsernameNotFoundException("Email is not registered");
+        if (user.isEmpty()) throw new UsernameNotFoundException("El correo electrónico no está registrado");
 
         if (!passwordEncoder.matches(req.getPassword(), user.get().getPassword()))
-            throw new IllegalArgumentException("Password is incorrect");
+            throw new IllegalArgumentException("La contraseña es incorrecta");
 
         AuthResponseDto response = new AuthResponseDto();
 
@@ -50,7 +50,7 @@ public class AuthService {
 
     public AuthResponseDto register(RegisterRequestDto registerRequestDto) {
         Optional<User> user = userRepository.findByEmail(registerRequestDto.getEmail());
-        if (user.isPresent()) throw new UserAlreadyExistException("Email is already registered");
+        if (user.isPresent()) throw new UserAlreadyExistException("El correo electrónico ya ha sido registrado");
 
         Client cliente = new Client();
         cliente.setCreatedAt(ZonedDateTime.now());
@@ -73,7 +73,7 @@ public class AuthService {
 
     public AuthResponseDto registerAdmin(RegisterRequestDto registerRequestDto) {
         Optional<User> user = userRepository.findByEmail(registerRequestDto.getEmail());
-        if (user.isPresent()) throw new UserAlreadyExistException("Email is already registered");
+        if (user.isPresent()) throw new UserAlreadyExistException("El correo electrónico ya ha sido registrado");
 
         User admin = new User();
         admin.setCreatedAt(ZonedDateTime.now());
@@ -95,7 +95,7 @@ public class AuthService {
 
     public AuthResponseDto registerChef(RegisterRequestDto registerRequestDto) {
         Optional<User> user = userRepository.findByEmail(registerRequestDto.getEmail());
-        if (user.isPresent()) throw new UserAlreadyExistException("Email is already registered");
+        if (user.isPresent()) throw new UserAlreadyExistException("El correo electrónico ya ha sido registrado");
 
         User chef = new User();
         chef.setCreatedAt(ZonedDateTime.now());
