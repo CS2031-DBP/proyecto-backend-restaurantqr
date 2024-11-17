@@ -63,7 +63,7 @@ public class PedidoLocalService {
 
     public PedidoLocalResponseDto findPedidoLocalById(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con "+ id + " no encontrado"));
         return convertirADto(pedidoLocal);
     }
 
@@ -84,13 +84,13 @@ public class PedidoLocalService {
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con "+ username + " no encontrado"));
 
         Mesa mesa = mesaRepository.findById(dto.getMesaId())
-                .orElseThrow(() -> new UsernameNotFoundException("Mesa No encontrada"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesa con "+ dto.getMesaId() + " no encontrada"));
         mesa.setAvailable(false);
         mesaRepository.save(mesa);
 
@@ -127,7 +127,7 @@ public class PedidoLocalService {
 
     public void deletePedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con "+ id + " no encontrado"));
 
         // Publicar el evento antes de eliminar el pedido
        // String recipientEmail = "fernando.munoz.p@utec.edu.pe";
@@ -139,11 +139,11 @@ public class PedidoLocalService {
 
     public PedidoLocalResponseDto updatePedidoLocal(Long id, PatchPedidoLocalDto dto) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con "+ id + " no encontrado"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, pedidoLocal.getClient().getEmail()))
-        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");}
+        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");}
 
 
         pedidoLocal.setDescripcion(dto.getDescripcion());
@@ -161,7 +161,7 @@ public class PedidoLocalService {
 
     public PedidoLocalResponseDto cocinandoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con " + id + " no encontrado"));
 
         pedidoLocal.setStatus(StatusPedidoLocal.EN_PREPARACION);
 
@@ -175,7 +175,7 @@ public class PedidoLocalService {
 
     public PedidoLocalResponseDto listoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con " + id + " no encontrado"));
 
         pedidoLocal.setStatus(StatusPedidoLocal.LISTO);
 
@@ -205,11 +205,11 @@ public class PedidoLocalService {
 
     public PedidoLocalResponseDto entregadoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con " + id + " no encontrado"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, pedidoLocal.getMesero().getEmail()))
-        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource: " + username);}
+        {throw new UnauthorizeOperationException("Usuario anónimo " + username + " no tiene permitido acceder a este recurso");}
 
         pedidoLocal.setStatus(StatusPedidoLocal.ENTREGADO);
 
@@ -239,11 +239,11 @@ public class PedidoLocalService {
 
     public PedidoLocalResponseDto canceladoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con " + id + " no encontrado"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, pedidoLocal.getMesero().getEmail()))
-        {throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource: " + username);}
+        {throw new UnauthorizeOperationException("Usuario anónimo " + username + " no tiene permitido acceder a este recurso");}
 
         pedidoLocal.setStatus(StatusPedidoLocal.CANCELADO);
 

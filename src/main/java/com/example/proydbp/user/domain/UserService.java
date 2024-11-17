@@ -36,15 +36,15 @@ public class UserService {
     public User findByEmail(String username, String role) {
         User user;
         if (role.equals("ROLE_MESERO"))
-            user = meseroRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            user = meseroRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
         else if (role.equals("ROLE_CLIENT")) {
-            user = clientRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            user = clientRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
         }
         else if (role.equals("ROLE_REPARTIDOR")) {
-            user = repartidorRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            user = repartidorRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
         }
         else
-            user = baseUserRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            user = baseUserRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
         return user;
     }
 
@@ -52,7 +52,7 @@ public class UserService {
         return username -> {
             User user = baseUserRepository
                     .findByEmail(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
             return (UserDetails) user;
         };
     }

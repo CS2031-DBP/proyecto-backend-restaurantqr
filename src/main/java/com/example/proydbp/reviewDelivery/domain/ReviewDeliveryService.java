@@ -49,7 +49,7 @@ public class ReviewDeliveryService {
 
     public ReviewDeliveryResponseDto findReviewDeliveryById(Long id) {
         ReviewDelivery reviewDelivery = reviewDeliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("ReviewRepartidor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Review de repartidor con " + id + " no encontrada"));
         return modelMapper.map(reviewDelivery, ReviewDeliveryResponseDto.class);
     }
 
@@ -63,11 +63,11 @@ public class ReviewDeliveryService {
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
-            throw new UnauthorizeOperationException("Anonymous User not allowed to access this resource");
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Client not found with email " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario " + username + " no encontrado"));
 
         ReviewDelivery reviewDelivery = new ReviewDelivery();
         reviewDelivery.setFecha(ZonedDateTime.now());
@@ -79,7 +79,7 @@ public class ReviewDeliveryService {
         reviewDelivery.setComment(dto.getComment());
 
         Repartidor repartidor= repartidorRepository.findById(dto.getRepartidorId())
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con " + dto.getRepartidorId() + " no encontrado"));
 
         reviewDelivery.setRepartidor(repartidor);
 
@@ -95,7 +95,7 @@ public class ReviewDeliveryService {
 
     public void deleteReviewDelivery(Long id) {
         ReviewDelivery existingReview = reviewDeliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("ReviewRepartidor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Review de repartidor con " + id + " no encontrada"));
 
         String recipientEmail = existingReview.getRepartidor().getEmail();
 
