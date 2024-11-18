@@ -16,7 +16,7 @@ public class MesaRequestDto {
 
     @NotNull
     @Min(1)
-    private int capacity;
+    private Integer capacity;
     @NotNull
     private boolean isAvailable;
 

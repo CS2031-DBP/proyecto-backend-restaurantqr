@@ -23,7 +23,7 @@ public class MesaResponseDto {
 
     private Long id;
 
-    private int capacity;
+    private Integer capacity;
 
     private boolean isAvailable;
 

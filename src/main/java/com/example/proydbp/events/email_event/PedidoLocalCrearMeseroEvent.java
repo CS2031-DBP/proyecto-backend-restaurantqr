@@ -19,16 +19,18 @@ public class PedidoLocalCrearMeseroEvent extends ApplicationEvent {
         this.pedidoLocal = pedidoLocal;
 
         String mesaId = pedidoLocal.getMesa() != null ? pedidoLocal.getMesa().getId().toString() : "Mesa no asignada";
-        String clienteNombre = pedidoLocal.getClient() != null ? pedidoLocal.getClient().getFirstName() : "Cliente no disponible";
+        String clienteNombre = pedidoLocal.getClient() != null ? pedidoLocal.getClient().getFirstName() + " " + pedidoLocal.getClient().getLastName() : "Cliente no disponible";
         String fechaOrden = pedidoLocal.getFecha().toLocalDate().toString();
         String horaOrden = pedidoLocal.getFecha().toLocalTime().toString();
+        String meseroNombre = pedidoLocal.getMesero() != null ? pedidoLocal.getMesero().getFirstName() + " " + pedidoLocal.getMesero().getLastName() : "Mesero no asignado";
 
         Map<String, Object> properties = new HashMap<>();
         properties.put("id", pedidoLocal.getId());
         properties.put("MesaId", mesaId);
-        properties.put("Nombre del Cliente", clienteNombre);
-        properties.put("Fecha de Orden", fechaOrden);
-        properties.put("Hora de Orden", horaOrden);
+        properties.put("NombreCliente", clienteNombre);
+        properties.put("FechaOrden", fechaOrden);
+        properties.put("HoraOrden", horaOrden);
+        properties.put("MeseroNombre", meseroNombre);
 
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")
