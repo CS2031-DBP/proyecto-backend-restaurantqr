@@ -19,6 +19,11 @@ public class ReservaCrearEvent extends ApplicationEvent {
         this.reservation = reservation;
 
         Map<String, Object> properties = new HashMap<>();
+        properties.put("idReserva", reservation.getId());
+        properties.put("nombreCliente", reservation.getClient().getFirstName() + " " + reservation.getClient().getLastName());
+        properties.put("fechaReserva", reservation.getFecha().toLocalDate());
+        properties.put("horaReserva", reservation.getFecha().toLocalTime());
+        properties.put("estadoReserva", reservation.getStatusReservation().toString());
 
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")

@@ -23,7 +23,7 @@ public class ReservationRequestDto {
 
     private ZonedDateTime fecha;
 
-    private Integer Npersonas;
+    private Integer Npersonas = 1;
 
     private Long mesaId;
 

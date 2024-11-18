@@ -19,6 +19,9 @@ public class ReservaUpdateEvent extends ApplicationEvent {
         this.reservation = reservation;
 
         Map<String, Object> properties = new HashMap<>();
+        properties.put("descripcionReserva", reservation.getDescripcion());
+        properties.put("fechaReserva", reservation.getFecha().toLocalDate());
+        properties.put("horaReserva", reservation.getFecha().toLocalTime());
 
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")
