@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -77,6 +78,24 @@ public class ReservationService {
         Mesa mesa = mesaRepository.findById(reservationRequestDto.getMesaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa con " + reservationRequestDto.getMesaId() + " no encontrada"));
 
+        // Validar disponibilidad de la mesa
+        ZonedDateTime reservaInicio = reservationRequestDto.getFecha();
+        ZonedDateTime reservaFin = reservaInicio.plusHours(2);  // Añadimos 2 horas a la fecha de la reserva
+
+        List<Reservation> existingReservations = reservationRepository.findByMesaAndFechaBetween(
+                mesa, reservaInicio, reservaFin
+        );
+
+        if (!existingReservations.isEmpty()) {
+            throw new IllegalArgumentException("La mesa ya está reservada en este horario o dentro de un rango de 2 horas.");
+        }
+
+        // Cambiar el estado de la mesa a No disponible 2 horas antes de la fecha de la reserva
+        ZonedDateTime estadoCambio = reservaInicio.minusHours(2);  // 2 horas antes de la reservación
+        mesa.setAvailable(false);
+        mesaRepository.save(mesa);
+
+        // Crear la nueva reservación
         Reservation newReservation = modelMapper.map(reservationRequestDto, Reservation.class);
         newReservation.setStatusReservation(StatusReservation.PENDIENTE);
         newReservation.setMesa(mesa);
@@ -94,11 +113,26 @@ public class ReservationService {
         Reservation existingReservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
 
-        modelMapper.map(reservationRequestDto, existingReservation);
-
+        // Obtener la mesa actualizada y el nuevo horario de la reserva
         Mesa mesa = mesaRepository.findById(reservationRequestDto.getMesaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Mesa con  " + reservationRequestDto.getMesaId() + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa con " + reservationRequestDto.getMesaId() + " no encontrada"));
 
+        ZonedDateTime reservaInicio = reservationRequestDto.getFecha();
+        ZonedDateTime reservaFin = reservaInicio.plusHours(2);  // Añadimos 2 horas a la fecha de la reserva
+
+        // Verificar si ya hay reservas en ese horario para la mesa
+        List<Reservation> existingReservations = reservationRepository.findByMesaAndFechaBetween(
+                mesa, reservaInicio, reservaFin
+        );
+
+        // Si existen reservas solapadas, lanzamos una excepción
+        if (!existingReservations.isEmpty()) {
+            throw new IllegalArgumentException("La mesa ya está reservada en este horario o dentro de un rango de 2 horas.");
+        }
+
+        // Si la mesa está disponible, procedemos con la actualización
+        existingReservation.setFecha(reservationRequestDto.getFecha());
+        existingReservation.setNpersonas(reservationRequestDto.getNpersonas());
         existingReservation.setMesa(mesa);
 
         Reservation updatedReservation = reservationRepository.save(existingReservation);
