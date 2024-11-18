@@ -3,13 +3,12 @@ package com.example.proydbp.reservation.domain;
 import com.example.proydbp.auth.utils.AuthorizationUtils;
 import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.client.infrastructure.ClientRepository;
-import com.example.proydbp.events.email_event.*;
+import com.example.proydbp.events.email_event.ReservaCrearEvent;
+import com.example.proydbp.events.email_event.ReservaEstadoChangeEvent;
+import com.example.proydbp.events.email_event.ReservaUpdateEvent;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.mesa.domain.Mesa;
-import com.example.proydbp.pedido_local.domain.PedidoLocal;
-import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
-import com.example.proydbp.product.dto.ProductResponseDto;
 import com.example.proydbp.reservation.dto.ReservationRequestDto;
 import com.example.proydbp.reservation.dto.ReservationResponseDto;
 import com.example.proydbp.reservation.infrastructure.ReservationRepository;
@@ -17,11 +16,9 @@ import com.example.proydbp.mesa.infrastructure.MesaRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -75,23 +72,20 @@ public class ReservationService {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario " + username + " no encontrado" ));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario " + username + " no encontrado"));
 
         Mesa mesa = mesaRepository.findById(reservationRequestDto.getMesaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa con " + reservationRequestDto.getMesaId() + " no encontrada"));
 
-
         Reservation newReservation = modelMapper.map(reservationRequestDto, Reservation.class);
         newReservation.setStatusReservation(StatusReservation.PENDIENTE);
         newReservation.setMesa(mesa);
-        newReservation.setStatusReservation(StatusReservation.PENDIENTE);
         newReservation.setClient(client);
 
         Reservation savedReservation = reservationRepository.save(newReservation);
 
-        //String recipientEmail = newReservation.getClient().getEmail();
         // Publicar el evento de creación de reserva
-        //eventPublisher.publishEvent(new ReservationCreatedEvent(savedReservation, recipientEmail));
+        eventPublisher.publishEvent(new ReservaCrearEvent(savedReservation, client.getEmail()));
 
         return modelMapper.map(savedReservation, ReservationResponseDto.class);
     }
@@ -109,9 +103,8 @@ public class ReservationService {
 
         Reservation updatedReservation = reservationRepository.save(existingReservation);
 
-        //String recipientEmail = updatedReservation.getClient().getEmail();
         // Publicar el evento de actualización de reserva
-        //eventPublisher.publishEvent(new ReservationUpdatedEvent(updatedReservation, recipientEmail));
+        eventPublisher.publishEvent(new ReservaUpdateEvent(updatedReservation, existingReservation.getClient().getEmail()));
 
         return modelMapper.map(updatedReservation, ReservationResponseDto.class);
     }
@@ -121,50 +114,44 @@ public class ReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
 
         reservationRepository.delete(reservation);
-
-        // Publicar el evento de eliminación de reserva
-       // String recipientEmail = "fernando.munoz.p@utec.edu.pe";
-       // eventPublisher.publishEvent(new ReservationDeletedEvent(reservation, recipientEmail));
     }
-
 
     public ReservationResponseDto canceledReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
 
         String username = authorizationUtils.getCurrentUserEmail();
-        if (!Objects.equals(username, reservation.getClient().getEmail()))
-        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");}
+        if (!Objects.equals(username, reservation.getClient().getEmail())) {
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
+
         reservation.setStatusReservation(StatusReservation.CANCELADO);
 
         Reservation canceledReservation = reservationRepository.save(reservation);
 
-        String recipientEmail = canceledReservation.getClient().getEmail();
-
-        // Publicar el evento de finalización de reserva
-        //eventPublisher.publishEvent(new ReservationCanceladoEvent(canceledReservation, recipientEmail));
+        // Publicar evento de cambio de estado
+        eventPublisher.publishEvent(new ReservaEstadoChangeEvent(canceledReservation, canceledReservation.getClient().getEmail()));
 
         return modelMapper.map(canceledReservation, ReservationResponseDto.class);
     }
-
 
     public ReservationResponseDto finishedReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
 
         String username = authorizationUtils.getCurrentUserEmail();
-        if (!Objects.equals(username, reservation.getClient().getEmail()))
-        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");}
+        if (!Objects.equals(username, reservation.getClient().getEmail())) {
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
+
         reservation.setStatusReservation(StatusReservation.FINALIZADA);
 
-        Reservation canceledReservation = reservationRepository.save(reservation);
+        Reservation finishedReservation = reservationRepository.save(reservation);
 
-        String recipientEmail = canceledReservation.getClient().getEmail();
+        // Publicar evento de cambio de estado
+        eventPublisher.publishEvent(new ReservaEstadoChangeEvent(finishedReservation, finishedReservation.getClient().getEmail()));
 
-        // Publicar el evento de finalización de reserva
-        //eventPublisher.publishEvent(new ReservationCanceladoEvent(canceledReservation, recipientEmail));
-
-        return modelMapper.map(canceledReservation, ReservationResponseDto.class);
+        return modelMapper.map(finishedReservation, ReservationResponseDto.class);
     }
 
     public ReservationResponseDto confirmedReservation(Long id) {
@@ -172,27 +159,17 @@ public class ReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
 
         String username = authorizationUtils.getCurrentUserEmail();
-        if (!Objects.equals(username, reservation.getClient().getEmail()))
-        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");}
+        if (!Objects.equals(username, reservation.getClient().getEmail())) {
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
+
         reservation.setStatusReservation(StatusReservation.CONFIRMADO);
 
-        Reservation canceledReservation = reservationRepository.save(reservation);
+        Reservation confirmedReservation = reservationRepository.save(reservation);
 
-        String recipientEmail = canceledReservation.getClient().getEmail();
+        // Publicar evento de cambio de estado
+        eventPublisher.publishEvent(new ReservaEstadoChangeEvent(confirmedReservation, confirmedReservation.getClient().getEmail()));
 
-        // Publicar el evento de finalización de reserva
-        //eventPublisher.publishEvent(new ReservationCanceladoEvent(canceledReservation, recipientEmail));
-
-        return modelMapper.map(canceledReservation, ReservationResponseDto.class);
+        return modelMapper.map(confirmedReservation, ReservationResponseDto.class);
     }
-
-
-
-
-
-
-
-
-
-
 }
