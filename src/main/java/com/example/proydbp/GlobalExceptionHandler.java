@@ -1,5 +1,6 @@
 package com.example.proydbp;
 
+import com.example.proydbp.exception.InvalidTokenException;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.exception.UserAlreadyExistException;
@@ -56,4 +57,8 @@ public class GlobalExceptionHandler {
     public String handleResourceNotFoundException(ResourceNotFoundException e) {
         return e.getMessage();
     }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public String handleInvalidTokenException(InvalidTokenException e) {return e.getMessage(); }
 }

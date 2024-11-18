@@ -2,6 +2,8 @@ package com.example.proydbp.config;
 import com.auth0.jwt.JWT;
 
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.example.proydbp.exception.InvalidTokenException;
 import com.example.proydbp.user.domain.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,17 +47,22 @@ public class JwtService {
                 .sign(algorithm);
     }
 
-    public void validateToken(String token, String userEmail) throws AuthenticationException {
+    public void validateToken(String token, String userEmail) throws InvalidTokenException {
 
-        JWT.require(Algorithm.HMAC256(secret)).build().verify(token);
+        try {
+            JWT.require(Algorithm.HMAC256(secret)).build().verify(token);
+        } catch (JWTVerificationException e) {
+            throw new InvalidTokenException("El Token es inválido o ha expirado");
+        }
 
+        // Si el token es válido, se obtiene los detalles del usuario
         UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
 
+        // Se establece el contexto de seguridad con los detalles del usuario y el token
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 userDetails, token, userDetails.getAuthorities());
         context.setAuthentication(authToken);
         SecurityContextHolder.setContext(context);
     }
-
 }

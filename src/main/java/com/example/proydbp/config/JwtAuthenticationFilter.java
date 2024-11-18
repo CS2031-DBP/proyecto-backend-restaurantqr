@@ -1,5 +1,7 @@
 package com.example.proydbp.config;
 
+import com.example.proydbp.exception.InvalidTokenException;
+import com.example.proydbp.exception.UnauthorizeOperationException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,8 +29,14 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
         String jwt;
         String userEmail;
 
-        if (!StringUtils.hasText(authHeader) || !StringUtils.startsWithIgnoreCase(authHeader, "Bearer")) {
+        // Excluir rutas específicas del filtro
+        if (request.getRequestURI().equals("/auth/login") || request.getRequestURI().equals("/auth/register")) {
             filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (!StringUtils.hasText(authHeader) || !StringUtils.startsWithIgnoreCase(authHeader, "Bearer")) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Falta el Token o es inválido");
             return;
         }
 
@@ -36,9 +44,14 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
         userEmail = jwtService.extractUsername(jwt);
 
         if (StringUtils.hasText(userEmail) && SecurityContextHolder.getContext().getAuthentication() == null) {
-            jwtService.validateToken(jwt, userEmail);
+            try {
+                jwtService.validateToken(jwt, userEmail);
+            } catch (InvalidTokenException ex) {
+                throw ex;
+            }
         }
 
         filterChain.doFilter(request, response);
     }
+
 }
