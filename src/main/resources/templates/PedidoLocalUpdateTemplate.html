@@ -1,0 +1,113 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Actualización de Pedido en Local</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            background-image: url('https://png.pngtree.com/background/20230613/original/pngtree-dragon-art-wallpapers-and-backgrounds-picture-image_3385724.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: auto;
+            border: 2px solid #ff5733;
+            position: relative;
+        }
+        .container::before {
+            content: "";
+            background-image: url('https://img.freepik.com/foto-gratis/casa-blanco-negro-cerca-montanas-cielo-azul_198523-3.jpg?w=1480&t=st=1728866754~exp=1728867354~hmac=6803a33013a3cdec568e1d00832a955155f652549b708138e3d9228117bffb6d');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 8px;
+            z-index: 0;
+        }
+        h1, h2, p {
+            position: relative;
+            z-index: 1;
+        }
+        h1 {
+            color: #ff5733;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            font-size: 18px;
+            text-align: center;
+        }
+        p {
+            color: #555;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+        .highlight {
+            color: #b23b00;
+            font-weight: bold;
+        }
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-container img {
+            width: 45%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>¡Su pedido ha sido actualizado!</h1>
+    <h2>Detalles de la actualización</h2>
+
+    <div class="image-container">
+        <img src="https://img.freepik.com/foto-gratis/vista-frontal-amigos-que-pasan-tiempo-juntos_23-2148436160.jpg" alt="Pedido actualizado" />
+    </div>
+
+    <p>
+        Estimado cliente,
+    </p>
+
+    <p>
+        Nos complace informarle que su pedido ha sido actualizado con éxito. A continuación, le proporcionamos los detalles actualizados de su pedido:
+    </p>
+
+    <p>
+        <strong>Descripción del Pedido:</strong> <span class="highlight" th:text="${Descripcion}">[Descripción]</span><br>
+        <strong>Tipo de Pago:</strong> <span class="highlight" th:text="${TipoPago}">[TipoPago]</span><br>
+    </p>
+
+    <p>
+        Si tiene alguna duda o pregunta sobre la actualización, no dude en contactarnos. Estamos aquí para ayudarle.
+    </p>
+
+    <p>Gracias por confiar en nosotros. ¡Esperamos que disfrute de su pedido actualizado!</p>
+
+    <div class="footer">
+        <p>El equipo de <strong>Dragón Chifero</strong></p>
+    </div>
+</div>
+</body>
+</html>

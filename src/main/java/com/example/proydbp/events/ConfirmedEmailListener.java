@@ -20,174 +20,153 @@ public class ConfirmedEmailListener {
         this.emailSenderService = emailSenderService;
     }
 
-    // ---- RESERVATION ----
-    @EventListener
+    // ------ PERFIL ------
     @Async
-    public void handleReservationCreatedEvent(ReservationCreatedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleBienvenidaMeseroEvent(BienvenidaMeseroEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void handleReservationUpdatedEvent(ReservationUpdatedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleBienvenidaClienteEvent(BienvenidaClienteEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void handleReservationDeletedEvent(ReservationDeletedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleBienvenidaRepartidorEvent(BienvenidaRepartidorEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void handleReservationFinishedEvent(ReservationFinishedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleBienvenidaChefEvent(BienvenidaChefEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void handleReservationCanceladoEvent(ReservationCanceladoEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handlePerfilUpdateClienteEvent(PerfilUpdateClienteEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void handleReservationConfirmedEvent(ReservationConfirmedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handlePerfilUpdateMeseroEvent(PerfilUpdateMeseroEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void handleMyReservationUpdatedEvent(MyReservationUpdatedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handlePerfilUpdateRepartidorEvent(PerfilUpdateRepartidorEvent event)throws Exception {
         emailSenderService.sendEmail(event.getMail());
     }
 
-    // ----
+    // --------------------
 
-    // ---- REVIEW MESERO ----
-    @EventListener
+    // ------ DELIVERY ------
     @Async
-    public void ReviewMeseroCreatedEvent(ReviewMeseroCreatedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleDeliveryCrearEvent(DeliveryCrearEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void ReviewMeseroDeletedEvent(ReviewMeseroDeletedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleDeliveryCrearRepartidorEvent(DeliveryCrearRepartidorEvent event)throws Exception {
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void ReviewMeseroUpdatedEvent(ReviewMeseroUpdatedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleDeliveryEstadoChangeEvent(DeliveryEstadoChangeEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    // ----
-
-    // ---- REVIEW DELIVERY ----
-    @EventListener
     @Async
-    public void handleReviewDeliveryCreatedEvent(ReviewDeliveryCreatedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleDeliveryUpdateEvent(DeliveryUpdateEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
+    // ----------------------
+
+    // ------ PEDIDO LOCAL ------
     @Async
-    public void handleReviewDeliveryDeletedEvent(ReviewDeliveryDeletedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handlePedidoLocalCrearEvent(PedidoLocalCrearEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void handleReviewDeliveryUpdatedEvent(ReviewDeliveryUpdatedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handlePedidoLocalUpdateEvent(PedidoLocalUpdateEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    // ----
-
-    // ---- PEDIDO LOCAL ----
-    @EventListener
     @Async
-    public void handlePedidoLocalCreated(PedidoLocalCreatedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handlePedidoLocalCrearMeseroEvent(PedidoLocalCrearMeseroEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void handlePedidoLocalUpdatedEvent(PedidoLocalUpdatedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handlePedidoLocalEstadoChangeEvent(PedidoLocalEstadoChangeEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
+    // --------------------------
+
+    // ------ RESERVAS ------
     @Async
-    public void handlePedidoLocalDeletedEvent(PedidoLocalDeletedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleReservaCrearEvent(ReservaCrearEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void handleEstadoPedidoLocalPreparandoEvent(EstadoPedidoLocalPreparandoEvent event) throws MessagingException, IOException{
+    @EventListener
+    public void handleReservaUpdateEvent(ReservaUpdateEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void handleEstadoPedidoLocalListoEvent(EstadoPedidoLocalListoEvent event) throws MessagingException, IOException{
+    @EventListener
+    public void handleReservaEstadoChangeEvent(ReservaEstadoChangeEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    // ----
+    // ----------------------
 
-    // ---- DELIVERY ----
-    @EventListener
+    // ------ REVIEW MESERO ------
     @Async
-    public void handleDeliveryCanceladoEvent(DeliveryCanceladoEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleReviewMeseroCreadoEvent(ReviewMeseroCreadoEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void handleDeliveryCreatedEvent(DeliveryCreatedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleReviewMeseroDeleteEvent(ReviewMeseroDeleteEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
+    // ---------------------------
+
+    // ------ REVIEW DELIVERY ------
     @Async
-    public void handleDeliveryDeletedEvent(DeliveryDeletedEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleReviewDeliveryCreadoEvent(ReviewDeliveryCreadoEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
     @Async
-    public void handleDeliveryEnRutaEvent(DeliveryEnRutaEvent event) throws MessagingException, IOException {
+    @EventListener
+    public void handleReviewDeliveryDeleteEvent(ReviewDeliveryDeleteEvent event)throws MessagingException, IOException{
         emailSenderService.sendEmail(event.getMail());
     }
 
-    @EventListener
-    @Async
-    public void handleDeliveryEntregadoEvent(DeliveryEntregadoEvent event) throws MessagingException, IOException {
-        emailSenderService.sendEmail(event.getMail());
-    }
-
-    @EventListener
-    @Async
-    public void handleDeliveryListoEvent(DeliveryListoEvent event) throws MessagingException, IOException {
-        emailSenderService.sendEmail(event.getMail());
-    }
-
-    @EventListener
-    @Async
-    public void handleDeliveryPreparandoEvent(DeliveryPreparandoEvent event) throws MessagingException, IOException {
-        emailSenderService.sendEmail(event.getMail());
-    }
-
-    @EventListener
-    @Async
-    public void handleDeliveryUpdatedEvent(DeliveryUpdatedEvent event) throws MessagingException, IOException {
-        emailSenderService.sendEmail(event.getMail());
-    }
-
-    // ----
+    // -----------------------------
 }

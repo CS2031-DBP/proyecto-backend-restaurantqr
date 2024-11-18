@@ -1,0 +1,114 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reseña de Repartidor Eliminada</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            background-image: url('https://png.pngtree.com/background/20230613/original/pngtree-dragon-art-wallpapers-and-backgrounds-picture-image_3385724.jpg'); /* Fondo temático */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.95); /* Fondo blanco con opacidad */
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: auto;
+            border: 2px solid #ff5733; /* Borde naranja */
+            position: relative;
+        }
+        .container::before {
+            content: "";
+            background-image: url('https://img.freepik.com/foto-gratis/casa-blanco-negro-cerca-montanas-cielo-azul_198523-3.jpg?w=1480&t=st=1728866754~exp=1728867354~hmac=6803a33013a3cdec568e1d00832a955155f652549b708138e3d9228117bffb6d'); /* Fondo translúcido */
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 8px;
+            z-index: 0;
+        }
+        h1, h2, p {
+            position: relative;
+            z-index: 1;
+        }
+        h1 {
+            color: #ff5733; /* Color naranja */
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            font-size: 18px;
+            text-align: center;
+        }
+        p {
+            color: #555;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+        .highlight {
+            color: #b23b00; /* Naranja oscuro */
+            font-weight: bold;
+        }
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-container img {
+            width: 35%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>¡Una reseña de repartidor ha sido eliminada!</h1>
+    <h2>Detalles de la reseña eliminada</h2>
+
+    <div class="image-container">
+        <img src="https://framerusercontent.com/images/0rDcVKp0vFehnGKAB7OgUHm1s.png" alt="Reseña eliminada" />
+    </div>
+
+    <p>
+        Estimado usuario,
+    </p>
+
+    <p>
+        Lamentamos informarte que una reseña de repartidor que habías registrado ha sido eliminada. A continuación, te proporcionamos los detalles de la reseña eliminada:
+    </p>
+
+    <p>
+        <strong>ID de la reseña:</strong> <span class="highlight" th:text="${id}">[ID]</span><br>
+        <strong>Puntuación de la reseña:</strong> <span class="highlight" th:text="${Puntuacion}">[Puntuación]</span><br>
+        <strong>Comentario:</strong> <span class="highlight" th:text="${Comentario}">[Comentario]</span><br>
+    </p>
+
+    <p>
+        Si tienes alguna duda o necesitas más información, no dudes en contactarnos.
+    </p>
+
+    <p>Gracias por tu comprensión.</p>
+
+    <div class="footer">
+        <p>El equipo de <strong>Dragón Chifero</strong></p>
+    </div>
+</div>
+</body>
+</html>

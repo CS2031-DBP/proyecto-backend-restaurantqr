@@ -4,6 +4,8 @@ import com.example.proydbp.auth.utils.AuthorizationUtils;
 import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.client.infrastructure.ClientRepository;
 import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
+import com.example.proydbp.events.email_event.ReviewDeliveryCreadoEvent;
+import com.example.proydbp.events.email_event.ReviewDeliveryDeleteEvent;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.repartidor.domain.Repartidor;
@@ -34,9 +36,10 @@ public class ReviewDeliveryService {
     private final RepartidorService repartidorService;
 
     @Autowired
-    public ReviewDeliveryService (ReviewDeliveryRepository reviewDeliveryRepository,
-                                  AuthorizationUtils authorizationUtils,
-                                  ModelMapper modelMapper, ApplicationEventPublisher eventPublisher, ClientRepository clientRepository, DeliveryRepository deliveryRepository, RepartidorRepository repartidorRepository, RepartidorService repartidorService) {
+    public ReviewDeliveryService (ReviewDeliveryRepository reviewDeliveryRepository, AuthorizationUtils authorizationUtils,
+                                  ModelMapper modelMapper, ApplicationEventPublisher eventPublisher,
+                                  ClientRepository clientRepository, DeliveryRepository deliveryRepository,
+                                  RepartidorRepository repartidorRepository, RepartidorService repartidorService) {
         this.reviewDeliveryRepository = reviewDeliveryRepository;
         this.modelMapper = modelMapper;
         this.authorizationUtils = authorizationUtils;
@@ -60,11 +63,10 @@ public class ReviewDeliveryService {
     }
 
     public ReviewDeliveryResponseDto createReviewDelivery(ReviewDeliveryRequestDto dto) {
-
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
-
+        }
 
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario " + username + " no encontrado"));
@@ -72,13 +74,11 @@ public class ReviewDeliveryService {
         ReviewDelivery reviewDelivery = new ReviewDelivery();
         reviewDelivery.setFecha(ZonedDateTime.now());
         reviewDelivery.setRatingScore(dto.getRatingScore());
-
-
         reviewDelivery.setClient(client);
         reviewDelivery.setRatingScore(dto.getRatingScore());
         reviewDelivery.setComment(dto.getComment());
 
-        Repartidor repartidor= repartidorRepository.findById(dto.getRepartidorId())
+        Repartidor repartidor = repartidorRepository.findById(dto.getRepartidorId())
                 .orElseThrow(() -> new UsernameNotFoundException("Repartidor con " + dto.getRepartidorId() + " no encontrado"));
 
         reviewDelivery.setRepartidor(repartidor);
@@ -87,8 +87,8 @@ public class ReviewDeliveryService {
 
         repartidorService.updateRatingScore(repartidor.getId());
 
-        //String recipientEmail = savedReview.getMesero().getEmail();
-        //eventPublisher.publishEvent(new ReviewMeseroCreatedEvent(savedReview, recipientEmail));
+        // Publicar evento de creación de la reseña
+        eventPublisher.publishEvent(new ReviewDeliveryCreadoEvent(savedReview, repartidor.getEmail()));
 
         return modelMapper.map(savedReview, ReviewDeliveryResponseDto.class);
     }
@@ -100,8 +100,9 @@ public class ReviewDeliveryService {
         String recipientEmail = existingReview.getRepartidor().getEmail();
 
         reviewDeliveryRepository.deleteById(id);
+
+        // Publicar evento de eliminación de la reseña
+        eventPublisher.publishEvent(new ReviewDeliveryDeleteEvent(existingReview, recipientEmail));
+
     }
-
-
-
 }

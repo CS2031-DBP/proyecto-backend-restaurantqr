@@ -69,7 +69,6 @@ public class RepartidorController {
         return ResponseEntity.ok(repartidorService.updateRepartidor(id, patchDto));
     }
 
-
     //
 
     @PreAuthorize("hasRole('ROLE_REPARTIDOR')")

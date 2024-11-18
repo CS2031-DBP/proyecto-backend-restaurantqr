@@ -74,7 +74,6 @@ public class ProductService {
             product.setPrice(dto.getPrice());
         }
 
-
         Product updatedProduct = productRepository.save(product);
         return modelMapper.map(updatedProduct, ProductResponseDto.class);
     }
@@ -95,7 +94,6 @@ public class ProductService {
         Product updatedProduct = productRepository.save(product);
         return modelMapper.map(updatedProduct, ProductResponseDto.class);
     }
-
 
     public List<ProductResponseDto> findAvailableProducts() {
         List<Product> availableProducts = productRepository.findByIsAvailable(true);

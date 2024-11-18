@@ -1,0 +1,113 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva Reseña de Repartidor Creada</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0e6d2; /* Color de fondo suave */
+            margin: 0;
+            padding: 20px;
+            background-image: url('https://png.pngtree.com/background/20230613/original/pngtree-dragon-art-wallpapers-and-backgrounds-picture-image_3385724.jpg'); /* Imagen de fondo */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con opacidad */
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: auto;
+            border: 2px solid #5cb85c; /* Borde verde */
+            position: relative;
+        }
+        .container::before {
+            content: "";
+            background-image: url('https://img.freepik.com/foto-gratis/casa-blanco-negro-cerca-montanas-cielo-azul_198523-3.jpg?w=1480&t=st=1728866754~exp=1728867354~hmac=6803a33013a3cdec568e1d00832a955155f652549b708138e3d9228117bffb6d'); /* Imagen de los muros chinos */
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 8px;
+            z-index: 0;
+        }
+        h1, h2, p {
+            position: relative;
+            z-index: 1;
+        }
+        h1 {
+            color: #5cb85c;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            font-size: 18px;
+            text-align: center;
+        }
+        p {
+            color: #666;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+        .highlight {
+            color: #612727;
+            font-weight: bold;
+        }
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-container img {
+            width: 45%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>¡Nueva reseña de repartidor creada!</h1>
+    <h2>Detalles de la reseña:</h2>
+
+    <div class="image-container">
+        <img src="https://cdn-icons-png.flaticon.com/512/4143/4143136.png" alt="Reseña de Repartidor" />
+    </div>
+
+    <p>
+        Estimado <span class="highlight" th:text="${Nombre}">[Nombre]</span>,
+    </p>
+
+    <p>
+        Nos complace informarte que una nueva reseña sobre la entrega ha sido creada. A continuación, te mostramos los detalles de la reseña:
+    </p>
+
+    <p>
+        <strong>Puntuación:</strong> <span class="highlight" th:text="${Puntuación}">[Puntuación]</span><br>
+        <strong>Comentario:</strong> <span class="highlight" th:text="${Comentario}">[Comentario]</span>
+    </p>
+
+    <p>
+        Si tienes alguna pregunta o necesitas más información, no dudes en contactarnos.
+    </p>
+
+    <p>¡Gracias por tu atención!</p>
+
+    <div class="footer">
+        <p>El equipo de <strong>Dragón Chifero</strong></p>
+    </div>
+</div>
+</body>
+</html>
