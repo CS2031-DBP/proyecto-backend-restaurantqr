@@ -106,11 +106,15 @@ public class DeliveryService {
         // Obtener los productos asociados y calcular el precio total
         List<ProductResponseDto> productos = new ArrayList<>();
         for (Long id : dto.getIdProducts()) {
-            productRepository.findById(id).ifPresent(product -> {
+            productRepository.findById(id).ifPresentOrElse(product -> {
+                System.out.println("Producto encontrado: " + product);
                 ProductResponseDto productDto = modelMapper.map(product, ProductResponseDto.class);
                 productos.add(productDto);
-                delivery.setPrecio(delivery.getPrecio() + product.getPrice()); // Sumar el precio del producto
+                delivery.setPrecio(delivery.getPrecio() + product.getPrice());
+            }, () -> {
+                System.out.println("Producto con ID " + id + " no encontrado");
             });
+
         }
 
         // Guardar el delivery en la base de datos
