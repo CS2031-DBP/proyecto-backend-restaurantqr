@@ -39,7 +39,7 @@ public class MesaService {
 
     public MesaResponseDto getMesaById(Long id) {
         Mesa mesa = mesaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Mesa con " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa con id " + id + " no encontrada"));
         return modelMapper.map(mesa, MesaResponseDto.class);
     }
 
@@ -60,7 +60,7 @@ public class MesaService {
 
     public Mesa updateMesa(Long id, MesaRequestDto mesaDto) {
         Mesa mesa = mesaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Mesa con " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa con id " + id + " no encontrada"));
 
         if (mesaDto.getCapacity() <= 1) {
             throw new IllegalArgumentException("La capacidad debe ser mayor o igual a 1.");
@@ -73,7 +73,7 @@ public class MesaService {
 
     public Mesa deleteMesaById(Long id) {
         Mesa mesa = mesaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Mesa con " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa con id " + id + " no encontrada"));
         mesaRepository.delete(mesa);
         return mesa;
     }
@@ -113,7 +113,7 @@ public class MesaService {
 
     public void changeAvailability(Long id){
         Mesa mesa = mesaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Mesa con " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa con id " + id + " no encontrada"));
         mesa.setAvailable(!mesa.isAvailable());
         mesaRepository.save(mesa);
 
