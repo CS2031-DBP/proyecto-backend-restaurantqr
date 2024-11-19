@@ -10,6 +10,7 @@ import com.example.proydbp.delivery.domain.Delivery;
 import com.example.proydbp.delivery.domain.DeliveryService;
 import com.example.proydbp.delivery.domain.StatusDelivery;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
+import com.example.proydbp.events.email_event.BienvenidaClienteEvent;
 import com.example.proydbp.events.email_event.PerfilUpdateClienteEvent;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.exception.UserAlreadyExistException;
@@ -30,7 +31,9 @@ import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,18 +80,51 @@ public class ClientService {
     }
 
     public ClientResponseDto saveClientDto(ClientRequestDto clientRequestDto) {
+        // Comprobación si el cliente con el mismo email ya existe
         if (clientRepository.findByEmail(clientRequestDto.getEmail()).isPresent()) {
             throw new UserAlreadyExistException("Cliente con email " + clientRequestDto.getEmail() + " ya existe.");
         }
+
+        // Convertir el ClientRequestDto a Client
         Client client = modelMapper.map(clientRequestDto, Client.class);
+
+        // Encriptar la contraseña y asignar otros datos básicos
         client.setPassword(passwordEncoder.encode(clientRequestDto.getPassword()));
         client.setRole(Role.CLIENT);
         client.setPhoneNumber(clientRequestDto.getPhone());
         client.setUpdatedAt(ZonedDateTime.now());
         client.setCreatedAt(ZonedDateTime.now());
         client.setRango(Rango.BRONZE);
+
+        // Asegurarse de que las relaciones no sean nulas antes de guardar
+        if (client.getPedidosLocales() == null) {
+            client.setPedidosLocales(new ArrayList<>());
+        }
+
+        if (client.getDeliveries() == null) {
+            client.setDeliveries(new ArrayList<>());
+        }
+
+        if (client.getReservations() == null) {
+            client.setReservations(new ArrayList<>());
+        }
+
+        if (client.getReviewMeseros() == null) {
+            client.setReviewMeseros(new ArrayList<>());
+        }
+
+        if (client.getReviewDeliveries() == null) {
+            client.setReviewDeliveries(new ArrayList<>());
+        }
+
+        // Guardar el cliente
         clientRepository.save(client);
 
+        // Publicar el evento de bienvenida
+        BienvenidaClienteEvent bienvenidaClienteEvent = new BienvenidaClienteEvent(client, client.getEmail());
+        eventPublisher.publishEvent(bienvenidaClienteEvent);
+
+        // Convertir el cliente guardado a DTO y retornarlo
         return convertirADto(client);
     }
 
@@ -99,21 +135,52 @@ public class ClientService {
     }
 
     public ClientResponseDto updateClient(Long id, PatchClientDto patchClientDto) {
+        // Buscar el cliente por su ID
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con id "+ id +" no encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con id " + id + " no encontrado."));
 
-        client.setFirstName(patchClientDto.getFirstName());
-        client.setLastName(patchClientDto.getLastName());
-        client.setPassword(passwordEncoder.encode(patchClientDto.getPassword()));
-        client.setPhoneNumber(patchClientDto.getPhone());
+        // Map para registrar los campos que se actualizan
+        Map<String, String> updatedFields = new HashMap<>();
+
+        // Comparar y actualizar solo los campos proporcionados
+        if (patchClientDto.getFirstName() != null && !patchClientDto.getFirstName().equals(client.getFirstName())) {
+            updatedFields.put("Nombre", patchClientDto.getFirstName());
+            client.setFirstName(patchClientDto.getFirstName());
+        }
+
+        if (patchClientDto.getLastName() != null && !patchClientDto.getLastName().equals(client.getLastName())) {
+            updatedFields.put("Apellido", patchClientDto.getLastName());
+            client.setLastName(patchClientDto.getLastName());
+        }
+
+        if (patchClientDto.getEmail() != null && !patchClientDto.getEmail().equals(client.getEmail())) {
+            updatedFields.put("Correo", patchClientDto.getEmail());
+            client.setEmail(patchClientDto.getEmail());
+        }
+
+        if (patchClientDto.getPhone() != null && !patchClientDto.getPhone().equals(client.getPhoneNumber())) {
+            updatedFields.put("Teléfono", patchClientDto.getPhone());
+            client.setPhoneNumber(patchClientDto.getPhone());
+        }
+
+        if (patchClientDto.getPassword() != null) {
+            updatedFields.put("Contraseña", "Actualizada");
+            client.setPassword(passwordEncoder.encode(patchClientDto.getPassword()));
+        }
+
+        // Actualizar la fecha de modificación
         client.setUpdatedAt(ZonedDateTime.now());
-        clientRepository.save(client);
 
-        // Publicar evento de actualización del perfil del cliente
-        eventPublisher.publishEvent(new PerfilUpdateClienteEvent(client, client.getEmail()));
+        // Guardar el cliente actualizado en el repositorio
+        Client updatedClient = clientRepository.save(client);
 
-        return convertirADto(client);
+        // Publicar evento con los campos actualizados
+        eventPublisher.publishEvent(new PerfilUpdateClienteEvent(updatedClient, updatedFields, updatedClient.getEmail()));
+
+        // Convertir y devolver el cliente actualizado como DTO
+        return convertirADto(updatedClient);
     }
+
 
     public ClientSelfResponseDto getAuthenticatedClient(){
         String username = authorizationUtils.getCurrentUserEmail();

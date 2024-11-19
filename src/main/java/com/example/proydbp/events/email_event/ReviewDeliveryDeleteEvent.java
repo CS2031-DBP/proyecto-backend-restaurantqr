@@ -18,10 +18,13 @@ public class ReviewDeliveryDeleteEvent extends ApplicationEvent {
         super(reviewDelivery);
         this.reviewDelivery = reviewDelivery;
 
+        String repartidorNombre = reviewDelivery.getRepartidor().getFirstName() + " " + reviewDelivery.getRepartidor().getLastName();
+
         Map<String, Object> properties = new HashMap<>();
         properties.put("id", reviewDelivery.getId());
         properties.put("Puntuación", reviewDelivery.getRatingScore());
         properties.put("Comentario", reviewDelivery.getComment());
+        properties.put("repartidorNombre", repartidorNombre);
 
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")

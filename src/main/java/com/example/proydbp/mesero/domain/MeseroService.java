@@ -2,6 +2,7 @@ package com.example.proydbp.mesero.domain;
 
 import com.example.proydbp.auth.utils.AuthorizationUtils;
 import com.example.proydbp.client.dto.PatchClientDto;
+import com.example.proydbp.events.email_event.BienvenidaMeseroEvent;
 import com.example.proydbp.events.email_event.PerfilUpdateMeseroEvent;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.exception.UserAlreadyExistException;
@@ -27,10 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class MeseroService {
@@ -75,9 +73,11 @@ public class MeseroService {
 
     public MeseroResponseDto createMesero(MeseroRequestDto dto) {
 
+        // Verifica si el email ya está registrado
         Optional<User> user = baseUserRepository.findByEmail(dto.getEmail());
         if (user.isPresent()) throw new UserAlreadyExistException("El correo ya ha sido registrado");
 
+        // Crear una nueva instancia de Mesero y asignar sus propiedades
         Mesero mesero = new Mesero();
         mesero.setCreatedAt(ZonedDateTime.now());
         mesero.setRole(Role.MESERO);
@@ -89,7 +89,15 @@ public class MeseroService {
         mesero.setUpdatedAt(ZonedDateTime.now());
         mesero.setRatingScore(0.0);
         mesero.setReviewMeseros(new ArrayList<>());
-        return convertirADto(meseroRepository.save(mesero));
+
+        // Guardar el Mesero en el repositorio
+        Mesero savedMesero = meseroRepository.save(mesero);
+
+        // Publicar el evento BienvenidaMeseroEvent
+        eventPublisher.publishEvent(new BienvenidaMeseroEvent(savedMesero, savedMesero.getEmail()));
+
+        // Convertir el Mesero guardado a DTO y retornarlo
+        return convertirADto(savedMesero);
     }
 
     public void deleteMesero(Long id) {
@@ -99,19 +107,45 @@ public class MeseroService {
     }
 
     public MeseroSelfResponseDto updateMesero(Long id, PatchMeseroDto dto) {
+        // Buscar el mesero por su ID
         Mesero mesero = meseroRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Mesero con " + id + " no encontrado"));
 
+        // Map para registrar los campos que se actualizan
+        Map<String, String> updatedFields = new HashMap<>();
+
+        // Comparar y actualizar solo los campos proporcionados
+        if (dto.getFirstName() != null && !dto.getFirstName().equals(mesero.getFirstName())) {
+            updatedFields.put("Nombre", dto.getFirstName());
+            mesero.setFirstName(dto.getFirstName());
+        }
+
+        if (dto.getLastName() != null && !dto.getLastName().equals(mesero.getLastName())) {
+            updatedFields.put("Apellido", dto.getLastName());
+            mesero.setLastName(dto.getLastName());
+        }
+
+        if (dto.getPassword() != null) {
+            updatedFields.put("Contraseña", "Actualizada");
+            mesero.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        if (dto.getPhone() != null && !dto.getPhone().equals(mesero.getPhoneNumber())) {
+            updatedFields.put("Teléfono", dto.getPhone());
+            mesero.setPhoneNumber(dto.getPhone());
+        }
+
+        // Actualizar la fecha de modificación
         mesero.setUpdatedAt(ZonedDateTime.now());
-        mesero.setFirstName(dto.getFirstName());
-        mesero.setLastName(dto.getLastName());
-        mesero.setPassword(passwordEncoder.encode(dto.getPassword()));
-        mesero.setPhoneNumber(dto.getPhone());
 
-        // Publicar evento de actualización del perfil del mesero
-        eventPublisher.publishEvent(new PerfilUpdateMeseroEvent(mesero, mesero.getEmail()));
+        // Guardar el mesero actualizado en el repositorio
+        Mesero updatedMesero = meseroRepository.save(mesero);
 
-        return modelMapper.map(meseroRepository.save(mesero), MeseroSelfResponseDto.class);
+        // Publicar evento con los campos actualizados
+        eventPublisher.publishEvent(new PerfilUpdateMeseroEvent(updatedMesero, updatedFields, updatedMesero.getEmail()));
+
+        // Convertir el mesero actualizado a DTO y retornarlo
+        return modelMapper.map(updatedMesero, MeseroSelfResponseDto.class);
     }
 
     public List<PedidoLocalResponseDto> findMisPedidosLocalesActuales() {
@@ -175,19 +209,54 @@ public class MeseroService {
         return pedidos;
     }
 
-    public MeseroSelfResponseDto updateAuthenticatedMesero(PatchClientDto dto) {
+    public MeseroSelfResponseDto updateAuthenticatedMesero(PatchMeseroDto dto) {
+        // Obtener el email del usuario autenticado
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
+
+        // Buscar al mesero por su email
         Mesero mesero = meseroRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Mesero con " + username + " no encontrado"));
 
+        // Registrar los campos actualizados
+        Map<String, String> updatedFields = new HashMap<>();
+
+        // Actualizar solo los campos que no sean nulos y sean diferentes
+        if (dto.getFirstName() != null && !dto.getFirstName().equals(mesero.getFirstName())) {
+            updatedFields.put("Nombre", dto.getFirstName());
+            mesero.setFirstName(dto.getFirstName());
+        }
+
+        if (dto.getLastName() != null && !dto.getLastName().equals(mesero.getLastName())) {
+            updatedFields.put("Apellido", dto.getLastName());
+            mesero.setLastName(dto.getLastName());
+        }
+
+        if (dto.getPassword() != null) {
+            updatedFields.put("Contraseña", "Actualizada");
+            mesero.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        if (dto.getPhone() != null && !dto.getPhone().equals(mesero.getPhoneNumber())) {
+            updatedFields.put("Teléfono", dto.getPhone());
+            mesero.setPhoneNumber(dto.getPhone());
+        }
+
+        // Actualizar la fecha de modificación
         mesero.setUpdatedAt(ZonedDateTime.now());
-        mesero.setFirstName(dto.getFirstName());
-        mesero.setLastName(dto.getLastName());
-        mesero.setPassword(passwordEncoder.encode(dto.getPassword()));
-        mesero.setPhoneNumber(dto.getPhone());
-        return modelMapper.map( meseroRepository.save(mesero), MeseroSelfResponseDto.class);
+
+        // Guardar el mesero actualizado
+        Mesero updatedMesero = meseroRepository.save(mesero);
+
+        eventPublisher.publishEvent(new PerfilUpdateMeseroEvent(
+                updatedMesero,
+                updatedFields,
+                updatedMesero.getEmail()
+        ));
+
+        return modelMapper.map(updatedMesero, MeseroSelfResponseDto.class);
     }
 
     // Métodos adicionales

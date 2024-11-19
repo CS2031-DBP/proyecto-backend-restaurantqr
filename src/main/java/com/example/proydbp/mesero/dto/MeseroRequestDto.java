@@ -18,12 +18,9 @@ import java.util.List;
 @AllArgsConstructor
 public class MeseroRequestDto {
 
-
     private String firstName;
     private String lastName;
     private String email;
     private String password;
     private String phone;
-
-
 }

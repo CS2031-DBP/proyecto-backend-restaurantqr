@@ -98,12 +98,7 @@ public class MeseroController {
 
     @PatchMapping("/me")
     @PreAuthorize("hasRole('ROLE_MESERO')")
-    public ResponseEntity<MeseroSelfResponseDto> updateAuthenticatedClient(@RequestBody PatchClientDto dto) {
+    public ResponseEntity<MeseroSelfResponseDto> updateAuthenticatedClient(@RequestBody PatchMeseroDto dto) {
         return ResponseEntity.ok(meseroService.updateAuthenticatedMesero(dto));
     }
-
-
-
-
-
 }

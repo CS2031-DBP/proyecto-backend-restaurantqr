@@ -11,19 +11,20 @@ import java.util.Map;
 @Getter
 public class PerfilUpdateMeseroEvent extends ApplicationEvent {
 
-    final private Mail mail;
-    final private Mesero mesero;
+    private final Mail mail;
+    private final Mesero mesero;
 
-    public PerfilUpdateMeseroEvent(Mesero mesero, String recipientEmail){
+    public PerfilUpdateMeseroEvent(Mesero mesero, Map<String, String> updatedFields, String recipientEmail) {
         super(mesero);
         this.mesero = mesero;
 
+        // Propiedades del correo basadas en los campos actualizados
         Map<String, Object> properties = new HashMap<>();
-        properties.put("firstName", mesero.getFirstName());
-        properties.put("lastName", mesero.getLastName());
-        properties.put("phone", mesero.getPhoneNumber());
-        properties.put("updatedAt", mesero.getUpdatedAt().toString()); // fecha de actualización
+        properties.put("Nombre", mesero.getFirstName() + " " + mesero.getLastName());
+        properties.put("updatedFields", updatedFields); // Campos modificados como lista
+        properties.put("updatedAt", mesero.getUpdatedAt().toString()); // Fecha de actualización
 
+        // Crear el correo
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")
                 .to(recipientEmail)

@@ -100,19 +100,45 @@ public class RepartidorService {
     }
 
     public RepartidorSelfResponseDto updateRepartidor(Long id, PatchRepartidorDto dto) {
+        // Buscar el repartidor por su ID
         Repartidor repartidor = repartidorRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Repartidor con " + id + " no encontrado"));
 
+        // Map para registrar los campos que se actualizan
+        Map<String, String> updatedFields = new HashMap<>();
+
+        // Comparar y actualizar solo los campos proporcionados
+        if (dto.getFirstName() != null && !dto.getFirstName().equals(repartidor.getFirstName())) {
+            updatedFields.put("Nombre", dto.getFirstName());
+            repartidor.setFirstName(dto.getFirstName());
+        }
+
+        if (dto.getLastName() != null && !dto.getLastName().equals(repartidor.getLastName())) {
+            updatedFields.put("Apellido", dto.getLastName());
+            repartidor.setLastName(dto.getLastName());
+        }
+
+        if (dto.getPassword() != null) {
+            updatedFields.put("Contraseña", "Actualizada");
+            repartidor.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        if (dto.getPhone() != null && !dto.getPhone().equals(repartidor.getPhoneNumber())) {
+            updatedFields.put("Teléfono", dto.getPhone());
+            repartidor.setPhoneNumber(dto.getPhone());
+        }
+
+        // Actualizar la fecha de modificación
         repartidor.setUpdatedAt(ZonedDateTime.now());
-        repartidor.setFirstName(dto.getFirstName());
-        repartidor.setLastName(dto.getLastName());
-        repartidor.setPassword(passwordEncoder.encode(dto.getPassword()));
-        repartidor.setPhoneNumber(dto.getPhone());
 
-        // Publicar evento de actualización del perfil del repartidor
-        eventPublisher.publishEvent(new PerfilUpdateRepartidorEvent(repartidor, repartidor.getEmail()));
+        // Guardar el repartidor actualizado en el repositorio
+        Repartidor updatedRepartidor = repartidorRepository.save(repartidor);
 
-        return modelMapper.map(repartidorRepository.save(repartidor), RepartidorSelfResponseDto.class);
+        // Publicar evento con los campos actualizados
+        eventPublisher.publishEvent(new PerfilUpdateRepartidorEvent(updatedRepartidor, updatedFields, updatedRepartidor.getEmail()));
+
+        // Convertir el repartidor actualizado a DTO y retornarlo
+        return modelMapper.map(updatedRepartidor, RepartidorSelfResponseDto.class);
     }
 
     public RepartidorSelfResponseDto findAuthenticatedRepartidor() {

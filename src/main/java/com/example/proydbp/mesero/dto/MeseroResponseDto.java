@@ -19,7 +19,6 @@ public class MeseroResponseDto {
 
     private Long id;
 
-
     private String firstName;
 
     private String lastName;

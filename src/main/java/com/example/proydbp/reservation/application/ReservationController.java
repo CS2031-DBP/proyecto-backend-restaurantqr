@@ -4,12 +4,16 @@ import com.example.proydbp.reservation.domain.Reservation;
 import com.example.proydbp.reservation.domain.ReservationService;
 import com.example.proydbp.reservation.dto.ReservationRequestDto;
 import com.example.proydbp.reservation.dto.ReservationResponseDto;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import java.util.List;
 
@@ -18,6 +22,8 @@ import java.util.List;
 public class ReservationController {
 
     final private ReservationService reservationService;
+    private static final Logger log = LoggerFactory.getLogger(ReservationController.class);
+
 
     @Autowired
     public ReservationController(ReservationService reservationService) {
@@ -40,7 +46,8 @@ public class ReservationController {
 
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @PostMapping
-    public ResponseEntity<ReservationResponseDto> createReservation(@Validated @RequestBody ReservationRequestDto reservationRequestDto) {
+    public ResponseEntity<?> createReservation(@Validated @RequestBody ReservationRequestDto reservationRequestDto) {
+        System.out.println("reservationRequestDto: " + reservationRequestDto);
         ReservationResponseDto newReservation = reservationService.createReservation(reservationRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newReservation);
     }

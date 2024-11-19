@@ -14,15 +14,15 @@ public class PerfilUpdateRepartidorEvent extends ApplicationEvent {
     final private Mail mail;
     final private Repartidor repartidor;
 
-    public PerfilUpdateRepartidorEvent(Repartidor repartidor, String recipientEmail){
+    public PerfilUpdateRepartidorEvent(Repartidor repartidor, Map<String, String> updatedFields, String recipientEmail){
         super(repartidor);
         this.repartidor = repartidor;
 
+        // Propiedades del correo basadas en los campos actualizados
         Map<String, Object> properties = new HashMap<>();
-        properties.put("firstName", repartidor.getFirstName());
-        properties.put("lastName", repartidor.getLastName());
-        properties.put("phone", repartidor.getPhoneNumber());
-        properties.put("updatedAt", repartidor.getUpdatedAt().toString()); // fecha de actualización
+        properties.put("Nombre", repartidor.getFirstName() + " " + repartidor.getLastName());
+        properties.put("updatedFields", updatedFields); // Campos modificados como lista
+        properties.put("updatedAt", repartidor.getUpdatedAt().toString()); // Fecha de actualización
 
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")

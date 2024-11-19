@@ -18,10 +18,14 @@ public class ReviewMeseroDeleteEvent extends ApplicationEvent {
         super(reviewMesero);
         this.reviewMesero = reviewMesero;
 
+        String meseroNombre = reviewMesero.getMesero().getFirstName() + " " + reviewMesero.getMesero().getLastName();
+
         Map<String, Object> properties = new HashMap<>();
         properties.put("id", reviewMesero.getId());
         properties.put("Puntuación", reviewMesero.getRatingScore());
         properties.put("Comentario", reviewMesero.getComment());
+        properties.put("meseroNombre",meseroNombre);
+
 
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")

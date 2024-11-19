@@ -14,16 +14,16 @@ public class PerfilUpdateClienteEvent extends ApplicationEvent {
     final private Mail mail;
     final private Client client;
 
-    public PerfilUpdateClienteEvent(Client client, String recipientEmail){
+    public PerfilUpdateClienteEvent(Client client, Map<String, String> updatedFields, String recipientEmail){
         super(client);
         this.client = client;
 
+        // Propiedades del correo basadas en los campos actualizados
         Map<String, Object> properties = new HashMap<>();
-        properties.put("firstName", client.getFirstName());
-        properties.put("lastName", client.getLastName());
-        properties.put("phone", client.getPhoneNumber());
-        properties.put("updatedAt", client.getUpdatedAt().toString()); // fecha de actualización
-
+        properties.put("Nombre", client.getFirstName() + " " + client.getLastName());
+        properties.put("FirstName", client.getFirstName());
+        properties.put("updatedFields", updatedFields); // Campos modificados como lista
+        properties.put("updatedAt", client.getUpdatedAt().toString()); // Fecha de actualización
 
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")
