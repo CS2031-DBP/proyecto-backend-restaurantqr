@@ -76,4 +76,6 @@ public class ProductController {
         List<ProductResponseDto> availableProducts = productService.findAvailableProducts();
         return ResponseEntity.ok(availableProducts);
     }
+
+
 }
