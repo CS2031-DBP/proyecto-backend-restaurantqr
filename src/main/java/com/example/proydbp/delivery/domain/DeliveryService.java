@@ -14,6 +14,7 @@ import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.delivery.dto.DeliveryRequestDto;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
+import com.example.proydbp.product.domain.Product;
 import com.example.proydbp.product.dto.ProductResponseDto;
 import com.example.proydbp.product.infrastructure.ProductRepository;
 import com.example.proydbp.repartidor.domain.RepartidorService;
@@ -88,6 +89,22 @@ public class DeliveryService {
         Client cliente = clientRepository
                 .findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario " + username + " no encontrado"));
+
+        List<String> nombresProductosFueraDeRango = new ArrayList<>();
+
+        for (Long id : dto.getIdProducts()) {
+            productRepository.findById(id).ifPresentOrElse(product -> {
+                if (cliente.getRango().ordinal() < product.getRango().ordinal()) {
+                    nombresProductosFueraDeRango.add(product.getNombre());
+                }
+            }, () -> {
+                throw new ResourceNotFoundException("Producto " + id + " no encontrado");
+            });
+        }
+
+        if (!nombresProductosFueraDeRango.isEmpty()) {
+            throw new IllegalArgumentException("Los siguientes productos están fuera del rango permitido: " + String.join(", ", nombresProductosFueraDeRango));
+        }
 
         // Mapeo del DTO a la entidad Delivery
         Delivery delivery = modelMapper.map(dto, Delivery.class);

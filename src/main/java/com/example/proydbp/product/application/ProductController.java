@@ -53,13 +53,18 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateProduct(id, dto));
     }
 
-
-
     @GetMapping("/category/{category}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<ProductResponseDto>> getProductByCategory(@PathVariable String category) {
         List<ProductResponseDto> productResponseDto = productService.findByCategory(category);
         return ResponseEntity.ok(productResponseDto);
+    }
+
+    @GetMapping("/rango/{rango}")
+        @PreAuthorize("hasRole('ROLE_CLIENT')")
+        public ResponseEntity<List<ProductResponseDto>> getProductsByClientRango(@PathVariable String rango) {
+            List<ProductResponseDto> productResponseDto = productService.findProductByClientRango(rango);
+            return ResponseEntity.ok(productResponseDto);
     }
 
     @PatchMapping("/changeAvailability/{id}")
@@ -68,7 +73,6 @@ public class ProductController {
         ProductResponseDto updatedProduct = productService.changeAvailability(id);
         return ResponseEntity.ok(updatedProduct);
     }
-
 
     @GetMapping("/available")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
