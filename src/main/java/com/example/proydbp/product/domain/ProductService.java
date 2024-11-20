@@ -1,5 +1,6 @@
 package com.example.proydbp.product.domain;
 
+import com.example.proydbp.client.domain.Rango;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.product.dto.ProductRequestDto;
 import com.example.proydbp.product.dto.ProductResponseDto;
@@ -80,6 +81,23 @@ public class ProductService {
 
     public List<ProductResponseDto> findByCategory(String category) {
         List<Product> products = productRepository.findByCategory(Category.valueOf(category));
+        return products.stream()
+                .map(product -> modelMapper.map(product, ProductResponseDto.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponseDto> findProductByClientRango1(String rango){
+        List<Product> products = productRepository.findByRango(Rango.valueOf(rango));
+        return products.stream()
+                .map(product -> modelMapper.map(product, ProductResponseDto.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponseDto> findProductByClientRango(String rango){
+        List<Product> products = productRepository.findAll().stream()
+                .filter(product -> Rango.valueOf(rango).ordinal() >= product.getRango().ordinal())
+                .collect(Collectors.toList());
+
         return products.stream()
                 .map(product -> modelMapper.map(product, ProductResponseDto.class))
                 .collect(Collectors.toList());

@@ -17,6 +17,7 @@ import com.example.proydbp.pedido_local.dto.PatchPedidoLocalDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalRequestDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import com.example.proydbp.pedido_local.infrastructure.PedidoLocalRepository;
+import com.example.proydbp.product.domain.Product;
 import com.example.proydbp.product.dto.ProductResponseDto;
 import com.example.proydbp.product.infrastructure.ProductRepository;
 import org.modelmapper.ModelMapper;
@@ -89,6 +90,22 @@ public class PedidoLocalService {
                 .orElseThrow(() -> new UsernameNotFoundException("Mesa con " + dto.getMesaId() + " no encontrada"));
         mesa.setAvailable(false);
         mesaRepository.save(mesa);
+
+        List<String> nombresProductosFueraDeRango = new ArrayList<>();
+
+        for (Long id : dto.getIdProducts()) {
+            productRepository.findById(id).ifPresentOrElse(product -> {
+                if (client.getRango().ordinal() < product.getRango().ordinal()) {
+                    nombresProductosFueraDeRango.add(product.getNombre());
+                }
+            }, () -> {
+                throw new ResourceNotFoundException("Producto " + id + " no encontrado");
+            });
+        }
+
+        if (!nombresProductosFueraDeRango.isEmpty()) {
+            throw new IllegalArgumentException("Los siguientes productos están fuera del rango permitido: " + String.join(", ", nombresProductosFueraDeRango));
+        }
 
         PedidoLocal pedidoLocal = new PedidoLocal();
         pedidoLocal.setMesa(mesa);

@@ -1,5 +1,6 @@
 package com.example.proydbp.product.domain;
 
+import com.example.proydbp.client.domain.Rango;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -38,5 +39,8 @@ public class Product {
     @NotNull
     private Boolean isAvailable;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private Rango rango;
 }
 
