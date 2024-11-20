@@ -5,6 +5,10 @@ import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.client.infrastructure.ClientRepository;
 import com.example.proydbp.delivery.dto.PatchDeliveryDto;
 
+import com.example.proydbp.events.email_event.DeliveryCrearEvent;
+import com.example.proydbp.events.email_event.DeliveryCrearRepartidorEvent;
+import com.example.proydbp.events.email_event.DeliveryEstadoChangeEvent;
+import com.example.proydbp.events.email_event.DeliveryUpdateEvent;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.delivery.dto.DeliveryRequestDto;
@@ -12,7 +16,6 @@ import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
 import com.example.proydbp.product.dto.ProductResponseDto;
 import com.example.proydbp.product.infrastructure.ProductRepository;
-import com.example.proydbp.repartidor.domain.Repartidor;
 import com.example.proydbp.repartidor.domain.RepartidorService;
 
 import org.modelmapper.ModelMapper;
@@ -28,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-
 @Service
 public class DeliveryService {
 
@@ -41,10 +43,10 @@ public class DeliveryService {
     private final ProductRepository productRepository;
 
     @Autowired
-    public DeliveryService(DeliveryRepository deliveryRepository,
-                           AuthorizationUtils authorizationUtils,
-                           ApplicationEventPublisher eventPublisher,
-                           ModelMapper modelMapper, @Lazy RepartidorService repartidorService, ClientRepository clientRepository, ProductRepository productRepository) {
+    public DeliveryService(DeliveryRepository deliveryRepository, AuthorizationUtils authorizationUtils,
+                           ApplicationEventPublisher eventPublisher, ModelMapper modelMapper,
+                           @Lazy RepartidorService repartidorService, ClientRepository clientRepository,
+                           ProductRepository productRepository) {
         this.deliveryRepository = deliveryRepository;
         this.eventPublisher = eventPublisher;
         this.modelMapper = modelMapper;
@@ -55,7 +57,6 @@ public class DeliveryService {
     }
 
     public DeliveryResponseDto findDeliveryById(Long id) {
-
 
         Delivery delivery = deliveryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+ id + " no encontrado"));
@@ -72,85 +73,92 @@ public class DeliveryService {
 
             deliveriesResponse.add(responseDto);
         }
-
         return deliveriesResponse;
     }
 
     public DeliveryResponseDto createDelivery(DeliveryRequestDto dto) {
 
+        // Verificación de autorización: Asegurarse que el usuario es un cliente
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
-
-        Client cliente = clientRepository
-                .findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario "+ username + "no encontrado"));
-
-        Delivery delivery = new Delivery();
-        delivery.setDireccion(dto.getDireccion());
-        delivery.setDescripcion(dto.getDescripcion());
-        delivery.setClient(cliente);
-        delivery.setRepartidor(repartidorService.asignarRepartidor());
-        delivery.setStatus(StatusDelivery.RECIBIDO);
-        delivery.setFecha(ZonedDateTime.now());
-        delivery.setCostoDelivery(5.0);
-        delivery.setIdProducts(dto.getIdProducts());
-        delivery.setPrecio(0.0);
-
-        List<ProductResponseDto> productos = new ArrayList<>();
-        for (Long id : dto.getIdProducts()) {
-            productRepository.findById(id).ifPresent(product -> {
-                ProductResponseDto productDto = modelMapper.map(product, ProductResponseDto.class);
-                productos.add(productDto);
-                delivery.setPrecio(delivery.getPrecio()+ product.getPrice());
-            });
         }
 
-        DeliveryResponseDto deliveryResponse = convertirADto(deliveryRepository.save(delivery));
+        // Buscar al cliente en la base de datos usando su email
+        Client cliente = clientRepository
+                .findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario " + username + " no encontrado"));
 
+        // Mapeo del DTO a la entidad Delivery
+        Delivery delivery = modelMapper.map(dto, Delivery.class);
 
-        //Evento
-        //String recipientEmail = savedDelivery.getRepartidor().getEmail();
-        //eventPublisher.publishEvent(new DeliveryCreatedEvent(savedDelivery, recipientEmail));
+        // Seteo de otros campos en el objeto Delivery
+        delivery.setDireccion(dto.getDireccion());
+        delivery.setDescripcion(dto.getDescripcion());
+        delivery.setClient(cliente);  // Asociar el cliente al delivery
+        delivery.setRepartidor(repartidorService.asignarRepartidor()); // Asignación del repartidor
+        delivery.setStatus(StatusDelivery.RECIBIDO); // Estado inicial
+        delivery.setFecha(ZonedDateTime.now()); // Fecha actual de creación
+        delivery.setCostoDelivery(5.0); // Costo base de delivery (ajustar según lógica)
+        delivery.setIdProducts(dto.getIdProducts()); // Asignar los ID de los productos
+        delivery.setPrecio(0.0); // Inicializar el precio
 
-        return deliveryResponse;
+        // Obtener los productos asociados y calcular el precio total
+        List<ProductResponseDto> productos = new ArrayList<>();
+        for (Long id : dto.getIdProducts()) {
+            productRepository.findById(id).ifPresentOrElse(product -> {
+                System.out.println("Producto encontrado: " + product);
+                ProductResponseDto productDto = modelMapper.map(product, ProductResponseDto.class);
+                productos.add(productDto);
+                delivery.setPrecio(delivery.getPrecio() + product.getPrice());
+            }, () -> {
+                System.out.println("Producto con ID " + id + " no encontrado");
+            });
+
+        }
+
+        // Guardar el delivery en la base de datos
+        Delivery savedDelivery = deliveryRepository.save(delivery);
+
+        // Publicar el evento para notificar al cliente sobre el nuevo delivery
+        eventPublisher.publishEvent(new DeliveryCrearEvent(savedDelivery, cliente.getEmail()));
+
+        // Publicar el evento para notificar al repartidor sobre el nuevo delivery solo si tiene asignado un repartidor
+        if (delivery.getRepartidor() != null) {
+            eventPublisher.publishEvent(new DeliveryCrearRepartidorEvent(savedDelivery, delivery.getRepartidor().getEmail()));
+        }
+
+        return modelMapper.map(savedDelivery, DeliveryResponseDto.class);
     }
-
 
     public void deleteDelivery(Long id) {
         Delivery delivery = deliveryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+id+ " no encontrado"));
-
-        //String recipientEmail = "fernando.munoz.p@utec.edu.pe";
-        //eventPublisher.publishEvent(new DeliveryDeletedEvent(delivery, recipientEmail));
-
         deliveryRepository.deleteById(id);
     }
 
     public DeliveryResponseDto updateDelivery(Long id, PatchDeliveryDto dto) {
 
         Delivery delivery = deliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+id+ " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery con " + id + " no encontrado"));
 
+        // Verificar que el usuario actual es el propietario del delivery
         String username = authorizationUtils.getCurrentUserEmail();
-        if (!Objects.equals(username, delivery.getClient().getEmail()))
-        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");}
-
+        if (!Objects.equals(username, delivery.getClient().getEmail())) {
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
 
         delivery.setDescripcion(dto.getDescripcion());
         delivery.setDireccion(dto.getDireccion());
 
         Delivery updatedDelivery = deliveryRepository.save(delivery);
 
+        eventPublisher.publishEvent(new DeliveryUpdateEvent(updatedDelivery, updatedDelivery.getRepartidor().getEmail()));
 
         DeliveryResponseDto responseDto = convertirADto(updatedDelivery);
-        //Evento
-        //String recipientEmail = updatedDelivery.getRepartidor().getEmail();
-        //eventPublisher.publishEvent(new DeliveryUpdatedEvent(updatedDelivery, recipientEmail));
 
-        return convertirADto(updatedDelivery);
+        return responseDto;
     }
-
 
     public DeliveryResponseDto enCaminoDelivery(Long id) {
 
@@ -161,15 +169,12 @@ public class DeliveryService {
         if (!Objects.equals(username, delivery.getRepartidor().getEmail()))
         {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso: " + username + " " + delivery.getRepartidor().getEmail());}
 
-
-
-
         delivery.setStatus(StatusDelivery.EN_CAMINO);
 
         DeliveryResponseDto response = convertirADto(deliveryRepository.save(delivery));
-        //Evento
-        //String recipientEmail = enRutaDelivery.getRepartidor().getEmail();
-        //eventPublisher.publishEvent(new DeliveryEnRutaEvent(enRutaDelivery, recipientEmail));
+
+        // Publicar evento de cambio de estado
+        eventPublisher.publishEvent(new DeliveryEstadoChangeEvent(delivery, delivery.getClient().getEmail()));
 
         return response;
     }
@@ -186,13 +191,11 @@ public class DeliveryService {
 
         DeliveryResponseDto response = convertirADto(deliveryRepository.save(delivery));
 
-        //Evento
-        //String recipientEmail = entregadoDelivery.getRepartidor().getEmail();
-        //eventPublisher.publishEvent(new DeliveryEntregadoEvent(entregadoDelivery, recipientEmail));
+        // Publicar evento de cambio de estado
+        eventPublisher.publishEvent(new DeliveryEstadoChangeEvent(delivery, delivery.getClient().getEmail()));
 
         return response;
     }
-
 
     public DeliveryResponseDto listoDelivery(Long id) {
         String username = authorizationUtils.getCurrentUserEmail();
@@ -206,8 +209,8 @@ public class DeliveryService {
 
         DeliveryResponseDto response = convertirADto(deliveryRepository.save(delivery));
 
-        //String recipientEmail = listoDelivery.getRepartidor().getEmail();
-        //eventPublisher.publishEvent(new DeliveryListoEvent(listoDelivery, recipientEmail));
+        // Publicar evento de cambio de estado
+        eventPublisher.publishEvent(new DeliveryEstadoChangeEvent(delivery, delivery.getClient().getEmail()));
 
         return modelMapper.map(response, DeliveryResponseDto.class);
     }
@@ -225,9 +228,8 @@ public class DeliveryService {
 
         DeliveryResponseDto response = convertirADto(deliveryRepository.save(delivery));
 
-        //Evento
-        //String recipientEmail = enPreparacionDelivery.getRepartidor().getEmail();
-        //eventPublisher.publishEvent(new DeliveryPreparandoEvent(enPreparacionDelivery, recipientEmail));
+        // Publicar evento de cambio de estado
+        eventPublisher.publishEvent(new DeliveryEstadoChangeEvent(delivery, delivery.getClient().getEmail()));
 
         return modelMapper.map(response, DeliveryResponseDto.class);
     }
@@ -237,8 +239,9 @@ public class DeliveryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+id+ " no encontrado"));
 
         String username = authorizationUtils.getCurrentUserEmail();
-        if (!Objects.equals(username, delivery.getClient().getEmail()))
-        {throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");}
+        if (!Objects.equals(username, delivery.getClient().getEmail())) {
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
 
         String clientName = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -250,8 +253,8 @@ public class DeliveryService {
 
         Delivery canceladoDelivery = deliveryRepository.save(delivery);
 
-        //String recipientEmail = canceladoDelivery.getRepartidor().getEmail();
-        //eventPublisher.publishEvent(new DeliveryCanceladoEvent(canceladoDelivery, recipientEmail));
+        // Publicar evento de cambio de estado
+        eventPublisher.publishEvent(new DeliveryEstadoChangeEvent(canceladoDelivery, canceladoDelivery.getClient().getEmail()));
 
         return modelMapper.map(canceladoDelivery, DeliveryResponseDto.class);
     }
@@ -268,7 +271,6 @@ public class DeliveryService {
         return deliveriesResponse;
     }
 
-
     public DeliveryResponseDto convertirADto(Delivery delivery){
         DeliveryResponseDto responseDto = modelMapper.map(delivery, DeliveryResponseDto.class);
         List<ProductResponseDto> productos = new ArrayList<>();
@@ -282,7 +284,5 @@ public class DeliveryService {
         responseDto.setProducts(productos);
         return  responseDto;
     }
-
-
 }
 

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Actualización del Estado de su Pedido Local</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            background-image: url('https://png.pngtree.com/background/20230613/original/pngtree-dragon-art-wallpapers-and-backgrounds-picture-image_3385724.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: auto;
+            border: 2px solid #ff5733;
+            position: relative;
+        }
+        .container::before {
+            content: "";
+            background-image: url('https://img.freepik.com/foto-gratis/casa-blanco-negro-cerca-montanas-cielo-azul_198523-3.jpg?w=1480&t=st=1728866754~exp=1728867354~hmac=6803a33013a3cdec568e1d00832a955155f652549b708138e3d9228117bffb6d');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 8px;
+            z-index: 0;
+        }
+        h1, h2, p {
+            position: relative;
+            z-index: 1;
+        }
+        h1 {
+            color: #ff5733;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            font-size: 18px;
+            text-align: center;
+        }
+        p {
+            color: #555;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+        .highlight {
+            color: #b23b00;
+            font-weight: bold;
+        }
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-container img {
+            width: auto;
+            max-width: 400px;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>¡Actualización del Estado de su Pedido Local!</h1>
+    <h2>Detalles del Pedido</h2>
+
+    <div class="image-container">
+        <img th:src="${imageUrl}" alt="Estado Actualizado" />
+    </div>
+
+    <p>
+        Estimado cliente,
+    </p>
+
+    <p>
+        Queremos informarle que el estado de su pedido local con ID <span class="highlight" th:text="${id}">[ID]</span> ha sido actualizado a:
+    </p>
+
+    <p>
+        <strong>Estado:</strong> <span class="highlight" th:text="${Estado}">[Estado]</span>
+    </p>
+
+    <p>
+        Si tiene alguna consulta sobre su pedido, no dude en contactarnos. Estamos aquí para ayudarle.
+    </p>
+
+    <div class="footer">
+        <p>El equipo de <strong>Dragón Chifero</strong></p>
+    </div>
+</div>
+</body>
+</html>

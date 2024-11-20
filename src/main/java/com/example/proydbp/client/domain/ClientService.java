@@ -10,6 +10,8 @@ import com.example.proydbp.delivery.domain.Delivery;
 import com.example.proydbp.delivery.domain.DeliveryService;
 import com.example.proydbp.delivery.domain.StatusDelivery;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
+import com.example.proydbp.events.email_event.BienvenidaClienteEvent;
+import com.example.proydbp.events.email_event.PerfilUpdateClienteEvent;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.exception.UserAlreadyExistException;
 import com.example.proydbp.pedido_local.domain.PedidoLocal;
@@ -22,13 +24,16 @@ import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryResponseDto;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import com.example.proydbp.user.domain.Role;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,18 +45,21 @@ public class ClientService {
     private final AuthorizationUtils authorizationUtils;
     private final DeliveryService deliveryService;
     private final PedidoLocalService pedidoLocalService;
-
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public ClientService(PedidoLocalService pedidoLocalService ,AuthorizationUtils authorizationUtils,DeliveryService deliveryService , ClientRepository clientRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
+    public ClientService(PedidoLocalService pedidoLocalService, AuthorizationUtils authorizationUtils,
+                         DeliveryService deliveryService, ClientRepository clientRepository,
+                         PasswordEncoder passwordEncoder, ModelMapper modelMapper,
+                         ApplicationEventPublisher eventPublisher) {
         this.clientRepository = clientRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
         this.authorizationUtils = authorizationUtils;
         this.deliveryService = deliveryService;
         this.pedidoLocalService = pedidoLocalService;
+        this.eventPublisher = eventPublisher;
     }
-
 
     public ClientResponseDto getClient(Long id) {
         Client client = clientRepository.findById(id)
@@ -71,21 +79,52 @@ public class ClientService {
         return clientsResponse;
     }
 
-
-
     public ClientResponseDto saveClientDto(ClientRequestDto clientRequestDto) {
+        // Comprobación si el cliente con el mismo email ya existe
         if (clientRepository.findByEmail(clientRequestDto.getEmail()).isPresent()) {
             throw new UserAlreadyExistException("Cliente con email " + clientRequestDto.getEmail() + " ya existe.");
         }
+
+        // Convertir el ClientRequestDto a Client
         Client client = modelMapper.map(clientRequestDto, Client.class);
+
+        // Encriptar la contraseña y asignar otros datos básicos
         client.setPassword(passwordEncoder.encode(clientRequestDto.getPassword()));
         client.setRole(Role.CLIENT);
         client.setPhoneNumber(clientRequestDto.getPhone());
         client.setUpdatedAt(ZonedDateTime.now());
         client.setCreatedAt(ZonedDateTime.now());
         client.setRango(Rango.BRONZE);
+
+        // Asegurarse de que las relaciones no sean nulas antes de guardar
+        if (client.getPedidosLocales() == null) {
+            client.setPedidosLocales(new ArrayList<>());
+        }
+
+        if (client.getDeliveries() == null) {
+            client.setDeliveries(new ArrayList<>());
+        }
+
+        if (client.getReservations() == null) {
+            client.setReservations(new ArrayList<>());
+        }
+
+        if (client.getReviewMeseros() == null) {
+            client.setReviewMeseros(new ArrayList<>());
+        }
+
+        if (client.getReviewDeliveries() == null) {
+            client.setReviewDeliveries(new ArrayList<>());
+        }
+
+        // Guardar el cliente
         clientRepository.save(client);
 
+        // Publicar el evento de bienvenida
+        BienvenidaClienteEvent bienvenidaClienteEvent = new BienvenidaClienteEvent(client, client.getEmail());
+        eventPublisher.publishEvent(bienvenidaClienteEvent);
+
+        // Convertir el cliente guardado a DTO y retornarlo
         return convertirADto(client);
     }
 
@@ -96,17 +135,52 @@ public class ClientService {
     }
 
     public ClientResponseDto updateClient(Long id, PatchClientDto patchClientDto) {
+        // Buscar el cliente por su ID
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con id "+ id +"no encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con id " + id + " no encontrado."));
 
-        client.setFirstName(patchClientDto.getFirstName());
-        client.setLastName(patchClientDto.getLastName());
-        client.setPassword(passwordEncoder.encode(patchClientDto.getPassword()));
-        client.setPhoneNumber(patchClientDto.getPhone());
+        // Map para registrar los campos que se actualizan
+        Map<String, String> updatedFields = new HashMap<>();
+
+        // Comparar y actualizar solo los campos proporcionados
+        if (patchClientDto.getFirstName() != null && !patchClientDto.getFirstName().equals(client.getFirstName())) {
+            updatedFields.put("Nombre", patchClientDto.getFirstName());
+            client.setFirstName(patchClientDto.getFirstName());
+        }
+
+        if (patchClientDto.getLastName() != null && !patchClientDto.getLastName().equals(client.getLastName())) {
+            updatedFields.put("Apellido", patchClientDto.getLastName());
+            client.setLastName(patchClientDto.getLastName());
+        }
+
+        if (patchClientDto.getEmail() != null && !patchClientDto.getEmail().equals(client.getEmail())) {
+            updatedFields.put("Correo", patchClientDto.getEmail());
+            client.setEmail(patchClientDto.getEmail());
+        }
+
+        if (patchClientDto.getPhone() != null && !patchClientDto.getPhone().equals(client.getPhoneNumber())) {
+            updatedFields.put("Teléfono", patchClientDto.getPhone());
+            client.setPhoneNumber(patchClientDto.getPhone());
+        }
+
+        if (patchClientDto.getPassword() != null) {
+            updatedFields.put("Contraseña", "Actualizada");
+            client.setPassword(passwordEncoder.encode(patchClientDto.getPassword()));
+        }
+
+        // Actualizar la fecha de modificación
         client.setUpdatedAt(ZonedDateTime.now());
-        clientRepository.save(client);
-        return convertirADto(client);
+
+        // Guardar el cliente actualizado en el repositorio
+        Client updatedClient = clientRepository.save(client);
+
+        // Publicar evento con los campos actualizados
+        eventPublisher.publishEvent(new PerfilUpdateClienteEvent(updatedClient, updatedFields, updatedClient.getEmail()));
+
+        // Convertir y devolver el cliente actualizado como DTO
+        return convertirADto(updatedClient);
     }
+
 
     public ClientSelfResponseDto getAuthenticatedClient(){
         String username = authorizationUtils.getCurrentUserEmail();
@@ -118,7 +192,6 @@ public class ClientService {
 
         return modelMapper.map(client, ClientSelfResponseDto.class);
     }
-
 
     public void deleteAuthenticatedClient(){
         String username = authorizationUtils.getCurrentUserEmail();
@@ -147,7 +220,6 @@ public class ClientService {
         return modelMapper.map(client, ClientSelfResponseDto.class);
     }
 
-
     public List<PedidoLocalResponseDto> getAllPedidoLocal(){
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
@@ -169,7 +241,6 @@ public class ClientService {
 
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
-
 
         List<DeliveryResponseDto> deliverys = new ArrayList<>();
 
@@ -218,8 +289,6 @@ public class ClientService {
         return null;
     }
 
-
-
     public List<PedidoLocalResponseDto> getActualPedidoLocal(){
 
         String username = authorizationUtils.getCurrentUserEmail();
@@ -229,13 +298,11 @@ public class ClientService {
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
 
-
         return client.getPedidosLocales().stream()
                 .filter(pedidoLocal -> pedidoLocal.getStatus() == StatusPedidoLocal.EN_PREPARACION || pedidoLocal.getStatus() == StatusPedidoLocal.LISTO || pedidoLocal.getStatus() == StatusPedidoLocal.RECIBIDO)  // Filtrar por estado enum
                 .map(delivery -> modelMapper.map(delivery, PedidoLocalResponseDto.class))  // Mapear usando ModelMapper
                 .collect(Collectors.toList());
     }
-
 
     public List<DeliveryResponseDto> getActualDelivery(){
         String username = authorizationUtils.getCurrentUserEmail();
@@ -251,10 +318,8 @@ public class ClientService {
                 DeliveryResponseDto deliveryDto = deliveryService.convertirADto(delivery);
                 deliverys.add(deliveryDto);
             }
-
         }
         return deliverys;
-
     }
 
     public List<ReservationResponseDto> getActualReservation(){
@@ -264,7 +329,6 @@ public class ClientService {
 
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
-
 
         return client.getReservations().stream()
                 .filter(reservation -> reservation.getStatusReservation() != StatusReservation.FINALIZADA && reservation.getStatusReservation() != StatusReservation.CANCELADO)  // Filtrar por estado enum
@@ -300,7 +364,6 @@ public class ClientService {
                 .collect(Collectors.toList());
     }
 
-
     public ClientResponseDto convertirADto(Client client) {
 
             ClientResponseDto clientDto = modelMapper.map(client, ClientResponseDto.class);
@@ -319,5 +382,4 @@ public class ClientService {
 
         return clientDto;
     }
-
 }

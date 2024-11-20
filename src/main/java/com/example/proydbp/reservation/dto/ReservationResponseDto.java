@@ -1,6 +1,7 @@
 package com.example.proydbp.reservation.dto;
 
 import com.example.proydbp.client.dto.ClientResponseDto;
+import com.example.proydbp.client.dto.ClientSelfResponseDto;
 import com.example.proydbp.mesa.dto.MesaResponseDto;
 import com.example.proydbp.reservation.domain.StatusReservation;
 import jakarta.persistence.EnumType;
@@ -19,7 +20,7 @@ import java.time.ZonedDateTime;
 public class ReservationResponseDto {
     private Long id;
 
-    private ClientResponseDto client;
+    private ClientSelfResponseDto client;
 
     private ZonedDateTime fecha;
 

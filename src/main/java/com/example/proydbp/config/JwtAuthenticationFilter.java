@@ -1,5 +1,7 @@
 package com.example.proydbp.config;
 
+import com.example.proydbp.exception.InvalidTokenException;
+import com.example.proydbp.exception.UnauthorizeOperationException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter  extends OncePerRequestFilter {
@@ -27,8 +30,24 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
         String jwt;
         String userEmail;
 
-        if (!StringUtils.hasText(authHeader) || !StringUtils.startsWithIgnoreCase(authHeader, "Bearer")) {
+        // Lista de rutas excluidas
+        List<String> excludedRoutes = List.of(
+                "/auth/login",
+                "/auth/register",
+                "/auth/register/admin",
+                "/auth/register/chef",
+                "/auth/register/mesero",
+                "/auth/register/repartidor"
+        );
+
+        // Excluir si la ruta está en la lista
+        if (excludedRoutes.contains(request.getRequestURI())) {
             filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (!StringUtils.hasText(authHeader) || !StringUtils.startsWithIgnoreCase(authHeader, "Bearer ")) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Falta el Token o es inválido");
             return;
         }
 
@@ -36,9 +55,13 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
         userEmail = jwtService.extractUsername(jwt);
 
         if (StringUtils.hasText(userEmail) && SecurityContextHolder.getContext().getAuthentication() == null) {
-            jwtService.validateToken(jwt, userEmail);
+            try {
+                jwtService.validateToken(jwt, userEmail);
+            } catch (InvalidTokenException ex) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "El token es inválido o ha expirado");
+                return;
+            }
         }
-
         filterChain.doFilter(request, response);
     }
 }

@@ -7,6 +7,7 @@ import com.example.proydbp.repartidor.dto.RepartidorSelfResponseDto;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -27,7 +28,7 @@ public class DeliveryResponseDto {
 
     private String descripcion;
 
-    private List<ProductResponseDto> products;
+    private List<ProductResponseDto> products = new ArrayList<>();
 
     private RepartidorSelfResponseDto repartidor;
 

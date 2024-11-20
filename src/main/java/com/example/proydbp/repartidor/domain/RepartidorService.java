@@ -7,9 +7,9 @@ import com.example.proydbp.delivery.domain.DeliveryService;
 import com.example.proydbp.delivery.domain.StatusDelivery;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
+import com.example.proydbp.events.email_event.PerfilUpdateRepartidorEvent;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.exception.UserAlreadyExistException;
-import com.example.proydbp.mesero.dto.MeseroSelfResponseDto;
 import com.example.proydbp.repartidor.dto.PatchRepartidorDto;
 import com.example.proydbp.repartidor.dto.RepartidorRequestDto;
 import com.example.proydbp.repartidor.dto.RepartidorResponseDto;
@@ -22,6 +22,7 @@ import com.example.proydbp.user.domain.User;
 import com.example.proydbp.user.infrastructure.BaseUserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.*;
-
 
 @Service
 public class RepartidorService {
@@ -41,9 +41,13 @@ public class RepartidorService {
     private final AuthorizationUtils authorizationUtils;
     private final DeliveryService deliveryService;
     private final BaseUserRepository baseUserRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public RepartidorService(PasswordEncoder passwordEncoder,BaseUserRepository baseUserRepository , @Lazy DeliveryService deliveryService, AuthorizationUtils authorizationUtils , RepartidorRepository repartidorRepository, DeliveryRepository deliveryRepository, ModelMapper modelMapper) {
+    public RepartidorService(PasswordEncoder passwordEncoder, BaseUserRepository baseUserRepository,
+                             @Lazy DeliveryService deliveryService, AuthorizationUtils authorizationUtils,
+                             RepartidorRepository repartidorRepository, DeliveryRepository deliveryRepository,
+                             ModelMapper modelMapper, ApplicationEventPublisher eventPublisher) {
         this.repartidorRepository = repartidorRepository;
         this.deliveryRepository = deliveryRepository;
         this.baseUserRepository = baseUserRepository;
@@ -51,15 +55,14 @@ public class RepartidorService {
         this.passwordEncoder = passwordEncoder;
         this.authorizationUtils = authorizationUtils;
         this.deliveryService = deliveryService;
+        this.eventPublisher = eventPublisher;
     }
-
 
     public RepartidorResponseDto findRepartidorById(Long id) {
         Repartidor repartidor = repartidorRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Repartidor con " + id + " no encontrado" ));
         return convertirADto(repartidor);
     }
-
 
     public List<RepartidorResponseDto> findAllRepartidors() {
         List<Repartidor> repartidores = repartidorRepository.findAll();
@@ -69,7 +72,6 @@ public class RepartidorService {
         }
         return repartidorResponseDtos;
     }
-
 
     public RepartidorResponseDto createRepartidor(RepartidorRequestDto dto) {
 
@@ -91,27 +93,53 @@ public class RepartidorService {
         return convertirADto(repartidorRepository.save(repartidor));
     }
 
-
     public void deleteRepartidor(Long id) {
         Repartidor repartidor = repartidorRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Repartidor con " + id + " no encontrado" ));
         repartidorRepository.delete(repartidor);
     }
 
-
     public RepartidorSelfResponseDto updateRepartidor(Long id, PatchRepartidorDto dto) {
+        // Buscar el repartidor por su ID
         Repartidor repartidor = repartidorRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con " + id + " no encontrado" ));
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con " + id + " no encontrado"));
 
+        // Map para registrar los campos que se actualizan
+        Map<String, String> updatedFields = new HashMap<>();
+
+        // Comparar y actualizar solo los campos proporcionados
+        if (dto.getFirstName() != null && !dto.getFirstName().equals(repartidor.getFirstName())) {
+            updatedFields.put("Nombre", dto.getFirstName());
+            repartidor.setFirstName(dto.getFirstName());
+        }
+
+        if (dto.getLastName() != null && !dto.getLastName().equals(repartidor.getLastName())) {
+            updatedFields.put("Apellido", dto.getLastName());
+            repartidor.setLastName(dto.getLastName());
+        }
+
+        if (dto.getPassword() != null) {
+            updatedFields.put("Contraseña", "Actualizada");
+            repartidor.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        if (dto.getPhone() != null && !dto.getPhone().equals(repartidor.getPhoneNumber())) {
+            updatedFields.put("Teléfono", dto.getPhone());
+            repartidor.setPhoneNumber(dto.getPhone());
+        }
+
+        // Actualizar la fecha de modificación
         repartidor.setUpdatedAt(ZonedDateTime.now());
-        repartidor.setFirstName(dto.getFirstName());
-        repartidor.setLastName(dto.getLastName());
-        repartidor.setPassword(passwordEncoder.encode(dto.getPassword()));
-        repartidor.setPhoneNumber(dto.getPhone());
 
-        return modelMapper.map( repartidorRepository.save(repartidor), RepartidorSelfResponseDto.class);
+        // Guardar el repartidor actualizado en el repositorio
+        Repartidor updatedRepartidor = repartidorRepository.save(repartidor);
+
+        // Publicar evento con los campos actualizados
+        eventPublisher.publishEvent(new PerfilUpdateRepartidorEvent(updatedRepartidor, updatedFields, updatedRepartidor.getEmail()));
+
+        // Convertir el repartidor actualizado a DTO y retornarlo
+        return modelMapper.map(updatedRepartidor, RepartidorSelfResponseDto.class);
     }
-
 
     public RepartidorSelfResponseDto findAuthenticatedRepartidor() {
         String username = authorizationUtils.getCurrentUserEmail();
@@ -125,12 +153,10 @@ public class RepartidorService {
         return modelMapper.map(repartidor, RepartidorSelfResponseDto.class);
     }
 
-
     public List<DeliveryResponseDto> findDeliverysActuales() {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
-
 
         Repartidor repartidor = repartidorRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Repartidor con nombre de usuario " + username + " no encontrado" ));
@@ -141,12 +167,9 @@ public class RepartidorService {
                 DeliveryResponseDto deliveryDto = deliveryService.convertirADto(delivery);
                 deliverys.add(deliveryDto);
             }
-
         }
-
         return deliverys;
     }
-
 
     // adicional
 
@@ -178,7 +201,6 @@ public class RepartidorService {
         repartidorRepository.save(repartidor);
     }
 
-
     public List<ReviewDeliveryResponseDto> findMisReviews(){
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
@@ -188,7 +210,6 @@ public class RepartidorService {
                 .orElseThrow(() -> new UsernameNotFoundException("Repartidor con nombre de usuario " + username + " no encontrado"));
 
         List<ReviewDelivery> reviews = Optional.ofNullable(repartidor.getReviewDeliveries()).orElse(Collections.emptyList());
-
 
         return reviews.stream()
                 .map(review -> modelMapper.map(review,ReviewDeliveryResponseDto.class)).toList();
@@ -207,7 +228,6 @@ public class RepartidorService {
         repartidor.setPassword(passwordEncoder.encode(dto.getPassword()));
         repartidor.setPhoneNumber(dto.getPhone());
         return modelMapper.map( repartidorRepository.save(repartidor), RepartidorSelfResponseDto.class);
-
     }
 
     public List<DeliveryResponseDto> findDeliverys() {
@@ -222,15 +242,8 @@ public class RepartidorService {
                 DeliveryResponseDto deliveryDto = deliveryService.convertirADto(delivery);
                 deliverys.add(deliveryDto);
         }
-
-
         return deliverys;
     }
-
-
-
-
-
 
     public RepartidorResponseDto convertirADto(Repartidor repartidor) {
 
@@ -244,9 +257,4 @@ public class RepartidorService {
 
         return repartidorDto;
     }
-
-
-
-
-
 }

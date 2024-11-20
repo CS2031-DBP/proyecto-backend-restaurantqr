@@ -1,0 +1,113 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenida al Equipo</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0e6d2; /* Color de fondo suave */
+            margin: 0;
+            padding: 20px;
+            background-image: url('https://png.pngtree.com/background/20230613/original/pngtree-dragon-art-wallpapers-and-backgrounds-picture-image_3385724.jpg'); /* Imagen de fondo del dragón */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con opacidad */
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: auto;
+            border: 2px solid #007bff; /* Borde azul */
+            position: relative; /* Para posicionar los adornos */
+        }
+        .container::before {
+            content: "";
+            background-image: url('https://img.freepik.com/foto-gratis/casa-blanco-negro-cerca-montanas-cielo-azul_198523-3.jpg?w=1480&t=st=1728866754~exp=1728867354~hmac=6803a33013a3cdec568e1d00832a955155f652549b708138e3d9228117bffb6d'); /* Imagen de los muros chinos */
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3; /* Opacidad para que no opaque el contenido */
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 8px;
+            z-index: 0; /* Asegura que quede detrás del contenido */
+        }
+        h1, h2, p {
+            position: relative; /* Para asegurar que el texto esté sobre el fondo */
+            z-index: 1;
+        }
+        h1 {
+            color: #007bff; /* Color azul */
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            font-size: 18px;
+            text-align: center;
+        }
+        p {
+            color: #666;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+        .highlight {
+            color: #612727;
+            font-weight: bold;
+        }
+        .image-container {
+            text-align: center; /* Centrar la imagen */
+            margin: 20px 0; /* Espacio arriba y abajo de la imagen */
+        }
+        .image-container img {
+            width: 45%; /* Hacer la imagen responsive */
+            max-width: 400px; /* Limitar el ancho máximo */
+            height: auto; /* Mantener la proporción */
+            border-radius: 8px; /* Bordes redondeados para la imagen */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>¡Bienvenido al equipo, <span th:text="${Nombre}">[Nombre]</span>!</h1>
+    <h2>Estamos emocionados de trabajar contigo</h2>
+
+    <div class="image-container">
+        <img src="https://cdn3d.iconscout.com/3d/premium/thumb/pareja-china-bienvenida-4827072-4010695.png?f=webp" alt="Bienvenida Chef" />
+    </div>
+
+    <p>
+        Estimado <span class="highlight" th:text="${Nombre}">[Nombre]</span>,
+    </p>
+
+    <p>
+        Nos alegra que te hayas unido a nuestro equipo. Estamos seguros de que tu experiencia y habilidades contribuirán al éxito de nuestra misión.
+    </p>
+
+    <p>
+        <strong>Correo electrónico:</strong> <span class="highlight" th:text="${Email}">[Email]</span><br>
+        <strong>Mensaje:</strong> <span class="highlight" th:text="${Mensaje}">[Mensaje]</span>
+    </p>
+
+    <p>
+        Si necesitas ayuda o tienes preguntas, no dudes en contactarnos. Estamos aquí para apoyarte en tu nueva etapa.
+    </p>
+
+    <p>¡Éxito y bienvenido nuevamente!</p>
+
+    <div class="footer">
+        <p>El equipo de <strong>Dragón Chifero</strong></p>
+    </div>
+</div>
+</body>
+</html>

@@ -23,6 +23,4 @@ public class Repartidor extends User {
 
     @Column(name = "rating_score")
     private Double ratingScore;
-
-
 }

@@ -37,4 +37,13 @@ public class AuthController {
         return ResponseEntity.ok(authService.registerChef(registerRequestDto));
     }
 
+    @PostMapping("/register/mesero")
+    public ResponseEntity<AuthResponseDto> registerMesero(@RequestBody RegisterRequestDto registerRequestDto) {
+        return ResponseEntity.ok(authService.registerMesero(registerRequestDto));
+    }
+
+    @PostMapping("/register/repartidor")
+    public ResponseEntity<AuthResponseDto> registerRepartidor(@RequestBody RegisterRequestDto registerRequestDto) {
+        return ResponseEntity.ok(authService.registerRepartidor(registerRequestDto));
+    }
 }
