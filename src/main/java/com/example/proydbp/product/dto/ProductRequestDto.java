@@ -1,5 +1,6 @@
 package com.example.proydbp.product.dto;
 
+import com.example.proydbp.client.domain.Rango;
 import com.example.proydbp.product.domain.Category;
 import jakarta.persistence.*;
 import jakarta.validation.MessageInterpolator;
@@ -34,5 +35,9 @@ public class ProductRequestDto {
 
     @NotNull
     private Boolean isAvailable;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private Rango rango;
 
 }
