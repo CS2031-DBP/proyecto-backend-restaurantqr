@@ -46,3 +46,6 @@ build/
 
 # Visual Studio Code
 .vscode/
+
+### Virtual Enviorment ###
+.env.local
