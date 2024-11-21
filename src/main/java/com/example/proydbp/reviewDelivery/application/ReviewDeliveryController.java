@@ -44,7 +44,4 @@ public class ReviewDeliveryController {
         reviewDeliveryService.deleteReviewDelivery(id);
         return ResponseEntity.noContent().build();
     }
-
-
-
 }

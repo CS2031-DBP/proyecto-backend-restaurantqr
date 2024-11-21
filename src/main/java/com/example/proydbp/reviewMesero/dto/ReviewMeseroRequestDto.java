@@ -24,5 +24,5 @@ public class ReviewMeseroRequestDto {
 
     private String comment;
 
-
+    private Long pedidoLocalId;
 }

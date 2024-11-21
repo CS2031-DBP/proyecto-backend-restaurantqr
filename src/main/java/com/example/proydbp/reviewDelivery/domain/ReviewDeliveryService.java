@@ -3,6 +3,7 @@ package com.example.proydbp.reviewDelivery.domain;
 import com.example.proydbp.auth.utils.AuthorizationUtils;
 import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.client.infrastructure.ClientRepository;
+import com.example.proydbp.delivery.domain.Delivery;
 import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
 import com.example.proydbp.events.email_event.ReviewDeliveryCreadoEvent;
 import com.example.proydbp.events.email_event.ReviewDeliveryDeleteEvent;
@@ -70,6 +71,22 @@ public class ReviewDeliveryService {
 
         Client client = clientRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario " + username + " no encontrado"));
+
+        // VALIDAR SI EL DELIVERY EXISTE:
+        Delivery delivery = deliveryRepository.findById(dto.getDeliveryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery con ID " + dto.getDeliveryId() + " no encontrado"));
+
+        // VERIFICAR SI EL CLIENTE SEA EL MISMO ASOCIADO AL DELIVERY
+        if (!delivery.getClient().getUsername().equals(username)) {
+            throw new UnauthorizeOperationException("El cliente asociado al delivery no coincide con el cliente");
+        }
+
+        // VERIFICAR SI YA EXISTE UN REVIEW ASOCIADA AL DELIVERY
+        if (reviewDeliveryRepository.existsByRepartidorAndClientAndFecha(
+                delivery.getRepartidor(), delivery.getClient(), delivery.getFecha()
+        )) {
+            throw new IllegalArgumentException("Ya existe una reseña para este delivery.");
+        }
 
         ReviewDelivery reviewDelivery = new ReviewDelivery();
         reviewDelivery.setFecha(ZonedDateTime.now());

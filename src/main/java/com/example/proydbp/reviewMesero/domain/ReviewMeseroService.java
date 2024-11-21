@@ -10,6 +10,7 @@ import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.mesero.domain.Mesero;
 import com.example.proydbp.mesero.domain.MeseroService;
 import com.example.proydbp.mesero.infrastructure.MeseroRepository;
+import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.pedido_local.infrastructure.PedidoLocalRepository;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroRequestDto;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
@@ -67,6 +68,21 @@ public class ReviewMeseroService {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+
+        // VERIFICAMOS QUE EL PEDIDO EXISTE
+        PedidoLocal pedidoLocal = pedidoLocalRepository.findById(dto.getPedidoLocalId())
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido con ID " + dto.getPedidoLocalId() + " no encontrado"));
+
+        // VERIFICAMOS QUE EL NOMBRE DEL CLIENTE DE LA REVIEW COINCIDE CON EL NOMBRE DE CLIENTE DLE PEDIDO
+        if (!pedidoLocal.getClient().getUsername().equals(username)){
+            throw new UnauthorizeOperationException("El cliente no coincide con el cliente del pedido");
+        }
+
+        // VERIFICAMOS QUE NO EXISTA UNA REVIEW EXISTENTE ASOCIADA AL PEDIDO
+        if (reviewMeseroRepository.existsByMeseroAndClientAndFecha(
+                pedidoLocal.getMesero(), pedidoLocal.getClient(), pedidoLocal.getFecha())) {
+            throw new IllegalArgumentException("Ya existe una reseña para este pedido");
+        }
 
         ReviewMesero reviewMesero = new ReviewMesero();
         reviewMesero.setFecha(ZonedDateTime.now());

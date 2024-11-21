@@ -10,10 +10,11 @@ import lombok.*;
 @NoArgsConstructor
 public class ReviewDeliveryRequestDto {
 
-
     private Long repartidorId;
 
     private Double ratingScore;
 
     private String comment;
+
+    private Long deliveryId;
 }
