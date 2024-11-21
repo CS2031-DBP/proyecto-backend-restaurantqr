@@ -29,8 +29,6 @@ public class PedidoLocal {
     @JoinColumn(name = "mesero_id", nullable = false)
     private Mesero mesero;
 
-
-
     private ZonedDateTime fecha;
 
     private String descripcion;
@@ -55,5 +53,4 @@ public class PedidoLocal {
     @ManyToOne
     @JoinColumn(name = "table_id", nullable = false)
     private Mesa mesa;
-
 }

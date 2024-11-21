@@ -43,10 +43,22 @@ public class PedidoLocalController {
         pedidoLocalService.deletePedidoLocal(id);
     }
 
+    @PreAuthorize("hasRole('ROLE_MESERO')")
+    @PatchMapping("/{id}/entregado")
+    public PedidoLocalResponseDto entregadoPedidoLocal(@PathVariable Long id) {
+        return pedidoLocalService.entregadoPedidoLocal(id);
+    }
+
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @PatchMapping("/{id}")
     public PedidoLocalResponseDto updatePedidoLocal(@PathVariable Long id, @RequestBody PatchPedidoLocalDto dto) {
         return pedidoLocalService.updatePedidoLocal(id, dto);
+    }
+
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PatchMapping("/{id}/cancelado")
+    public PedidoLocalResponseDto canceladoPedidoLocal(@PathVariable Long id) {
+        return pedidoLocalService.canceladoPedidoLocal(id);
     }
 
     @PreAuthorize("hasRole('ROLE_CHEF')")
@@ -66,20 +78,4 @@ public class PedidoLocalController {
     public List<PedidoLocalResponseDto> getPedidosLocalesActuales() {
         return pedidoLocalService.findPedidosLocalesActuales();
     }
-
-    @PreAuthorize("hasRole('ROLE_MESERO')")
-    @PatchMapping("/{id}/entregado")
-    public PedidoLocalResponseDto entregadoPedidoLocal(@PathVariable Long id) {
-        return pedidoLocalService.entregadoPedidoLocal(id);
-    }
-
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @PatchMapping("/{id}/cancelado")
-    public PedidoLocalResponseDto canceladoPedidoLocal(@PathVariable Long id) {
-        return pedidoLocalService.canceladoPedidoLocal(id);
-    }
-
-
-
-
 }

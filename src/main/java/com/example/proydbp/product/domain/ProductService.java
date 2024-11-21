@@ -31,6 +31,7 @@ public class ProductService {
         product.setPrice(dto.getPrice());
         product.setCategory(dto.getCategory());
         product.setIsAvailable(dto.getIsAvailable());
+        product.setRango(dto.getRango());
 
         Product savedProduct = productRepository.save(product);
         return modelMapper.map(savedProduct, ProductResponseDto.class);
