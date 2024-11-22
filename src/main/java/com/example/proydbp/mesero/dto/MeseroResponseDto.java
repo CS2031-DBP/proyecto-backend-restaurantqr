@@ -31,5 +31,5 @@ public class MeseroResponseDto {
 
     private List<ReviewMeseroResponseDto> reviewMeseros;
 
-    private Double ratingScore;
+    private Float ratingScore;
 }

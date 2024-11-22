@@ -1,5 +1,6 @@
 package com.example.proydbp.product.application;
 
+import com.example.proydbp.product.domain.Category;
 import com.example.proydbp.product.domain.ProductService;
 import com.example.proydbp.product.dto.ProductRequestDto;
 import com.example.proydbp.product.dto.ProductResponseDto;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -79,5 +81,14 @@ public class ProductController {
         public ResponseEntity<List<ProductResponseDto>> getProductsByClientRango(@PathVariable String rango) {
             List<ProductResponseDto> productResponseDto = productService.findProductByClientRango(rango);
             return ResponseEntity.ok(productResponseDto);
+    }
+
+    @GetMapping("/categories")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<List<String>> getProductCategories() {
+        List<String> categories = Arrays.stream(Category.values())
+                .map(Enum::name)
+                .toList();
+        return ResponseEntity.ok(categories);
     }
 }

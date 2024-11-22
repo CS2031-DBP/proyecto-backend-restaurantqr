@@ -18,12 +18,11 @@ import java.util.List;
 @AllArgsConstructor
 public class Mesero extends User {
 
-    @OneToMany(mappedBy = "mesero",  cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "mesero",  cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ReviewMesero> reviewMeseros = new ArrayList<>();
 
-    @OneToMany(mappedBy = "mesero",  cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "mesero",  cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<PedidoLocal> pedidosLocales = new ArrayList<>();
 
-    private Double ratingScore;
-
+    private Float ratingScore;
 }

@@ -15,6 +15,7 @@ import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.pedido_local.domain.PedidoLocalService;
 import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
+import com.example.proydbp.repartidor.domain.Repartidor;
 import com.example.proydbp.reviewMesero.domain.ReviewMesero;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import com.example.proydbp.user.domain.Role;
@@ -57,7 +58,7 @@ public class MeseroService {
 
     public MeseroResponseDto findMeseroById(Long id) {
         Mesero mesero = meseroRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero con " + id + " no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con id " + id + " no encontrado"));
 
         return convertirADto(mesero);
     }
@@ -87,7 +88,7 @@ public class MeseroService {
         mesero.setPassword(passwordEncoder.encode(dto.getPassword()));
         mesero.setPhoneNumber(dto.getPhone());
         mesero.setUpdatedAt(ZonedDateTime.now());
-        mesero.setRatingScore(0.0);
+        mesero.setRatingScore(0.0F);
         mesero.setReviewMeseros(new ArrayList<>());
 
         // Guardar el Mesero en el repositorio
@@ -269,7 +270,7 @@ public class MeseroService {
                 .mapToDouble(ReviewMesero::getRatingScore)
                 .average()
                 .orElse(0.0);
-        mesero.setRatingScore(promedio);
+        mesero.setRatingScore((float) promedio);
 
         meseroRepository.save(mesero);
     }
@@ -289,12 +290,20 @@ public class MeseroService {
     }
 
     public MeseroResponseDto convertirADto(Mesero mesero) {
-
-        MeseroResponseDto meseroResponseDto = modelMapper.map(mesero, MeseroResponseDto.class);
+        MeseroResponseDto meseroResponseDto = new MeseroResponseDto();
         meseroResponseDto.setId(mesero.getId());
+
         List<PedidoLocalResponseDto> pedidosResponse = new ArrayList<>();
-        for (PedidoLocal pedidoLocal : mesero.getPedidosLocales()) {
-            pedidosResponse.add(pedidoLocalService.convertirADto(pedidoLocal));
+        if (mesero.getPedidosLocales() != null) {
+            for (PedidoLocal pedidoLocal : mesero.getPedidosLocales()) {
+                try {
+                    pedidosResponse.add(pedidoLocalService.convertirADto(pedidoLocal));
+                } catch (Exception e) {
+                    System.err.println("Error al convertir pedido local: " + e.getMessage());
+                }
+            }
+        } else {
+            System.out.println("Lista de pedidos locales es null.");
         }
         meseroResponseDto.setPedidosLocales(pedidosResponse);
 
