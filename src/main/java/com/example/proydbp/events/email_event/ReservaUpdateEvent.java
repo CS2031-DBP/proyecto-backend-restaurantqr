@@ -18,10 +18,14 @@ public class ReservaUpdateEvent extends ApplicationEvent {
         super(reservation);
         this.reservation = reservation;
 
+        String IdMesaReserva = String.valueOf(reservation.getMesa().getId());
+        String fechaReserva = String.valueOf(reservation.getFecha().toLocalDate());
+        String horaReserva = String.valueOf(reservation.getFecha().toLocalTime());
+
         Map<String, Object> properties = new HashMap<>();
-        properties.put("descripcionReserva", reservation.getDescripcion());
-        properties.put("fechaReserva", reservation.getFecha().toLocalDate());
-        properties.put("horaReserva", reservation.getFecha().toLocalTime());
+        properties.put("IdMesaReserva", IdMesaReserva);
+        properties.put("fechaReserva", fechaReserva);
+        properties.put("horaReserva", horaReserva);
 
         this.mail = Mail.builder()
                 .from("fernando.munoz.p@utec.edu.pe")

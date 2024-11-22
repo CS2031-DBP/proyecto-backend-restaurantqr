@@ -1,6 +1,7 @@
 package com.example.proydbp.mesa.dto;
 
 import com.example.proydbp.reservation.dto.ReservationResponseDto;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,6 +28,7 @@ public class MesaResponseDto {
 
     private boolean isAvailable;
 
+    @JsonBackReference
     private List<ReservationResponseDto> reservations;
 
 }

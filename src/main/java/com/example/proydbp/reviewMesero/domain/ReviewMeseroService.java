@@ -52,7 +52,7 @@ public class ReviewMeseroService {
 
     public ReviewMeseroResponseDto findReviewMeseroById(Long id) {
         ReviewMesero reviewMesero = reviewMeseroRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reseña de mesero con " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reseña de mesero con id " + id + " no encontrada"));
         return modelMapper.map(reviewMesero, ReviewMeseroResponseDto.class);
     }
 
@@ -98,7 +98,7 @@ public class ReviewMeseroService {
     public void deleteReviewMesero(Long id) {
 
         if (!reviewMeseroRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Reseña de mesero con " + id + " no encontrada");
+            throw new ResourceNotFoundException("Reseña de mesero con id " + id + " no encontrada");
         }
         ReviewMesero reviewMesero = reviewMeseroRepository.findById(id).get();
 

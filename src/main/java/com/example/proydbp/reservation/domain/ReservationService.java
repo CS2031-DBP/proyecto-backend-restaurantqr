@@ -9,6 +9,7 @@ import com.example.proydbp.events.email_event.ReservaUpdateEvent;
 import com.example.proydbp.exception.ResourceNotFoundException;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.mesa.domain.Mesa;
+import com.example.proydbp.mesa.domain.MesaService;
 import com.example.proydbp.reservation.dto.ReservationRequestDto;
 import com.example.proydbp.reservation.dto.ReservationResponseDto;
 import com.example.proydbp.reservation.infrastructure.ReservationRepository;
@@ -16,6 +17,8 @@ import com.example.proydbp.mesa.infrastructure.MesaRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -33,19 +36,21 @@ public class ReservationService {
     private final ApplicationEventPublisher eventPublisher;
     private final ClientRepository clientRepository;
     private final AuthorizationUtils authorizationUtils;
+    private final MesaService mesaService;
 
     @Autowired
     public ReservationService(ReservationRepository reservationRepository,
                               MesaRepository mesaRepository,
                               AuthorizationUtils authorizationUtils,
                               ModelMapper modelMapper,
-                              ApplicationEventPublisher eventPublisher, ClientRepository clientRepository) {
+                              ApplicationEventPublisher eventPublisher, ClientRepository clientRepository, MesaService mesaService) {
         this.reservationRepository = reservationRepository;
         this.authorizationUtils = authorizationUtils;
         this.mesaRepository = mesaRepository;
         this.modelMapper = modelMapper;
         this.eventPublisher = eventPublisher;
         this.clientRepository = clientRepository;
+        this.mesaService = mesaService;
     }
 
     public List<ReservationResponseDto> findAllReservations() {
@@ -57,7 +62,7 @@ public class ReservationService {
 
     public ReservationResponseDto findReservationById(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservación con id " + id + " no encontrada"));
 
         return modelMapper.map(reservation, ReservationResponseDto.class);
     }
@@ -76,7 +81,7 @@ public class ReservationService {
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario " + username + " no encontrado"));
 
         Mesa mesa = mesaRepository.findById(reservationRequestDto.getMesaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Mesa con " + reservationRequestDto.getMesaId() + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa con id " + reservationRequestDto.getMesaId() + " no encontrada"));
 
         // Validar disponibilidad de la mesa
         ZonedDateTime reservaInicio = reservationRequestDto.getFecha();
@@ -111,48 +116,66 @@ public class ReservationService {
 
     public ReservationResponseDto updateReservation(Long id, ReservationRequestDto reservationRequestDto) {
         Reservation existingReservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservación con ID " + id + " no encontrada"));
 
-        // Obtener la mesa actualizada y el nuevo horario de la reserva
-        Mesa mesa = mesaRepository.findById(reservationRequestDto.getMesaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Mesa con " + reservationRequestDto.getMesaId() + " no encontrada"));
+        // Si se proporciona un nuevo ID de mesa, lo actualizamos
+        if (reservationRequestDto.getMesaId() != null) {
+            Mesa mesa = mesaRepository.findById(reservationRequestDto.getMesaId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Mesa con ID " + reservationRequestDto.getMesaId() + " no encontrada"));
 
-        ZonedDateTime reservaInicio = reservationRequestDto.getFecha();
-        ZonedDateTime reservaFin = reservaInicio.plusHours(2);  // Añadimos 2 horas a la fecha de la reserva
+            ZonedDateTime reservaInicio = reservationRequestDto.getFecha();
+            ZonedDateTime reservaFin = reservaInicio.plusHours(2);  // Añadimos 2 horas a la fecha de la reserva
 
-        // Verificar si ya hay reservas en ese horario para la mesa
-        List<Reservation> existingReservations = reservationRepository.findByMesaAndFechaBetween(
-                mesa, reservaInicio, reservaFin
-        );
+            // Verificar si ya hay reservas en ese horario para la mesa
+            List<Reservation> existingReservations = reservationRepository.findByMesaAndFechaBetween(
+                    mesa, reservaInicio, reservaFin
+            );
 
-        // Si existen reservas solapadas, lanzamos una excepción
-        if (!existingReservations.isEmpty()) {
-            throw new IllegalArgumentException("La mesa ya está reservada en este horario o dentro de un rango de 2 horas.");
+            // Si existen reservas solapadas, lanzamos una excepción
+            if (!existingReservations.isEmpty()) {
+                throw new IllegalArgumentException("La mesa ya está reservada en este horario o dentro de un rango de 2 horas.");
+            }
+
+            existingReservation.setMesa(mesa);
         }
 
-        // Si la mesa está disponible, procedemos con la actualización
-        existingReservation.setFecha(reservationRequestDto.getFecha());
-        existingReservation.setNpersonas(reservationRequestDto.getNpersonas());
-        existingReservation.setMesa(mesa);
+        if (reservationRequestDto.getFecha() != null) {
+            existingReservation.setFecha(reservationRequestDto.getFecha());
+        }
+
+        if (reservationRequestDto.getDescripcion() != null) {
+            existingReservation.setDescripcion(reservationRequestDto.getDescripcion());
+        }
+
+        // Si se proporciona un nuevo número de personas, lo actualizamos
+        if (reservationRequestDto.getNpersonas() != null) {
+            if (reservationRequestDto.getNpersonas() <= 0) {
+                throw new IllegalArgumentException("El número de personas debe ser mayor a 0");
+            }
+
+            // Verificar si el nuevo número de personas cabe en la mesa
+            if (reservationRequestDto.getNpersonas() > existingReservation.getMesa().getCapacity()) {
+                throw new IllegalArgumentException("El número de personas excede la capacidad de la mesa.");
+            }
+            existingReservation.setNpersonas(reservationRequestDto.getNpersonas());
+        }
 
         Reservation updatedReservation = reservationRepository.save(existingReservation);
 
-        // Publicar el evento de actualización de reserva
         eventPublisher.publishEvent(new ReservaUpdateEvent(updatedReservation, existingReservation.getClient().getEmail()));
-
         return modelMapper.map(updatedReservation, ReservationResponseDto.class);
     }
 
     public void deleteReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservación con id " + id + " no encontrada"));
 
         reservationRepository.delete(reservation);
     }
 
     public ReservationResponseDto canceledReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservación con id " + id + " no encontrada"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, reservation.getClient().getEmail())) {
@@ -171,18 +194,22 @@ public class ReservationService {
 
     public ReservationResponseDto finishedReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservación con id " + id + " no encontrada"));
 
-        String username = authorizationUtils.getCurrentUserEmail();
-        if (!Objects.equals(username, reservation.getClient().getEmail())) {
-            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Verificar si el usuario autenticado tiene el rol 'ROLE_MESERO'
+        boolean isMesero = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_MESERO"));
+
+        if (!isMesero) {
+            throw new UnauthorizeOperationException("Usuario no tiene permiso para acceder a este recurso");
         }
 
         reservation.setStatusReservation(StatusReservation.FINALIZADA);
 
         Reservation finishedReservation = reservationRepository.save(reservation);
 
-        // Publicar evento de cambio de estado
         eventPublisher.publishEvent(new ReservaEstadoChangeEvent(finishedReservation, finishedReservation.getClient().getEmail()));
 
         return modelMapper.map(finishedReservation, ReservationResponseDto.class);
@@ -192,18 +219,24 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservación con " + id + " no encontrada"));
 
-        String username = authorizationUtils.getCurrentUserEmail();
-        if (!Objects.equals(username, reservation.getClient().getEmail())) {
-            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Verificar si el usuario autenticado tiene el rol 'ROLE_MESERO'
+        boolean isMesero = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_MESERO"));
+
+        // Si no tiene el rol de mesero, lanzar excepción
+        if (!isMesero) {
+            throw new UnauthorizeOperationException("Usuario no tiene permiso para acceder a este recurso");
         }
 
         reservation.setStatusReservation(StatusReservation.CONFIRMADO);
 
         Reservation confirmedReservation = reservationRepository.save(reservation);
 
-        // Publicar evento de cambio de estado
         eventPublisher.publishEvent(new ReservaEstadoChangeEvent(confirmedReservation, confirmedReservation.getClient().getEmail()));
 
         return modelMapper.map(confirmedReservation, ReservationResponseDto.class);
     }
+
 }

@@ -31,13 +31,6 @@ public class ReviewDeliveryController {
         return ResponseEntity.ok(reviews);
     }
 
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @PostMapping()
-    public ResponseEntity<ReviewDeliveryResponseDto> createReviewDelivery(@RequestBody ReviewDeliveryRequestDto dto) {
-        ReviewDeliveryResponseDto createdReview = reviewDeliveryService.createReviewDelivery(dto);
-        return ResponseEntity.ok(createdReview);
-    }
-
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReviewDelivery(@PathVariable Long id) {
@@ -45,6 +38,10 @@ public class ReviewDeliveryController {
         return ResponseEntity.noContent().build();
     }
 
-
-
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PostMapping()
+    public ResponseEntity<ReviewDeliveryResponseDto> createReviewDelivery(@RequestBody ReviewDeliveryRequestDto dto) {
+        ReviewDeliveryResponseDto createdReview = reviewDeliveryService.createReviewDelivery(dto);
+        return ResponseEntity.ok(createdReview);
+    }
 }

@@ -4,6 +4,7 @@ import com.example.proydbp.client.dto.ClientResponseDto;
 import com.example.proydbp.client.dto.ClientSelfResponseDto;
 import com.example.proydbp.mesa.dto.MesaResponseDto;
 import com.example.proydbp.reservation.domain.StatusReservation;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class ReservationResponseDto {
 
     private Integer Npersonas;
 
+    @JsonManagedReference
     private MesaResponseDto mesa;
 
     @Enumerated(EnumType.STRING)

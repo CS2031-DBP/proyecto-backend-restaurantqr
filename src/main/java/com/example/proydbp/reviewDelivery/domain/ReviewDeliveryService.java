@@ -52,7 +52,7 @@ public class ReviewDeliveryService {
 
     public ReviewDeliveryResponseDto findReviewDeliveryById(Long id) {
         ReviewDelivery reviewDelivery = reviewDeliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Review de repartidor con " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Review de repartidor con id " + id + " no encontrada"));
         return modelMapper.map(reviewDelivery, ReviewDeliveryResponseDto.class);
     }
 
@@ -79,7 +79,7 @@ public class ReviewDeliveryService {
         reviewDelivery.setComment(dto.getComment());
 
         Repartidor repartidor = repartidorRepository.findById(dto.getRepartidorId())
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con " + dto.getRepartidorId() + " no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con id " + dto.getRepartidorId() + " no encontrado"));
 
         reviewDelivery.setRepartidor(repartidor);
 
@@ -95,7 +95,7 @@ public class ReviewDeliveryService {
 
     public void deleteReviewDelivery(Long id) {
         ReviewDelivery existingReview = reviewDeliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Review de repartidor con " + id + " no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Review de repartidor con id " + id + " no encontrada"));
 
         String recipientEmail = existingReview.getRepartidor().getEmail();
 

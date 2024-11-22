@@ -244,24 +244,18 @@ public class DeliveryService {
 
     public DeliveryResponseDto canceladoDelivery(Long id) {
         Delivery delivery = deliveryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery con "+id+ " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery con " + id + " no encontrado"));
 
+        // Verificar que el usuario autenticado sea el cliente que creó el delivery
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, delivery.getClient().getEmail())) {
-            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
-        }
-
-        String clientName = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        if (!clientName.equals(delivery.getRepartidor().getEmail())) {
-            throw new UnauthorizeOperationException("Cliente no autorizado");
+            throw new UnauthorizeOperationException("Usuario no tiene permitido acceder a este recurso");
         }
 
         delivery.setStatus(StatusDelivery.CANCELADO);
 
         Delivery canceladoDelivery = deliveryRepository.save(delivery);
 
-        // Publicar evento de cambio de estado
         eventPublisher.publishEvent(new DeliveryEstadoChangeEvent(canceladoDelivery, canceladoDelivery.getClient().getEmail()));
 
         return modelMapper.map(canceladoDelivery, DeliveryResponseDto.class);
