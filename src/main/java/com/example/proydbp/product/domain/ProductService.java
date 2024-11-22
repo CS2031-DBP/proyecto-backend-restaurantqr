@@ -75,6 +75,9 @@ public class ProductService {
         if (dto.getPrice() != null) {
             product.setPrice(dto.getPrice());
         }
+        if (dto.getRango() != null) {
+            product.setRango(Rango.valueOf(String.valueOf(dto.getRango())));
+        }
 
         Product updatedProduct = productRepository.save(product);
         return modelMapper.map(updatedProduct, ProductResponseDto.class);

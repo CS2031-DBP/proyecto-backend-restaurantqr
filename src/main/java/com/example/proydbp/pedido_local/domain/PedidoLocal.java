@@ -25,7 +25,7 @@ public class PedidoLocal {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mesero_id", nullable = false)
     private Mesero mesero;
 
@@ -43,14 +43,14 @@ public class PedidoLocal {
     @Column(name = "tipo_pago", nullable = false)
     private TipoPago tipoPago;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
     private Client client;
 
     @ElementCollection
     private List<Long> idProducts;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "table_id", nullable = false)
     private Mesa mesa;
 }

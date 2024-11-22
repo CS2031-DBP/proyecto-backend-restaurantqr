@@ -172,6 +172,4 @@ public class AuthService {
         response.setToken(jwtService.generateToken(repartidor));
         return response;
     }
-
-
 }

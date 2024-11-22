@@ -3,6 +3,7 @@ package com.example.proydbp.delivery.domain;
 import com.example.proydbp.client.domain.Client;
 import com.example.proydbp.product.domain.Product;
 import com.example.proydbp.repartidor.domain.Repartidor;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -38,6 +39,7 @@ public class Delivery {
     private String descripcion;
 
     @ElementCollection
+    @JsonProperty("idProducts")
     private List<Long> idProducts;
 
     @ManyToOne

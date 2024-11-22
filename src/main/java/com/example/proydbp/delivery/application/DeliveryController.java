@@ -4,6 +4,7 @@ import com.example.proydbp.delivery.domain.DeliveryService;
 import com.example.proydbp.delivery.dto.DeliveryRequestDto;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.delivery.dto.PatchDeliveryDto;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class DeliveryController {
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<DeliveryResponseDto> createDelivery(@RequestBody DeliveryRequestDto dto) {
+    public ResponseEntity<DeliveryResponseDto> createDelivery(@Valid @RequestBody DeliveryRequestDto dto) {
         DeliveryResponseDto deliveryResponse = deliveryService.createDelivery(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(deliveryResponse);
     }

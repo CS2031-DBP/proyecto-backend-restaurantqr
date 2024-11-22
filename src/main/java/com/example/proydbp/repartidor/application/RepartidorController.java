@@ -78,13 +78,13 @@ public class RepartidorController {
     }
 
     @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
-    @GetMapping("/me/deliverysActuales")
+    @GetMapping("/me/deliveriesActuales")
     public ResponseEntity<List<DeliveryResponseDto>> getDeliverysActuales() {
         return ResponseEntity.ok(repartidorService.findDeliverysActuales());
     }
 
     @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
-    @GetMapping("/me/misDeliverys")
+    @GetMapping("/me/misDeliveries")
     public ResponseEntity<List<DeliveryResponseDto>> getDeliverys() {
         return ResponseEntity.ok(repartidorService.findDeliverys());
     }
@@ -100,7 +100,4 @@ public class RepartidorController {
     public ResponseEntity<RepartidorSelfResponseDto> updateRepartidorAuthenticado(@RequestBody PatchRepartidorDto patchDto) {
         return ResponseEntity.ok(repartidorService.updateAuthenticatedRepartidor(patchDto));
     }
-
-
-
 }

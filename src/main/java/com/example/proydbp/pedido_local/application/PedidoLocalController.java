@@ -4,6 +4,7 @@ import com.example.proydbp.pedido_local.domain.PedidoLocalService;
 import com.example.proydbp.pedido_local.dto.PatchPedidoLocalDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalRequestDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,9 +32,9 @@ public class PedidoLocalController {
         return pedidoLocalService.findAllPedidoLocals();
     }
 
-    @PreAuthorize("hasRole('ROLE_MESERO') or hasRole('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @PostMapping
-    public PedidoLocalResponseDto createPedidoLocal(@RequestBody PedidoLocalRequestDto dto) {
+    public PedidoLocalResponseDto createPedidoLocal(@Valid @RequestBody PedidoLocalRequestDto dto) {
         return pedidoLocalService.createPedidoLocal(dto);
     }
 
@@ -49,16 +50,16 @@ public class PedidoLocalController {
         return pedidoLocalService.entregadoPedidoLocal(id);
     }
 
+    @PreAuthorize("hasRole('ROLE_MESERO')")
+    @PatchMapping("/{id}/cancelado")
+    public PedidoLocalResponseDto canceladoPedidoLocal(@PathVariable Long id) {
+        return pedidoLocalService.canceladoPedidoLocal(id);
+    }
+
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @PatchMapping("/{id}")
     public PedidoLocalResponseDto updatePedidoLocal(@PathVariable Long id, @RequestBody PatchPedidoLocalDto dto) {
         return pedidoLocalService.updatePedidoLocal(id, dto);
-    }
-
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @PatchMapping("/{id}/cancelado")
-    public PedidoLocalResponseDto canceladoPedidoLocal(@PathVariable Long id) {
-        return pedidoLocalService.canceladoPedidoLocal(id);
     }
 
     @PreAuthorize("hasRole('ROLE_CHEF')")

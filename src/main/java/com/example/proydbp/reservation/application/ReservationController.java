@@ -87,5 +87,4 @@ public class ReservationController {
         ReservationResponseDto finishedReservation = reservationService.finishedReservation(id);
         return ResponseEntity.ok(finishedReservation);
     }
-
 }

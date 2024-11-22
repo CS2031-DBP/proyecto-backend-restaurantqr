@@ -7,6 +7,7 @@ import com.example.proydbp.delivery.domain.DeliveryService;
 import com.example.proydbp.delivery.domain.StatusDelivery;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
+import com.example.proydbp.events.email_event.BienvenidaRepartidorEvent;
 import com.example.proydbp.events.email_event.PerfilUpdateRepartidorEvent;
 import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.exception.UserAlreadyExistException;
@@ -90,7 +91,14 @@ public class RepartidorService {
         repartidor.setRatingScore(0.0);
         repartidor.setReviewDeliveries(new ArrayList<>());
         repartidor.setDeliveries(new ArrayList<>());
-        return convertirADto(repartidorRepository.save(repartidor));
+
+        // Guardar el repartidor en el repositorio
+        Repartidor savedRepartidor = repartidorRepository.save(repartidor);
+
+        // Publicar el evento de bienvenida
+        eventPublisher.publishEvent(new BienvenidaRepartidorEvent(savedRepartidor, dto.getEmail()));
+
+        return convertirADto(savedRepartidor);
     }
 
     public void deleteRepartidor(Long id) {

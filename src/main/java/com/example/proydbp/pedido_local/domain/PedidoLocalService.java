@@ -61,7 +61,7 @@ public class PedidoLocalService {
 
     public PedidoLocalResponseDto findPedidoLocalById(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con "+ id + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con id "+ id + " no encontrado"));
         return convertirADto(pedidoLocal);
     }
 
@@ -84,10 +84,10 @@ public class PedidoLocalService {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con " + username + " no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username " + username + " no encontrado"));
 
         Mesa mesa = mesaRepository.findById(dto.getMesaId())
-                .orElseThrow(() -> new UsernameNotFoundException("Mesa con " + dto.getMesaId() + " no encontrada"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesa con id " + dto.getMesaId() + " no encontrada"));
         mesa.setAvailable(false);
         mesaRepository.save(mesa);
 
@@ -99,7 +99,7 @@ public class PedidoLocalService {
                     nombresProductosFueraDeRango.add(product.getNombre());
                 }
             }, () -> {
-                throw new ResourceNotFoundException("Producto " + id + " no encontrado");
+                throw new ResourceNotFoundException("Producto con id " + id + " no encontrado");
             });
         }
 
@@ -129,7 +129,6 @@ public class PedidoLocalService {
 
         PedidoLocal savedPedidoLocal = pedidoLocalRepository.save(pedidoLocal);
 
-        // Publicar eventos para notificar al cliente y al mesero
         eventPublisher.publishEvent(new PedidoLocalCrearEvent(savedPedidoLocal, client.getEmail()));
 
         if (savedPedidoLocal.getMesero() != null) {
@@ -140,7 +139,7 @@ public class PedidoLocalService {
 
     public void deletePedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con "+ id + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con id "+ id + " no encontrado"));
 
         pedidoLocalRepository.deleteById(id);
     }
@@ -148,26 +147,35 @@ public class PedidoLocalService {
     public PedidoLocalResponseDto updatePedidoLocal(Long id, PatchPedidoLocalDto dto) {
         // Buscar el pedido local
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con " + id + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con id " + id + " no encontrado"));
 
+        // Verificar si el usuario tiene permisos para modificar este recurso
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, pedidoLocal.getClient().getEmail())) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
         }
 
-        pedidoLocal.setDescripcion(dto.getDescripcion());
-        pedidoLocal.setTipoPago(dto.getTipoPago());
+        // Actualizar solo los campos no nulos del DTO
+        if (dto.getDescripcion() != null) {
+            pedidoLocal.setDescripcion(dto.getDescripcion());
+        }
+        if (dto.getTipoPago() != null) {
+            pedidoLocal.setTipoPago(dto.getTipoPago());
+        }
 
+        // Guardar los cambios en el repositorio
         PedidoLocal savedPedidoLocal = pedidoLocalRepository.save(pedidoLocal);
 
+        // Publicar un evento de actualización
         eventPublisher.publishEvent(new PedidoLocalUpdateEvent(savedPedidoLocal, pedidoLocal.getClient().getEmail()));
 
+        // Convertir y devolver la respuesta
         return convertirADto(savedPedidoLocal);
     }
 
     public PedidoLocalResponseDto cocinandoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con " + id + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con id " + id + " no encontrado"));
 
         pedidoLocal.setStatus(StatusPedidoLocal.EN_PREPARACION);
 
@@ -182,7 +190,7 @@ public class PedidoLocalService {
 
     public PedidoLocalResponseDto listoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con " + id + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con id " + id + " no encontrado"));
 
         pedidoLocal.setStatus(StatusPedidoLocal.LISTO);
 
@@ -212,7 +220,7 @@ public class PedidoLocalService {
 
     public PedidoLocalResponseDto entregadoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con " + id + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con id " + id + " no encontrado"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, pedidoLocal.getMesero().getEmail())) {
@@ -247,7 +255,7 @@ public class PedidoLocalService {
 
     public PedidoLocalResponseDto canceladoPedidoLocal(Long id) {
         PedidoLocal pedidoLocal = pedidoLocalRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con " + id + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("PedidoLocal con id " + id + " no encontrado"));
 
         String username = authorizationUtils.getCurrentUserEmail();
         if (!Objects.equals(username, pedidoLocal.getMesero().getEmail())) {

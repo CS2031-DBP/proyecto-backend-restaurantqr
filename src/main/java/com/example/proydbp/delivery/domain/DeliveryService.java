@@ -14,6 +14,7 @@ import com.example.proydbp.exception.UnauthorizeOperationException;
 import com.example.proydbp.delivery.dto.DeliveryRequestDto;
 import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.delivery.infrastructure.DeliveryRepository;
+import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.product.domain.Product;
 import com.example.proydbp.product.dto.ProductResponseDto;
 import com.example.proydbp.product.infrastructure.ProductRepository;
@@ -79,13 +80,11 @@ public class DeliveryService {
 
     public DeliveryResponseDto createDelivery(DeliveryRequestDto dto) {
 
-        // Verificación de autorización: Asegurarse que el usuario es un cliente
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
         }
 
-        // Buscar al cliente en la base de datos usando su email
         Client cliente = clientRepository
                 .findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente con nombre de usuario " + username + " no encontrado"));
@@ -106,9 +105,7 @@ public class DeliveryService {
             throw new IllegalArgumentException("Los siguientes productos están fuera del rango permitido: " + String.join(", ", nombresProductosFueraDeRango));
         }
 
-        // Mapeo del DTO a la entidad Delivery
-        Delivery delivery = modelMapper.map(dto, Delivery.class);
-
+        Delivery delivery = new Delivery();
         // Seteo de otros campos en el objeto Delivery
         delivery.setDireccion(dto.getDireccion());
         delivery.setDescripcion(dto.getDescripcion());
@@ -117,10 +114,9 @@ public class DeliveryService {
         delivery.setStatus(StatusDelivery.RECIBIDO); // Estado inicial
         delivery.setFecha(ZonedDateTime.now()); // Fecha actual de creación
         delivery.setCostoDelivery(5.0); // Costo base de delivery (ajustar según lógica)
-        delivery.setIdProducts(dto.getIdProducts()); // Asignar los ID de los productos
+        delivery.setIdProducts(dto.getIdProducts());
         delivery.setPrecio(0.0); // Inicializar el precio
 
-        // Obtener los productos asociados y calcular el precio total
         List<ProductResponseDto> productos = new ArrayList<>();
         for (Long id : dto.getIdProducts()) {
             productRepository.findById(id).ifPresentOrElse(product -> {
@@ -133,18 +129,13 @@ public class DeliveryService {
             });
 
         }
-
-        // Guardar el delivery en la base de datos
         Delivery savedDelivery = deliveryRepository.save(delivery);
 
-        // Publicar el evento para notificar al cliente sobre el nuevo delivery
         eventPublisher.publishEvent(new DeliveryCrearEvent(savedDelivery, cliente.getEmail()));
 
-        // Publicar el evento para notificar al repartidor sobre el nuevo delivery solo si tiene asignado un repartidor
         if (delivery.getRepartidor() != null) {
             eventPublisher.publishEvent(new DeliveryCrearRepartidorEvent(savedDelivery, delivery.getRepartidor().getEmail()));
         }
-
         return modelMapper.map(savedDelivery, DeliveryResponseDto.class);
     }
 
