@@ -12,7 +12,7 @@ import java.util.List;
 public interface PedidoLocalRepository extends JpaRepository<PedidoLocal, Long> {
     List<PedidoLocal> findByStatus(StatusPedidoLocal estado);
 
-    List<PedidoLocal> findByStatusIn(List<StatusPedidoLocal> statuses);
+    Page<PedidoLocal> findByStatusIn(List<StatusPedidoLocal> statuses, Pageable pageable);
 
     Page<PedidoLocal> findByMeseroAndStatusNot(Mesero mesero, StatusPedidoLocal statusPedidoLocal, Pageable pageable);
 

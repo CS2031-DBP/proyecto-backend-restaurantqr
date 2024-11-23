@@ -6,6 +6,8 @@ import com.example.proydbp.pedido_local.dto.PedidoLocalRequestDto;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +27,6 @@ public class PedidoLocalController {
     public PedidoLocalResponseDto getPedidoLocalById(@PathVariable Long id) {
         return pedidoLocalService.findPedidoLocalById(id);
     }
-
 
 
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -74,13 +75,14 @@ public class PedidoLocalController {
 
     @PreAuthorize("hasRole('ROLE_CHEF')")
     @GetMapping("/current")
-    public List<PedidoLocalResponseDto> getPedidosLocalesActuales() {
-        return pedidoLocalService.findPedidosLocalesActuales();
+    public Page<PedidoLocalResponseDto> getPedidosLocalesActuales(@RequestParam int page, @RequestParam int size) {
+        return pedidoLocalService.findPedidosLocalesActuales(page, size);
     }
+
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    public List<PedidoLocalResponseDto> getAllPedidoLocals() {
-        return pedidoLocalService.findAllPedidoLocals();
+    public Page<PedidoLocalResponseDto> getAllPedidoLocals(@RequestParam int page, @RequestParam int size) {
+        return pedidoLocalService.findAllPedidoLocals(page, size);
     }
 }
