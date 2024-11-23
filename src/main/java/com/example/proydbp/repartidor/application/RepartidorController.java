@@ -13,6 +13,7 @@ import com.example.proydbp.reviewDelivery.domain.ReviewDelivery;
 import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryResponseDto;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -81,27 +82,30 @@ public class RepartidorController {
     //Paginacion
     @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
     @GetMapping("/me/deliveriesActuales")
-    public ResponseEntity<List<DeliveryResponseDto>> getDeliverysActuales() {
-        return ResponseEntity.ok(repartidorService.findDeliverysActuales());
+    public ResponseEntity<Page<DeliveryResponseDto>> getDeliverysActuales(@RequestParam int page, @RequestParam int size) {
+        Page<DeliveryResponseDto> deliveriesActuales = repartidorService.findDeliverysActuales(page, size);
+        return ResponseEntity.ok(deliveriesActuales);
     }
 
     @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
     @GetMapping("/me/misDeliveries")
-    public ResponseEntity<List<DeliveryResponseDto>> getDeliverys() {
-        return ResponseEntity.ok(repartidorService.findDeliverys());
+    public ResponseEntity<Page<DeliveryResponseDto>> getDeliverys(@RequestParam int page, @RequestParam int size) {
+        Page<DeliveryResponseDto> deliveries = repartidorService.findDeliverys(page, size);
+        return ResponseEntity.ok(deliveries);
     }
 
     @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
     @GetMapping("/me/misReviews")
-    public ResponseEntity<List<ReviewDeliveryResponseDto>> findMisReviews() {
-        return ResponseEntity.ok(repartidorService.findMisReviews());
-
-
+    public ResponseEntity<Page<ReviewDeliveryResponseDto>> findMisReviews(@RequestParam int page, @RequestParam int size) {
+        Page<ReviewDeliveryResponseDto> reviews = repartidorService.findMisReviews(page, size);
+        return ResponseEntity.ok(reviews);
     }
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    public ResponseEntity<List<RepartidorResponseDto>> getAllRepartidores() {
-        return ResponseEntity.ok(repartidorService.findAllRepartidors());
+    public ResponseEntity<Page<RepartidorResponseDto>> getAllRepartidores(@RequestParam int page, @RequestParam int size) {
+        Page<RepartidorResponseDto> repartidores = repartidorService.findAllRepartidors(page, size);
+        return ResponseEntity.ok(repartidores);
     }
 
 }

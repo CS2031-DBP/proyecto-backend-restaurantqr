@@ -18,6 +18,7 @@ import com.example.proydbp.repartidor.dto.RepartidorSelfResponseDto;
 import com.example.proydbp.repartidor.infrastructure.RepartidorRepository;
 import com.example.proydbp.reviewDelivery.domain.ReviewDelivery;
 import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryResponseDto;
+import com.example.proydbp.reviewDelivery.infrastructure.ReviewDeliveryRepository;
 import com.example.proydbp.user.domain.Role;
 import com.example.proydbp.user.domain.User;
 import com.example.proydbp.user.infrastructure.BaseUserRepository;
@@ -25,6 +26,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,9 +47,10 @@ public class RepartidorService {
     private final DeliveryService deliveryService;
     private final BaseUserRepository baseUserRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final ReviewDeliveryRepository reviewDeliveryRepository;
 
     @Autowired
-    public RepartidorService(PasswordEncoder passwordEncoder, BaseUserRepository baseUserRepository,
+    public RepartidorService(PasswordEncoder passwordEncoder, ReviewDeliveryRepository reviewDeliveryRepository, BaseUserRepository baseUserRepository,
                              @Lazy DeliveryService deliveryService, AuthorizationUtils authorizationUtils,
                              RepartidorRepository repartidorRepository, DeliveryRepository deliveryRepository,
                              ModelMapper modelMapper, ApplicationEventPublisher eventPublisher) {
@@ -53,6 +58,7 @@ public class RepartidorService {
         this.deliveryRepository = deliveryRepository;
         this.baseUserRepository = baseUserRepository;
         this.modelMapper = modelMapper;
+        this.reviewDeliveryRepository = reviewDeliveryRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorizationUtils = authorizationUtils;
         this.deliveryService = deliveryService;
@@ -65,14 +71,14 @@ public class RepartidorService {
         return convertirADto(repartidor);
     }
 
-    public List<RepartidorResponseDto> findAllRepartidors() {
-        List<Repartidor> repartidores = repartidorRepository.findAll();
-        List<RepartidorResponseDto> repartidorResponseDtos = new ArrayList<>();
-        for(Repartidor repartidor : repartidores) {
-            repartidorResponseDtos.add(convertirADto(repartidor));
-        }
-        return repartidorResponseDtos;
+    public Page<RepartidorResponseDto> findAllRepartidors(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);  // Crear un objeto Pageable con los parámetros de página y tamaño
+        Page<Repartidor> repartidoresPage = repartidorRepository.findAll(pageable);  // Obtener la página de repartidores desde el repositorio
+
+        // Convertir cada Repartidor a RepartidorResponseDto
+        return repartidoresPage.map(this::convertirADto);
     }
+
 
     public RepartidorResponseDto createRepartidor(RepartidorRequestDto dto) {
 
@@ -161,23 +167,24 @@ public class RepartidorService {
         return modelMapper.map(repartidor, RepartidorSelfResponseDto.class);
     }
 
-    public List<DeliveryResponseDto> findDeliverysActuales() {
+    public Page<DeliveryResponseDto> findDeliverysActuales(int page, int size) {
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
 
         Repartidor repartidor = repartidorRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con nombre de usuario " + username + " no encontrado" ));
+                .orElseThrow(() -> new UsernameNotFoundException("Repartidor con nombre de usuario " + username + " no encontrado"));
 
-        List<DeliveryResponseDto> deliverys = new ArrayList<>();
-        for(Delivery delivery : repartidor.getDeliveries()){
-            if(delivery.getStatus() != StatusDelivery.ENTREGADO && delivery.getStatus() != StatusDelivery.CANCELADO){
-                DeliveryResponseDto deliveryDto = deliveryService.convertirADto(delivery);
-                deliverys.add(deliveryDto);
-            }
-        }
-        return deliverys;
+        Pageable pageable = PageRequest.of(page, size);  // Crear el objeto Pageable con los parámetros de página y tamaño
+
+        // Filtrar las entregas no entregadas ni canceladas
+        Page<Delivery> deliveriesPage = deliveryRepository.findByRepartidorAndStatusNotIn(repartidor, List.of(StatusDelivery.ENTREGADO, StatusDelivery.CANCELADO), pageable);
+
+        // Convertir las entregas a DeliveryResponseDto
+        return deliveriesPage.map(delivery -> deliveryService.convertirADto(delivery));
     }
+
 
     // adicional
 
@@ -209,18 +216,22 @@ public class RepartidorService {
         repartidorRepository.save(repartidor);
     }
 
-    public List<ReviewDeliveryResponseDto> findMisReviews(){
+    public Page<ReviewDeliveryResponseDto> findMisReviews(int page, int size) {
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
 
         Repartidor repartidor = repartidorRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Repartidor con nombre de usuario " + username + " no encontrado"));
 
-        List<ReviewDelivery> reviews = Optional.ofNullable(repartidor.getReviewDeliveries()).orElse(Collections.emptyList());
+        Pageable pageable = PageRequest.of(page, size);  // Crear el objeto Pageable con los parámetros de página y tamaño
 
-        return reviews.stream()
-                .map(review -> modelMapper.map(review,ReviewDeliveryResponseDto.class)).toList();
+        // Obtener las reseñas de la base de datos de forma paginada
+        Page<ReviewDelivery> reviewsPage = reviewDeliveryRepository.findByRepartidor(repartidor, pageable);
+
+        // Convertir las reseñas a ReviewDeliveryResponseDto
+        return reviewsPage.map(review -> modelMapper.map(review, ReviewDeliveryResponseDto.class));
     }
 
     public RepartidorSelfResponseDto updateAuthenticatedRepartidor(PatchRepartidorDto dto) {
@@ -238,20 +249,24 @@ public class RepartidorService {
         return modelMapper.map( repartidorRepository.save(repartidor), RepartidorSelfResponseDto.class);
     }
 
-    public List<DeliveryResponseDto> findDeliverys() {
+    public Page<DeliveryResponseDto> findDeliverys(int page, int size) {
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
+
         Repartidor repartidor = repartidorRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Repartidor con nombre de usuario " + username + " no encontrado"));
 
-        List<DeliveryResponseDto> deliverys = new ArrayList<>();
-        for(Delivery delivery : repartidor.getDeliveries()){
-                DeliveryResponseDto deliveryDto = deliveryService.convertirADto(delivery);
-                deliverys.add(deliveryDto);
-        }
-        return deliverys;
+        Pageable pageable = PageRequest.of(page, size);  // Crear el objeto Pageable con los parámetros de página y tamaño
+
+        // Obtener las entregas del repartidor de forma paginada
+        Page<Delivery> deliveriesPage = deliveryRepository.findByRepartidor(repartidor, pageable);
+
+        // Convertir las entregas a DeliveryResponseDto
+        return deliveriesPage.map(delivery -> deliveryService.convertirADto(delivery));
     }
+
 
     public RepartidorResponseDto convertirADto(Repartidor repartidor) {
 
