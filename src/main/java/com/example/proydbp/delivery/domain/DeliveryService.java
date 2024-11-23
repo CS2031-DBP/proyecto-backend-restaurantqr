@@ -24,6 +24,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -32,6 +36,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class DeliveryService {
@@ -66,17 +71,18 @@ public class DeliveryService {
         return convertirADto(delivery);
     }
 
-    public List<DeliveryResponseDto> findAllDeliveries() {
-        List<DeliveryResponseDto> deliveriesResponse = new ArrayList<>();
+    public Page<DeliveryResponseDto> findAllDeliveries(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
 
-        for (Delivery delivery : deliveryRepository.findAll()) {
+        Page<Delivery> deliveries = deliveryRepository.findAll(pageable);
 
-            DeliveryResponseDto responseDto =convertirADto(delivery);
+        List<DeliveryResponseDto> deliveriesResponse = deliveries.stream()
+                .map(this::convertirADto)
+                .collect(Collectors.toList());
 
-            deliveriesResponse.add(responseDto);
-        }
-        return deliveriesResponse;
+        return new PageImpl<>(deliveriesResponse, pageable, deliveries.getTotalElements());
     }
+
 
     public DeliveryResponseDto createDelivery(DeliveryRequestDto dto) {
 
@@ -261,16 +267,23 @@ public class DeliveryService {
         return modelMapper.map(canceladoDelivery, DeliveryResponseDto.class);
     }
 
-    public List<DeliveryResponseDto> findCurrentDeliveries() {
-        List<Delivery> currentDeliveries = deliveryRepository.findByStatusIn(
-                List.of(StatusDelivery.EN_PREPARACION, StatusDelivery.LISTO, StatusDelivery.EN_CAMINO, StatusDelivery.RECIBIDO)
+    public Page<DeliveryResponseDto> findCurrentDeliveries(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<StatusDelivery> statuses = List.of(
+                StatusDelivery.EN_PREPARACION,
+                StatusDelivery.LISTO,
+                StatusDelivery.EN_CAMINO,
+                StatusDelivery.RECIBIDO
         );
 
-        List<DeliveryResponseDto> deliveriesResponse = new ArrayList<>();
-        for (Delivery delivery : currentDeliveries) {
-            deliveriesResponse.add(convertirADto(delivery));
-        }
-        return deliveriesResponse;
+        Page<Delivery> currentDeliveries = deliveryRepository.findByStatusIn(statuses, pageable);
+
+        List<DeliveryResponseDto> deliveriesResponse = currentDeliveries.stream()
+                .map(this::convertirADto)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(deliveriesResponse, pageable, currentDeliveries.getTotalElements());
     }
 
     public DeliveryResponseDto convertirADto(Delivery delivery){

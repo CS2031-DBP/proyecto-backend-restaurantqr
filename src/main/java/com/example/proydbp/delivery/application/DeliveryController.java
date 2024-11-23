@@ -6,6 +6,7 @@ import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.delivery.dto.PatchDeliveryDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -94,16 +95,15 @@ public class DeliveryController {
 
     @GetMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')") // Solo acceso para administradores
-    public ResponseEntity<List<DeliveryResponseDto>> findAllDeliveries() {
-        List<DeliveryResponseDto> deliveries = deliveryService.findAllDeliveries();
-        return ResponseEntity.ok(deliveries);
+    public ResponseEntity<Page<DeliveryResponseDto>> findAllDeliveries(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(deliveryService.findAllDeliveries(page,size));
     }
 
     @GetMapping("/current")
     @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
-    public ResponseEntity<List<DeliveryResponseDto>> findCurrentDeliveries() {
-        List<DeliveryResponseDto> currentDeliveries = deliveryService.findCurrentDeliveries();
-        return ResponseEntity.ok(currentDeliveries);
+    public ResponseEntity<Page<DeliveryResponseDto>> findCurrentDeliveries(@RequestParam int page, @RequestParam int size) {
+
+        return ResponseEntity.ok(deliveryService.findCurrentDeliveries(page,size));
     }
 
 }
