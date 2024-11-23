@@ -7,6 +7,9 @@ import com.example.proydbp.product.dto.ProductResponseDto;
 import com.example.proydbp.product.infrastructure.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,10 +46,10 @@ public class ProductService {
         return modelMapper.map(product, ProductResponseDto.class);
     }
 
-    public List<ProductResponseDto> findAllProducts() {
-        return productRepository.findAll().stream()
-                .map(product -> modelMapper.map(product, ProductResponseDto.class))
-                .collect(Collectors.toList());
+    public Page<ProductResponseDto> findAllProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> allProductsPage = productRepository.findAll(pageable);
+        return allProductsPage.map(product -> modelMapper.map(product, ProductResponseDto.class));
     }
 
     public void deleteProduct(Long id) {
@@ -83,28 +86,18 @@ public class ProductService {
         return modelMapper.map(updatedProduct, ProductResponseDto.class);
     }
 
-    public List<ProductResponseDto> findByCategory(String category) {
-        List<Product> products = productRepository.findByCategory(Category.valueOf(category));
-        return products.stream()
-                .map(product -> modelMapper.map(product, ProductResponseDto.class))
-                .collect(Collectors.toList());
+    public Page<ProductResponseDto> findByCategory(Category category, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Product> productsByCategoryPage = productRepository.findByCategory(category, pageable);
+        return productsByCategoryPage.map(product -> modelMapper.map(product, ProductResponseDto.class));
     }
 
-    public List<ProductResponseDto> findProductByClientRango1(String rango){
-        List<Product> products = productRepository.findByRango(Rango.valueOf(rango));
-        return products.stream()
-                .map(product -> modelMapper.map(product, ProductResponseDto.class))
-                .collect(Collectors.toList());
-    }
 
-    public List<ProductResponseDto> findProductByClientRango(String rango){
-        List<Product> products = productRepository.findAll().stream()
-                .filter(product -> Rango.valueOf(rango).ordinal() >= product.getRango().ordinal())
-                .collect(Collectors.toList());
-
-        return products.stream()
-                .map(product -> modelMapper.map(product, ProductResponseDto.class))
-                .collect(Collectors.toList());
+    public Page<ProductResponseDto> findProductByClientRango(Rango rango, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productsByRangoPage = productRepository.findByRango(rango, pageable);
+        return productsByRangoPage.map(product -> modelMapper.map(product, ProductResponseDto.class));
     }
 
     public ProductResponseDto changeAvailability(Long id) {
@@ -117,10 +110,10 @@ public class ProductService {
         return modelMapper.map(updatedProduct, ProductResponseDto.class);
     }
 
-    public List<ProductResponseDto> findAvailableProducts() {
-        List<Product> availableProducts = productRepository.findByIsAvailable(true);
-        return availableProducts.stream()
-                .map(product -> modelMapper.map(product, ProductResponseDto.class))
-                .collect(Collectors.toList());
+    public Page<ProductResponseDto> findAvailableProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);  // Crear un objeto Pageable con la página y el tamaño
+        Page<Product> availableProductsPage = productRepository.findByIsAvailable(true, pageable); // Obtener una página de productos disponibles
+        return availableProductsPage.map(product -> modelMapper.map(product, ProductResponseDto.class));
     }
+
 }
