@@ -29,11 +29,7 @@ public class ReviewMeseroController {
         return ResponseEntity.ok(reviewMeseroService.findReviewMeseroById(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping
-    public ResponseEntity<List<ReviewMeseroResponseDto>> getAllReviewMeseros() {
-        return ResponseEntity.ok(reviewMeseroService.findAllReviewMeseros());
-    }
+
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
@@ -47,5 +43,11 @@ public class ReviewMeseroController {
     public ResponseEntity<ReviewMeseroResponseDto> createReviewMesero(@Valid @RequestBody ReviewMeseroRequestDto dto) {
         ReviewMeseroResponseDto createdReview = reviewMeseroService.createReviewMesero(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdReview);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping
+    public ResponseEntity<List<ReviewMeseroResponseDto>> getAllReviewMeseros() {
+        return ResponseEntity.ok(reviewMeseroService.findAllReviewMeseros());
     }
 }

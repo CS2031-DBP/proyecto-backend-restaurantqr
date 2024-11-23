@@ -41,11 +41,7 @@ public class MeseroController {
         return ResponseEntity.ok(meseroService.findMeseroById(id));
     }
 
-    @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<MeseroResponseDto>> findAllMeseros() {
-        return ResponseEntity.ok(meseroService.findAllMeseros());
-    }
+
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -74,6 +70,16 @@ public class MeseroController {
     public ResponseEntity<MeseroSelfResponseDto> findMesero() {
         return ResponseEntity.ok(meseroService.getMeseroOwnInfo());
     }
+    @PatchMapping("/me")
+    @PreAuthorize("hasRole('ROLE_MESERO')")
+    public ResponseEntity<MeseroSelfResponseDto> updateAuthenticatedClient(@RequestBody PatchMeseroDto dto) {
+        return ResponseEntity.ok(meseroService.updateAuthenticatedMesero(dto));
+    }
+
+
+    //PAginación
+
+
 
     @PreAuthorize("hasRole('ROLE_MESERO')")
     @GetMapping("/me/pedidosLocalesActuales")
@@ -95,10 +101,10 @@ public class MeseroController {
         return ResponseEntity.ok(meseroService.findPedidosLocales());
     }
 
-
-    @PatchMapping("/me")
-    @PreAuthorize("hasRole('ROLE_MESERO')")
-    public ResponseEntity<MeseroSelfResponseDto> updateAuthenticatedClient(@RequestBody PatchMeseroDto dto) {
-        return ResponseEntity.ok(meseroService.updateAuthenticatedMesero(dto));
+    @GetMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<MeseroResponseDto>> findAllMeseros() {
+        return ResponseEntity.ok(meseroService.findAllMeseros());
     }
+
 }

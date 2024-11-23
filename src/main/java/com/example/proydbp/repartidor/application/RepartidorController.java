@@ -44,10 +44,10 @@ public class RepartidorController {
         return ResponseEntity.ok(repartidorService.findRepartidorById(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping
-    public ResponseEntity<List<RepartidorResponseDto>> getAllRepartidores() {
-        return ResponseEntity.ok(repartidorService.findAllRepartidors());
+    @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
+    @PatchMapping("/me")
+    public ResponseEntity<RepartidorSelfResponseDto> updateRepartidorAuthenticado(@RequestBody PatchRepartidorDto patchDto) {
+        return ResponseEntity.ok(repartidorService.updateAuthenticatedRepartidor(patchDto));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -77,6 +77,8 @@ public class RepartidorController {
         return ResponseEntity.ok(repartidorService.findAuthenticatedRepartidor());
     }
 
+
+    //Paginacion
     @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
     @GetMapping("/me/deliveriesActuales")
     public ResponseEntity<List<DeliveryResponseDto>> getDeliverysActuales() {
@@ -93,11 +95,13 @@ public class RepartidorController {
     @GetMapping("/me/misReviews")
     public ResponseEntity<List<ReviewDeliveryResponseDto>> findMisReviews() {
         return ResponseEntity.ok(repartidorService.findMisReviews());
+
+
+    }
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping
+    public ResponseEntity<List<RepartidorResponseDto>> getAllRepartidores() {
+        return ResponseEntity.ok(repartidorService.findAllRepartidors());
     }
 
-    @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
-    @PatchMapping("/me")
-    public ResponseEntity<RepartidorSelfResponseDto> updateRepartidorAuthenticado(@RequestBody PatchRepartidorDto patchDto) {
-        return ResponseEntity.ok(repartidorService.updateAuthenticatedRepartidor(patchDto));
-    }
 }

@@ -25,13 +25,6 @@ public class ReviewDeliveryController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping()
-    public ResponseEntity<List<ReviewDeliveryResponseDto>> getAllReviewDelivery() {
-        List<ReviewDeliveryResponseDto> reviews = reviewDeliveryService.findAllReviewDelivery();
-        return ResponseEntity.ok(reviews);
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReviewDelivery(@PathVariable Long id) {
         reviewDeliveryService.deleteReviewDelivery(id);
@@ -43,5 +36,13 @@ public class ReviewDeliveryController {
     public ResponseEntity<ReviewDeliveryResponseDto> createReviewDelivery(@RequestBody ReviewDeliveryRequestDto dto) {
         ReviewDeliveryResponseDto createdReview = reviewDeliveryService.createReviewDelivery(dto);
         return ResponseEntity.ok(createdReview);
+    }
+
+//Paginación
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping()
+    public ResponseEntity<List<ReviewDeliveryResponseDto>> getAllReviewDelivery() {
+        List<ReviewDeliveryResponseDto> reviews = reviewDeliveryService.findAllReviewDelivery();
+        return ResponseEntity.ok(reviews);
     }
 }

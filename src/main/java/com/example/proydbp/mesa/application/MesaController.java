@@ -27,12 +27,6 @@ public class MesaController {
         this.mesaService = mesaService;
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping
-    public ResponseEntity<List<MesaResponseDto>> getAllTables() {
-        List<MesaResponseDto> tables = mesaService.findAllMesas();
-        return new ResponseEntity<>(tables, HttpStatus.OK);
-    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
@@ -67,6 +61,16 @@ public class MesaController {
     }
 
 
+
+
+    //Paginación:
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping
+    public ResponseEntity<List<MesaResponseDto>> getAllTables() {
+        List<MesaResponseDto> tables = mesaService.findAllMesas();
+        return new ResponseEntity<>(tables, HttpStatus.OK);
+    }
+
     @PreAuthorize("hasRole('ROLE_MESERO') or hasRole('ROLE_ADMIN')")
     @GetMapping("/available")
     public ResponseEntity<List<MesaResponseDto>> getAvailableTables() {
@@ -88,6 +92,7 @@ public class MesaController {
         List<ReservationResponseDto> reservations = mesaService.getReservationsDeMesa(idMesa);
         return ResponseEntity.ok(reservations);
     }
+
 
 
 }

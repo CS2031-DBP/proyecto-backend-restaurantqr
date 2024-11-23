@@ -26,11 +26,7 @@ public class PedidoLocalController {
         return pedidoLocalService.findPedidoLocalById(id);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping
-    public List<PedidoLocalResponseDto> getAllPedidoLocals() {
-        return pedidoLocalService.findAllPedidoLocals();
-    }
+
 
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @PostMapping
@@ -74,9 +70,17 @@ public class PedidoLocalController {
         return pedidoLocalService.listoPedidoLocal(id);
     }
 
+    //Paginacion
+
     @PreAuthorize("hasRole('ROLE_CHEF')")
     @GetMapping("/current")
     public List<PedidoLocalResponseDto> getPedidosLocalesActuales() {
         return pedidoLocalService.findPedidosLocalesActuales();
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping
+    public List<PedidoLocalResponseDto> getAllPedidoLocals() {
+        return pedidoLocalService.findAllPedidoLocals();
     }
 }

@@ -30,12 +30,7 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping
-    public ResponseEntity<List<ReservationResponseDto>> getAllReservations() {
-        List<ReservationResponseDto> reservations = reservationService.findAllReservations();
-        return ResponseEntity.ok(reservations);
-    }
+
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
@@ -87,4 +82,21 @@ public class ReservationController {
         ReservationResponseDto finishedReservation = reservationService.finishedReservation(id);
         return ResponseEntity.ok(finishedReservation);
     }
+
+
+
+    //PAginacion
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping
+    public ResponseEntity<List<ReservationResponseDto>> getAllReservations() {
+        List<ReservationResponseDto> reservations = reservationService.findAllReservations();
+        return ResponseEntity.ok(reservations);
+    }
+
+
+
+
+
+
 }

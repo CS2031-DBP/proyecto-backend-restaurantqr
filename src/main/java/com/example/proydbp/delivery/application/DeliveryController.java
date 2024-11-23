@@ -31,12 +31,7 @@ public class DeliveryController {
         return ResponseEntity.ok(delivery);
     }
 
-    @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')") // Solo acceso para administradores
-    public ResponseEntity<List<DeliveryResponseDto>> findAllDeliveries() {
-        List<DeliveryResponseDto> deliveries = deliveryService.findAllDeliveries();
-        return ResponseEntity.ok(deliveries);
-    }
+
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -66,12 +61,6 @@ public class DeliveryController {
         return ResponseEntity.ok(deliveryResponse);
     }
 
-    @GetMapping("/current")
-    @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
-    public ResponseEntity<List<DeliveryResponseDto>> findCurrentDeliveries() {
-        List<DeliveryResponseDto> currentDeliveries = deliveryService.findCurrentDeliveries();
-        return ResponseEntity.ok(currentDeliveries);
-    }
 
     @PatchMapping("/{id}/listo")
     @PreAuthorize("hasRole('ROLE_CHEF')") // Acceso para chefs
@@ -99,6 +88,22 @@ public class DeliveryController {
     public ResponseEntity<DeliveryResponseDto> enCaminoDelivery(@PathVariable Long id) {
         DeliveryResponseDto deliveryResponse = deliveryService.enCaminoDelivery(id);
         return ResponseEntity.ok(deliveryResponse);
+    }
+
+//Paginación
+
+    @GetMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')") // Solo acceso para administradores
+    public ResponseEntity<List<DeliveryResponseDto>> findAllDeliveries() {
+        List<DeliveryResponseDto> deliveries = deliveryService.findAllDeliveries();
+        return ResponseEntity.ok(deliveries);
+    }
+
+    @GetMapping("/current")
+    @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
+    public ResponseEntity<List<DeliveryResponseDto>> findCurrentDeliveries() {
+        List<DeliveryResponseDto> currentDeliveries = deliveryService.findCurrentDeliveries();
+        return ResponseEntity.ok(currentDeliveries);
     }
 
 }
