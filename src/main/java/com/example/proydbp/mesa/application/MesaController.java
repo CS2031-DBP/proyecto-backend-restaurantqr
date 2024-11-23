@@ -7,14 +7,14 @@ import com.example.proydbp.mesa.domain.MesaService;
 import com.example.proydbp.reservation.dto.ReservationResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import java.net.URI;
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/mesa")
@@ -66,31 +66,29 @@ public class MesaController {
     //Paginación:
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    public ResponseEntity<List<MesaResponseDto>> getAllTables() {
-        List<MesaResponseDto> tables = mesaService.findAllMesas();
-        return new ResponseEntity<>(tables, HttpStatus.OK);
+    public ResponseEntity<Page<MesaResponseDto>> getAllTables(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(mesaService.findAllMesas(page, size));
     }
+
 
     @PreAuthorize("hasRole('ROLE_MESERO') or hasRole('ROLE_ADMIN')")
     @GetMapping("/available")
-    public ResponseEntity<List<MesaResponseDto>> getAvailableTables() {
-        List<MesaResponseDto> availableTables = mesaService.getAvailableMesas();
-        return new ResponseEntity<>(availableTables, HttpStatus.OK);
+    public ResponseEntity<Page<MesaResponseDto>> getAvailableTables(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(mesaService.getAvailableMesas(page, size));
     }
 
     @PreAuthorize("hasRole('ROLE_MESERO') or hasRole('ROLE_ADMIN')")
     @GetMapping("/capacity/{capacity}")
-    public ResponseEntity<List<MesaResponseDto>> getTablesByCapacity(@PathVariable int capacity) {
-        List<MesaResponseDto> tablesByCapacity = mesaService.getMesasByCapacity(capacity);
-        return new ResponseEntity<>(tablesByCapacity, HttpStatus.OK);
+    public ResponseEntity<Page<MesaResponseDto>> getTablesByCapacity(@PathVariable int capacity, @RequestParam int page, @RequestParam int size) {
+
+        return ResponseEntity.ok(mesaService.getMesasByCapacity(capacity, page, size));
     }
 
     // adicional
     @PreAuthorize("hasRole('ROLE_MESERO') or hasRole('ROLE_ADMIN')")
     @GetMapping("/reservacionesMesa/{idMesa}")
-    public ResponseEntity<List<ReservationResponseDto>> getReservationsDeMesa(@PathVariable Long idMesa) {
-        List<ReservationResponseDto> reservations = mesaService.getReservationsDeMesa(idMesa);
-        return ResponseEntity.ok(reservations);
+    public ResponseEntity<Page<ReservationResponseDto>> getReservationsDeMesa(@PathVariable Long idMesa, @RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(mesaService.getReservationsDeMesa(idMesa, page, size));
     }
 
 
