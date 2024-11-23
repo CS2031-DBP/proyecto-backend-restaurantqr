@@ -17,6 +17,9 @@ import com.example.proydbp.reviewDelivery.infrastructure.ReviewDeliveryRepositor
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -56,10 +59,15 @@ public class ReviewDeliveryService {
         return modelMapper.map(reviewDelivery, ReviewDeliveryResponseDto.class);
     }
 
-    public List<ReviewDeliveryResponseDto> findAllReviewDelivery() {
-        return reviewDeliveryRepository.findAll().stream()
-                .map(review -> modelMapper.map(review, ReviewDeliveryResponseDto.class))
-                .toList();
+    public Page<ReviewDeliveryResponseDto> findAllReviewDelivery(int page, int size) {
+        // Crear el objeto Pageable con los parámetros de página y tamaño
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Obtener las reseñas de entregas de forma paginada
+        Page<ReviewDelivery> reviewsPage = reviewDeliveryRepository.findAll(pageable);
+
+        // Convertir las reseñas a ReviewDeliveryResponseDto y devolver el resultado paginado
+        return reviewsPage.map(review -> modelMapper.map(review, ReviewDeliveryResponseDto.class));
     }
 
     public ReviewDeliveryResponseDto createReviewDelivery(ReviewDeliveryRequestDto dto) {
