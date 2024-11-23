@@ -1,7 +1,6 @@
 package com.example.proydbp.mesero.domain;
 
 import com.example.proydbp.auth.utils.AuthorizationUtils;
-import com.example.proydbp.client.dto.PatchClientDto;
 import com.example.proydbp.events.email_event.BienvenidaMeseroEvent;
 import com.example.proydbp.events.email_event.PerfilUpdateMeseroEvent;
 import com.example.proydbp.exception.UnauthorizeOperationException;
@@ -15,15 +14,19 @@ import com.example.proydbp.pedido_local.domain.PedidoLocal;
 import com.example.proydbp.pedido_local.domain.PedidoLocalService;
 import com.example.proydbp.pedido_local.domain.StatusPedidoLocal;
 import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
-import com.example.proydbp.repartidor.domain.Repartidor;
+import com.example.proydbp.pedido_local.infrastructure.PedidoLocalRepository;
 import com.example.proydbp.reviewMesero.domain.ReviewMesero;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
+import com.example.proydbp.reviewMesero.infrastructure.ReviewMeseroRepository;
 import com.example.proydbp.user.domain.Role;
 import com.example.proydbp.user.domain.User;
 import com.example.proydbp.user.infrastructure.BaseUserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,19 +44,23 @@ public class MeseroService {
     private final PedidoLocalService pedidoLocalService;
     private final BaseUserRepository baseUserRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final PedidoLocalRepository pedidoLocalRepository;
+    private final ReviewMeseroRepository reviewMeseroRepository;
 
     @Autowired
     public MeseroService(MeseroRepository meseroRepository, BaseUserRepository baseUserRepository,
                          AuthorizationUtils authorizationUtils , ModelMapper modelMapper,
                          PasswordEncoder passwordEncoder, PedidoLocalService pedidoLocalService,
-                         ApplicationEventPublisher eventPublisher) {
+                         ApplicationEventPublisher eventPublisher, PedidoLocalRepository pedidoLocalRepository, ReviewMeseroRepository reviewMeseroRepository) {
         this.meseroRepository = meseroRepository;
+        this.reviewMeseroRepository = reviewMeseroRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
         this.authorizationUtils = authorizationUtils;
         this.pedidoLocalService = pedidoLocalService;
         this.baseUserRepository = baseUserRepository;
         this.eventPublisher = eventPublisher;
+        this.pedidoLocalRepository = pedidoLocalRepository;
     }
 
     public MeseroResponseDto findMeseroById(Long id) {
@@ -63,14 +70,13 @@ public class MeseroService {
         return convertirADto(mesero);
     }
 
-    public List<MeseroResponseDto> findAllMeseros() {
-        List<Mesero> meseros = meseroRepository.findAll();
-        List<MeseroResponseDto> meseroResponseDtos = new ArrayList<>();
-        for(Mesero meserodt : meseros) {
-            meseroResponseDtos.add(convertirADto(meserodt));
-        }
-        return meseroResponseDtos;
+    public Page<MeseroResponseDto> findAllMeseros(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Mesero> meseros = meseroRepository.findAll(pageable);
+
+        return meseros.map(this::convertirADto);
     }
+
 
     public MeseroResponseDto createMesero(MeseroRequestDto dto) {
 
@@ -149,23 +155,24 @@ public class MeseroService {
         return modelMapper.map(updatedMesero, MeseroSelfResponseDto.class);
     }
 
-    public List<PedidoLocalResponseDto> findMisPedidosLocalesActuales() {
+    public Page<PedidoLocalResponseDto> findMisPedidosLocalesActuales(int page, int size) {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
+        // Obtener el mesero por su email
         Mesero mesero = meseroRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero con nombre de usuario " +username+ " no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con nombre de usuario " + username + " no encontrado"));
 
-        List<PedidoLocalResponseDto> pedidos = new ArrayList<>();
-        for(PedidoLocal pedidoLocal : mesero.getPedidosLocales()){
-            if(pedidoLocal.getStatus() != StatusPedidoLocal.ENTREGADO){
-                PedidoLocalResponseDto pedidoDto = pedidoLocalService.convertirADto(pedidoLocal);
-                pedidos.add(pedidoDto);
-            }
-        }
-        return pedidos;
+        Pageable pageable = PageRequest.of(page, size); // Crear Pageable con la página y tamaño
+
+        // Obtener los pedidos locales del mesero con paginación y filtrado de estado
+        Page<PedidoLocal> pedidosPage = pedidoLocalRepository.findByMeseroAndStatusNot(mesero, StatusPedidoLocal.ENTREGADO, pageable);
+
+        // Convertir los pedidos locales filtrados a DTOs
+        return pedidosPage.map(pedidoLocalService::convertirADto);
     }
+
 
     public MeseroSelfResponseDto getMeseroOwnInfo() {
         String username = authorizationUtils.getCurrentUserEmail();
@@ -180,35 +187,43 @@ public class MeseroService {
 
     }
 
-    public List<ReviewMeseroResponseDto> findMisReviews() {
+    public Page<ReviewMeseroResponseDto> findMisReviews(int page, int size) {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
+        // Obtener el mesero por su email
         Mesero mesero = meseroRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Mesero con " + username + " no encontrado"));
 
-        List<ReviewMesero> reviewMesero = Optional.ofNullable(mesero.getReviewMeseros()).orElse(Collections.emptyList());
+        Pageable pageable = PageRequest.of(page, size); // Crear Pageable con la página y tamaño
 
-        return reviewMesero.stream()
-                .map(review -> modelMapper.map(review, ReviewMeseroResponseDto.class)).toList();
+        // Obtener las reseñas del mesero con paginación
+        Page<ReviewMesero> reviewMeseroPage = reviewMeseroRepository.findByMesero(mesero, pageable);
+
+        // Convertir las reseñas a DTOs
+        return reviewMeseroPage.map(review -> modelMapper.map(review, ReviewMeseroResponseDto.class));
     }
 
-    public List<PedidoLocalResponseDto> findPedidosLocales() {
+
+    public Page<PedidoLocalResponseDto> findPedidosLocales(int page, int size) {
         String username = authorizationUtils.getCurrentUserEmail();
         if (username == null)
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
+        // Obtener el mesero por su email
         Mesero mesero = meseroRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Mesero con nombre de usuario " +username+ " no encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Mesero con nombre de usuario " + username + " no encontrado"));
 
-        List<PedidoLocalResponseDto> pedidos = new ArrayList<>();
-        for(PedidoLocal pedidoLocal : mesero.getPedidosLocales()){
-                PedidoLocalResponseDto pedidoDto = pedidoLocalService.convertirADto(pedidoLocal);
-                pedidos.add(pedidoDto);
-        }
-        return pedidos;
+        Pageable pageable = PageRequest.of(page, size); // Crear Pageable con la página y tamaño
+
+        // Obtener los pedidos locales del mesero con paginación
+        Page<PedidoLocal> pedidoLocalPage = pedidoLocalRepository.findByMesero(mesero, pageable);
+
+        // Convertir los pedidos locales a DTOs
+        return pedidoLocalPage.map(pedidoLocalService::convertirADto);
     }
+
 
     public MeseroSelfResponseDto updateAuthenticatedMesero(PatchMeseroDto dto) {
         // Obtener el email del usuario autenticado
