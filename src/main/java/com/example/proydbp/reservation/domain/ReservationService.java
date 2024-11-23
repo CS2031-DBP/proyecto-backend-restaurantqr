@@ -17,6 +17,9 @@ import com.example.proydbp.mesa.infrastructure.MesaRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -53,11 +56,14 @@ public class ReservationService {
         this.mesaService = mesaService;
     }
 
-    public List<ReservationResponseDto> findAllReservations() {
-        List<Reservation> reservations = reservationRepository.findAll();
-        return reservations.stream()
-                .map(reservation -> modelMapper.map(reservation, ReservationResponseDto.class))
-                .collect(Collectors.toList());
+    public Page<ReservationResponseDto> findAllReservations(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);  // Crear el objeto Pageable con los parámetros de página y tamaño
+
+        // Obtener las reservas de forma paginada
+        Page<Reservation> reservationsPage = reservationRepository.findAll(pageable);
+
+        // Convertir las reservas a ReservationResponseDto
+        return reservationsPage.map(reservation -> modelMapper.map(reservation, ReservationResponseDto.class));
     }
 
     public ReservationResponseDto findReservationById(Long id) {
