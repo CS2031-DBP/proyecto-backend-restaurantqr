@@ -1,6 +1,7 @@
 package com.example.proydbp.mesero.domain;
 
 import com.example.proydbp.auth.utils.AuthorizationUtils;
+import com.example.proydbp.client.dto.ClientSelfResponseDto;
 import com.example.proydbp.events.email_event.BienvenidaMeseroEvent;
 import com.example.proydbp.events.email_event.PerfilUpdateMeseroEvent;
 import com.example.proydbp.exception.UnauthorizeOperationException;
@@ -70,11 +71,11 @@ public class MeseroService {
         return convertirADto(mesero);
     }
 
-    public Page<MeseroResponseDto> findAllMeseros(int page, int size) {
+    public Page<MeseroSelfResponseDto> findAllMeseros(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Mesero> meseros = meseroRepository.findAll(pageable);
 
-        return meseros.map(this::convertirADto);
+        return meseros.map(client -> modelMapper.map(client, MeseroSelfResponseDto.class));
     }
 
 

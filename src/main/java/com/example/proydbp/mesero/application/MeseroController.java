@@ -106,7 +106,7 @@ public class MeseroController {
 
     @GetMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Page<MeseroResponseDto>> findAllMeseros(
+    public ResponseEntity<Page<MeseroSelfResponseDto>> findAllMeseros(
             @RequestParam int page, @RequestParam int size) {
         return ResponseEntity.ok(meseroService.findAllMeseros(page, size));
     }
