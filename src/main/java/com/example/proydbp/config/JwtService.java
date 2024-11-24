@@ -19,7 +19,7 @@ import java.util.Date;
 
 public class JwtService {
 
-    @Value("sdfi0olkftdnrbftyui0ifdbzdfvxggui9poymftdnrgbgyuhoiuyfntbdz")
+    @Value("${JWT_SIGNING_KEY}")
     private String secret;
 
     final private UserService userService;
