@@ -40,17 +40,9 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(exceptions ->
-                        exceptions.authenticationEntryPoint(unauthorizedEntryPoint())
-                )
                 .build();
     }
 
-    private AuthenticationEntryPoint unauthorizedEntryPoint() {
-        return (request, response, authException) -> {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Acceso no autorizado");
-        };
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

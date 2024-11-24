@@ -135,9 +135,4 @@ public class ClientController {
     public Page<ReviewDeliveryResponseDto> getAllReviewDelivery(@RequestParam int page, @RequestParam int size) {
         return clientService.getAllReviewDelivery(page,size);
     }
-
-
-
-
-
 }

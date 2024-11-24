@@ -32,7 +32,7 @@ public class ProyDbpApplication {
 						.allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD","PATCH")
 						.maxAge(3600)
 						.allowedHeaders("*")
-						.allowCredentials(true);
+						.allowCredentials(false);
 			};
 		};
 	};
