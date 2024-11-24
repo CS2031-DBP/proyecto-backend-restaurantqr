@@ -23,7 +23,6 @@ public class ReviewMeseroResponseDto {
 
     private MeseroSelfResponseDto mesero;
 
-
     private Double ratingScore;
 
     private String comment;

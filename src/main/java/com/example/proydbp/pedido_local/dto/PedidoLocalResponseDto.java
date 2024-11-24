@@ -2,6 +2,7 @@ package com.example.proydbp.pedido_local.dto;
 
 import com.example.proydbp.client.dto.ClientSelfResponseDto;
 import com.example.proydbp.mesa.dto.MesaResponseDto;
+import com.example.proydbp.mesa.dto.MesaSelfReponseDto;
 import com.example.proydbp.mesero.dto.MeseroResponseDto;
 
 import com.example.proydbp.mesero.dto.MeseroSelfResponseDto;
@@ -28,7 +29,7 @@ public class PedidoLocalResponseDto {
 
     private ZonedDateTime fecha;
 
-    private MesaResponseDto mesa;
+    private MesaSelfReponseDto mesa;
 
     private StatusPedidoLocal status;
 

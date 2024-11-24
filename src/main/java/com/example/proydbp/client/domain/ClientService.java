@@ -152,10 +152,6 @@ public class ClientService {
             client.setLastName(patchClientDto.getLastName());
         }
 
-        if (patchClientDto.getEmail() != null && !patchClientDto.getEmail().equals(client.getEmail())) {
-            updatedFields.put("Correo", patchClientDto.getEmail());
-            client.setEmail(patchClientDto.getEmail());
-        }
 
         if (patchClientDto.getPhone() != null && !patchClientDto.getPhone().equals(client.getPhoneNumber())) {
             updatedFields.put("Teléfono", patchClientDto.getPhone());

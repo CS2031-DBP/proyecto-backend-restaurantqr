@@ -1,25 +1,19 @@
 package com.example.proydbp.reservation.dto;
 
-import com.example.proydbp.client.dto.ClientResponseDto;
 import com.example.proydbp.client.dto.ClientSelfResponseDto;
-import com.example.proydbp.mesa.dto.MesaResponseDto;
 import com.example.proydbp.mesa.dto.MesaSelfReponseDto;
 import com.example.proydbp.reservation.domain.StatusReservation;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.ZonedDateTime;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReservationResponseDto {
+public class ReservationSelfResponseDto {
     private Long id;
 
     private ClientSelfResponseDto client;
@@ -27,9 +21,6 @@ public class ReservationResponseDto {
     private ZonedDateTime fecha;
 
     private Integer Npersonas;
-
-
-    private MesaSelfReponseDto mesa;
 
     @Enumerated(EnumType.STRING)
     private StatusReservation statusReservation;

@@ -20,9 +20,6 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 public class ReservationRequestDto {
 
-
-    private Long id;
-
     private ZonedDateTime fecha;
 
     @NotNull(message = "El número de personas no puede ser nulo")
@@ -31,7 +28,6 @@ public class ReservationRequestDto {
 
     private Long mesaId;
 
-    private StatusReservation statusReservation;
 
     private String descripcion;
 
