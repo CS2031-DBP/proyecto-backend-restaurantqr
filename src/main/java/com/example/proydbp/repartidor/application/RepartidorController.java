@@ -103,9 +103,9 @@ public class RepartidorController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<RepartidorResponseDto>> getAllRepartidores(@RequestParam int page, @RequestParam int size) {
-        Page<RepartidorResponseDto> repartidores = repartidorService.findAllRepartidors(page, size);
-        return ResponseEntity.ok(repartidores);
+    public ResponseEntity<Page<RepartidorSelfResponseDto>> getAllRepartidores(@RequestParam int page, @RequestParam int size) {
+
+        return ResponseEntity.ok(repartidorService.findAllRepartidors(page, size));
     }
 
 }

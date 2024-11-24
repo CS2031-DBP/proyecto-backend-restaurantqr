@@ -75,7 +75,7 @@ public class MeseroService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Mesero> meseros = meseroRepository.findAll(pageable);
 
-        return meseros.map(client -> modelMapper.map(client, MeseroSelfResponseDto.class));
+        return meseros.map(mesero -> modelMapper.map(mesero, MeseroSelfResponseDto.class));
     }
 
 

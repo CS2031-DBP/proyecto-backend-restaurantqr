@@ -2,6 +2,7 @@ package com.example.proydbp.repartidor.domain;
 
 import com.example.proydbp.auth.utils.AuthorizationUtils;
 
+import com.example.proydbp.client.dto.ClientSelfResponseDto;
 import com.example.proydbp.delivery.domain.Delivery;
 import com.example.proydbp.delivery.domain.DeliveryService;
 import com.example.proydbp.delivery.domain.StatusDelivery;
@@ -71,12 +72,12 @@ public class RepartidorService {
         return convertirADto(repartidor);
     }
 
-    public Page<RepartidorResponseDto> findAllRepartidors(int page, int size) {
+    public Page<RepartidorSelfResponseDto> findAllRepartidors(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);  // Crear un objeto Pageable con los parámetros de página y tamaño
         Page<Repartidor> repartidoresPage = repartidorRepository.findAll(pageable);  // Obtener la página de repartidores desde el repositorio
 
         // Convertir cada Repartidor a RepartidorResponseDto
-        return repartidoresPage.map(this::convertirADto);
+        return repartidoresPage.map(repartidor -> modelMapper.map(repartidor, RepartidorSelfResponseDto.class));
     }
 
 
