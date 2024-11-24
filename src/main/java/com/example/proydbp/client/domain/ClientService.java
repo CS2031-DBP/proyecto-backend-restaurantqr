@@ -71,11 +71,11 @@ public class ClientService {
         return convertirADto(client);
     }
 
-    public Page<ClientResponseDto> getAllClients(int page, int size) {
-
+    public Page<ClientSelfResponseDto> getAllClients(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Client> clients = clientRepository.findAll(pageable);
-        return clients.map(this::convertirADto);
+
+        return clients.map(client -> modelMapper.map(client, ClientSelfResponseDto.class));
     }
 
     public ClientResponseDto saveClientDto(ClientRequestDto clientRequestDto) {

@@ -100,7 +100,7 @@ public class ClientController {
 
     @GetMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Page<ClientResponseDto>> getAllClients(@RequestParam int page, @RequestParam int size) {
+    public ResponseEntity<Page<ClientSelfResponseDto>> getAllClients(@RequestParam int page, @RequestParam int size) {
         return ResponseEntity.ok(clientService.getAllClients(page,size));
     }
 
