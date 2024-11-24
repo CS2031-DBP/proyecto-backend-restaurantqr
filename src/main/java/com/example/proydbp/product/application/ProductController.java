@@ -55,7 +55,7 @@ public class ProductController {
 
 
     @PatchMapping("/changeAvailability/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CHEF')")
     public ResponseEntity<ProductResponseDto> changeProductAvailability(@PathVariable Long id) {
         ProductResponseDto updatedProduct = productService.changeAvailability(id);
         return ResponseEntity.ok(updatedProduct);
@@ -72,21 +72,21 @@ public class ProductController {
 
 
     @GetMapping("/available")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<Page<ProductResponseDto>> getAvailableProducts(@RequestParam int page, @RequestParam int size) {
         Page<ProductResponseDto> availableProducts = productService.findAvailableProducts(page, size);
         return ResponseEntity.ok(availableProducts);
     }
 
     @GetMapping()
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<Page<ProductResponseDto>> getAllProducts(@RequestParam int page, @RequestParam int size) {
         Page<ProductResponseDto> allProducts = productService.findAllProducts(page, size);
         return ResponseEntity.ok(allProducts);
     }
 
     @GetMapping("/category/{category}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<Page<ProductResponseDto>> getProductByCategory(@PathVariable Category category, @RequestParam int page, @RequestParam int size) {
         Page<ProductResponseDto> productResponseDto = productService.findByCategory(category, page, size);
         return ResponseEntity.ok(productResponseDto);

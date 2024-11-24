@@ -49,7 +49,7 @@ public class ReservationController {
 
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @PostMapping
-    public ResponseEntity<?> createReservation(@Validated @RequestBody ReservationRequestDto reservationRequestDto) {
+    public ResponseEntity<ReservationResponseDto> createReservation(@Validated @RequestBody ReservationRequestDto reservationRequestDto) {
         System.out.println("reservationRequestDto: " + reservationRequestDto);
         ReservationResponseDto newReservation = reservationService.createReservation(reservationRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newReservation);

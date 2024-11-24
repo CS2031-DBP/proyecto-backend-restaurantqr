@@ -53,6 +53,8 @@ public class ClientController {
         return ResponseEntity.ok(clientService.updateClient(id, patchClientDto));
     }
 
+
+
     @GetMapping("/me")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<ClientSelfResponseDto> getAuthenticatedClient() {

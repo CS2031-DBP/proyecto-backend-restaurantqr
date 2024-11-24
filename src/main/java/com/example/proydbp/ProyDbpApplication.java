@@ -28,7 +28,7 @@ public class ProyDbpApplication {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
-						.allowedOrigins("http://127.0.0.1:5167")//aplicación frontend
+						.allowedOrigins("http://localhost:8081")//aplicación frontend
 						.allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD","PATCH")
 						.maxAge(3600)
 						.allowedHeaders("*")

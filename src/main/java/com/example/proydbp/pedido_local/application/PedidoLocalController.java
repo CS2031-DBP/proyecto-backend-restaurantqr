@@ -41,6 +41,8 @@ public class PedidoLocalController {
         pedidoLocalService.deletePedidoLocal(id);
     }
 
+
+
     @PreAuthorize("hasRole('ROLE_MESERO')")
     @PatchMapping("/{id}/entregado")
     public PedidoLocalResponseDto entregadoPedidoLocal(@PathVariable Long id) {

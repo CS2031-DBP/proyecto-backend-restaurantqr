@@ -35,10 +35,10 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(auth ->
-                        auth
-                                .requestMatchers("/**").permitAll()
-                                .anyRequest().authenticated()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**").permitAll()
+
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions ->
                         exceptions.authenticationEntryPoint(unauthorizedEntryPoint())
@@ -57,15 +57,16 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    //    @Bean
-    //static RoleHierarchy roleHierarchy() {
-    //    RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
-    //    hierarchy.setHierarchy(
-    //            "ADMIN > CLIENT \n " +
-    //                    "ADMIN > REPARTIDOR \n " +
-    //                    "ADMIN > MESERO");
-    //    return hierarchy;
-    //}
+       @Bean
+   static RoleHierarchy roleHierarchy() {
+       RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+       hierarchy.setHierarchy(
+               "ADMIN > CLIENT \n " +
+                       "ADMIN > REPARTIDOR \n " +
+                       "ADMIN > CHEF \n " +
+                       "ADMIN > MESERO");
+       return hierarchy;
+   }
 
 
     @Bean
