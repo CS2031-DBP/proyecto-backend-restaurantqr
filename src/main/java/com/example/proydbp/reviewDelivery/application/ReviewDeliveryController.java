@@ -4,6 +4,7 @@ import com.example.proydbp.reviewDelivery.domain.ReviewDeliveryService;
 import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryRequestDto;
 import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,13 +26,6 @@ public class ReviewDeliveryController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping()
-    public ResponseEntity<List<ReviewDeliveryResponseDto>> getAllReviewDelivery() {
-        List<ReviewDeliveryResponseDto> reviews = reviewDeliveryService.findAllReviewDelivery();
-        return ResponseEntity.ok(reviews);
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReviewDelivery(@PathVariable Long id) {
         reviewDeliveryService.deleteReviewDelivery(id);
@@ -43,5 +37,12 @@ public class ReviewDeliveryController {
     public ResponseEntity<ReviewDeliveryResponseDto> createReviewDelivery(@RequestBody ReviewDeliveryRequestDto dto) {
         ReviewDeliveryResponseDto createdReview = reviewDeliveryService.createReviewDelivery(dto);
         return ResponseEntity.ok(createdReview);
+    }
+
+//Paginación
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping()
+    public ResponseEntity<Page<ReviewDeliveryResponseDto>> getAllReviewDelivery(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(reviewDeliveryService.findAllReviewDelivery(page,size));
     }
 }

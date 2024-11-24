@@ -13,6 +13,7 @@ import com.example.proydbp.pedido_local.dto.PedidoLocalResponseDto;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,11 +42,7 @@ public class MeseroController {
         return ResponseEntity.ok(meseroService.findMeseroById(id));
     }
 
-    @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<MeseroResponseDto>> findAllMeseros() {
-        return ResponseEntity.ok(meseroService.findAllMeseros());
-    }
+
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -74,31 +71,44 @@ public class MeseroController {
     public ResponseEntity<MeseroSelfResponseDto> findMesero() {
         return ResponseEntity.ok(meseroService.getMeseroOwnInfo());
     }
-
-    @PreAuthorize("hasRole('ROLE_MESERO')")
-    @GetMapping("/me/pedidosLocalesActuales")
-    public ResponseEntity<List<PedidoLocalResponseDto>> findMisPedidosLocalesActuales() {
-        return ResponseEntity.ok(meseroService.findMisPedidosLocalesActuales());
-    }
-
-
-    @PreAuthorize("hasRole('ROLE_MESERO')")
-    @GetMapping("/me/misReviews")
-    public ResponseEntity<List<ReviewMeseroResponseDto>> findMisReviews() {
-        return ResponseEntity.ok(meseroService.findMisReviews());
-    }
-
-
-    @PreAuthorize("hasRole('ROLE_MESERO')")
-    @GetMapping("/me/pedidosLocales")
-    public ResponseEntity<List<PedidoLocalResponseDto>> findPedidosLocales() {
-        return ResponseEntity.ok(meseroService.findPedidosLocales());
-    }
-
-
     @PatchMapping("/me")
     @PreAuthorize("hasRole('ROLE_MESERO')")
     public ResponseEntity<MeseroSelfResponseDto> updateAuthenticatedClient(@RequestBody PatchMeseroDto dto) {
         return ResponseEntity.ok(meseroService.updateAuthenticatedMesero(dto));
     }
+
+
+    //PAginación
+
+
+
+    @PreAuthorize("hasRole('ROLE_MESERO')")
+    @GetMapping("/me/pedidosLocalesActuales")
+    public ResponseEntity<Page<PedidoLocalResponseDto>> findMisPedidosLocalesActuales(
+            @RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(meseroService.findMisPedidosLocalesActuales(page, size));
+    }
+
+    @PreAuthorize("hasRole('ROLE_MESERO')")
+    @GetMapping("/me/misReviews")
+    public ResponseEntity<Page<ReviewMeseroResponseDto>> findMisReviews(
+            @RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(meseroService.findMisReviews(page, size));
+    }
+
+    @PreAuthorize("hasRole('ROLE_MESERO')")
+    @GetMapping("/me/pedidosLocales")
+    public ResponseEntity<Page<PedidoLocalResponseDto>> findPedidosLocales(
+            @RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(meseroService.findPedidosLocales(page, size));
+    }
+
+
+    @GetMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Page<MeseroSelfResponseDto>> findAllMeseros(
+            @RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(meseroService.findAllMeseros(page, size));
+    }
+
 }

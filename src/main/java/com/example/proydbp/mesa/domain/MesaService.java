@@ -8,11 +8,12 @@ import com.example.proydbp.mesa.infrastructure.MesaRepository;
 import com.example.proydbp.reservation.dto.ReservationResponseDto;
 import com.example.proydbp.reservation.infrastructure.ReservationRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class MesaService {
@@ -28,13 +29,14 @@ public class MesaService {
         this.reservationRepository = reservationRepository;
     }
 
-    public List<MesaResponseDto> findAllMesas() {
+    public Page<MesaResponseDto> findAllMesas(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);  // Crea un objeto Pageable con los parámetros de paginación
 
-        List<Mesa> mesas = mesaRepository.findAll();
+        // Recupera las mesas paginadas desde el repositorio
+        Page<Mesa> mesasPage = mesaRepository.findAll(pageable);
 
-        return mesas.stream()
-                .map(mesa -> modelMapper.map(mesa, MesaResponseDto.class))
-                .collect(Collectors.toList());
+        // Convierte las entidades Mesa a MesaResponseDto y devuelve el Page con los DTOs
+        return mesasPage.map(mesa -> modelMapper.map(mesa, MesaResponseDto.class));
     }
 
     public MesaResponseDto getMesaById(Long id) {
@@ -78,38 +80,44 @@ public class MesaService {
         return mesa;
     }
 
-    public List<MesaResponseDto> getAvailableMesas() {
-        List<Mesa> mesas = mesaRepository.findByAvailable(true);
+    public Page<MesaResponseDto> getAvailableMesas(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);  // Crea un objeto Pageable con los parámetros de paginación
 
-        return mesas.stream()
-                .filter(Mesa::isAvailable)
-                .map(mesa -> modelMapper.map(mesa, MesaResponseDto.class))
-                .collect(Collectors.toList());
+        // Recupera las mesas disponibles paginadas desde el repositorio
+        Page<Mesa> mesasPage = mesaRepository.findByAvailable(true, pageable);
+
+        // Convierte las entidades Mesa a MesaResponseDto y devuelve el Page con los DTOs
+        return mesasPage.map(mesa -> modelMapper.map(mesa, MesaResponseDto.class));
     }
 
-    public List<MesaResponseDto> getMesasByCapacity(int capacity) {
-        List<Mesa> mesas = mesaRepository.findByCapacity(capacity);
+    public Page<MesaResponseDto> getMesasByCapacity(int capacity, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);  // Crea el objeto Pageable
 
-        return mesas.stream()
-                .map(mesa -> modelMapper.map(mesa, MesaResponseDto.class))
-                .collect(Collectors.toList());
+        // Consulta paginada por capacidad
+        Page<Mesa> mesasPage = mesaRepository.findByCapacity(capacity, pageable);
+
+        // Mapea las entidades Mesa a MesaResponseDto y devuelve la página
+        return mesasPage.map(mesa -> modelMapper.map(mesa, MesaResponseDto.class));
     }
+
 
     // adicional
 
-    public List<ReservationResponseDto> getReservationsDeMesa(Long idMesa) {
+    public Page<ReservationResponseDto> getReservationsDeMesa(Long idMesa, int page, int size) {
         // Buscar la mesa por su ID
         Mesa mesa = mesaRepository.findById(idMesa)
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa con " + idMesa + " no encontrada"));
 
-        // Buscar las reservas asociadas a esa mesa
-        List<Reservation> reservations = reservationRepository.findByMesa(mesa);
+        // Crear el objeto Pageable para la paginación
+        Pageable pageable = PageRequest.of(page, size);
 
-        // Mapear las entidades de Reservation a ReservationResponseDto
-        return reservations.stream()
-                .map(reservation -> modelMapper.map(reservation, ReservationResponseDto.class))
-                .collect(Collectors.toList());
+        // Buscar las reservas asociadas a esa mesa, con paginación
+        Page<Reservation> reservationsPage = reservationRepository.findByMesa(mesa, pageable);
+
+        // Mapear las entidades Reservation a ReservationResponseDto y devolver la página
+        return reservationsPage.map(reservation -> modelMapper.map(reservation, ReservationResponseDto.class));
     }
+
 
     public void changeAvailability(Long id){
         Mesa mesa = mesaRepository.findById(id)

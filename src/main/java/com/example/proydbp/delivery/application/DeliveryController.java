@@ -6,6 +6,7 @@ import com.example.proydbp.delivery.dto.DeliveryResponseDto;
 import com.example.proydbp.delivery.dto.PatchDeliveryDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,12 +32,7 @@ public class DeliveryController {
         return ResponseEntity.ok(delivery);
     }
 
-    @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')") // Solo acceso para administradores
-    public ResponseEntity<List<DeliveryResponseDto>> findAllDeliveries() {
-        List<DeliveryResponseDto> deliveries = deliveryService.findAllDeliveries();
-        return ResponseEntity.ok(deliveries);
-    }
+
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -66,12 +62,6 @@ public class DeliveryController {
         return ResponseEntity.ok(deliveryResponse);
     }
 
-    @GetMapping("/current")
-    @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
-    public ResponseEntity<List<DeliveryResponseDto>> findCurrentDeliveries() {
-        List<DeliveryResponseDto> currentDeliveries = deliveryService.findCurrentDeliveries();
-        return ResponseEntity.ok(currentDeliveries);
-    }
 
     @PatchMapping("/{id}/listo")
     @PreAuthorize("hasRole('ROLE_CHEF')") // Acceso para chefs
@@ -99,6 +89,21 @@ public class DeliveryController {
     public ResponseEntity<DeliveryResponseDto> enCaminoDelivery(@PathVariable Long id) {
         DeliveryResponseDto deliveryResponse = deliveryService.enCaminoDelivery(id);
         return ResponseEntity.ok(deliveryResponse);
+    }
+
+//Paginación
+
+    @GetMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')") // Solo acceso para administradores
+    public ResponseEntity<Page<DeliveryResponseDto>> findAllDeliveries(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(deliveryService.findAllDeliveries(page,size));
+    }
+
+    @GetMapping("/current")
+    @PreAuthorize("hasRole('ROLE_REPARTIDOR')")
+    public ResponseEntity<Page<DeliveryResponseDto>> findCurrentDeliveries(@RequestParam int page, @RequestParam int size) {
+
+        return ResponseEntity.ok(deliveryService.findCurrentDeliveries(page,size));
     }
 
 }

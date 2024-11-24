@@ -11,10 +11,11 @@ import com.example.proydbp.reservation.dto.ReservationResponseDto;
 import com.example.proydbp.reviewDelivery.dto.ReviewDeliveryResponseDto;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/client")
@@ -31,12 +32,6 @@ public class ClientController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ClientResponseDto> findClientById(@PathVariable Long id) {
         return ResponseEntity.ok(clientService.getClient(id));
-    }
-
-    @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<ClientResponseDto>> getAllClients() {
-        return ResponseEntity.ok(clientService.getAllClients());
     }
 
     @PostMapping
@@ -78,64 +73,66 @@ public class ClientController {
         return ResponseEntity.ok(clientService.updateAuthenticatedClient(patchClientDto));
     }
 
+
+
+
+    //Paginación
+
     @GetMapping("me/pedidoLocalActual")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<List<PedidoLocalResponseDto>> getActualPedidoLocal() {
-        return ResponseEntity.ok(clientService.getActualPedidoLocal());
+    public ResponseEntity<Page<PedidoLocalResponseDto>> getActualPedidoLocal(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(clientService.getActualPedidoLocal(page,size));
     }
 
     @GetMapping("me/deliveryActual")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<List<DeliveryResponseDto>> getActualDelivery() {
-        return ResponseEntity.ok(clientService.getActualDelivery());
+    public ResponseEntity<Page<DeliveryResponseDto>> getActualDelivery(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(clientService.getActualDelivery(page,size));
     }
 
     @GetMapping("me/reservationActual")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<List<ReservationResponseDto>> getActualReservation() {
-        return ResponseEntity.ok(clientService.getActualReservation());
+    public ResponseEntity<Page<ReservationResponseDto>> getActualReservation(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(clientService.getActualReservation(page,size));
+    }
+
+
+
+    @GetMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Page<ClientSelfResponseDto>> getAllClients(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(clientService.getAllClients(page,size));
     }
 
     @GetMapping("/me/pedidoLocal")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<PedidoLocalResponseDto> getAllPedidoLocal() {
-        return clientService.getAllPedidoLocal();
+    public Page<PedidoLocalResponseDto> getAllPedidoLocal(@RequestParam int page, @RequestParam int size) {
+        return clientService.getAllPedidoLocal(page,size);
     }
 
     @GetMapping("/me/delivery")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<DeliveryResponseDto> getAllDelivery() {
-        return clientService.getAllDelivery();
+    public Page<DeliveryResponseDto> getAllDelivery(@RequestParam int page, @RequestParam int size) {
+        return clientService.getAllDelivery(page,size);
     }
 
     @GetMapping("/me/reservation")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<ReservationResponseDto> getAllReservation() {
-        return clientService.getAllReservation();
+    public Page<ReservationResponseDto> getAllReservation(@RequestParam int page, @RequestParam int size) {
+        return clientService.getAllReservation(page,size);
     }
 
     @GetMapping("/me/reviewMesero")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<ReviewMeseroResponseDto> getAllReviewMesero() {
-        return clientService.getAllReviewMesero();
+    public Page<ReviewMeseroResponseDto> getAllReviewMesero(@RequestParam int page, @RequestParam int size) {
+        return clientService.getAllReviewMesero(page,size);
     }
 
     @GetMapping("/me/reviewDelivery")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public List<ReviewDeliveryResponseDto> getAllReviewDelivery() {
-        return clientService.getAllReviewDelivery();
+    public Page<ReviewDeliveryResponseDto> getAllReviewDelivery(@RequestParam int page, @RequestParam int size) {
+        return clientService.getAllReviewDelivery(page,size);
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

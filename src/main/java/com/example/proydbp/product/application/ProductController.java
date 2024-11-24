@@ -1,11 +1,13 @@
 package com.example.proydbp.product.application;
 
+import com.example.proydbp.client.domain.Rango;
 import com.example.proydbp.product.domain.Category;
 import com.example.proydbp.product.domain.ProductService;
 import com.example.proydbp.product.dto.ProductRequestDto;
 import com.example.proydbp.product.dto.ProductResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -30,11 +32,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.findProductById(id));
     }
 
-    @GetMapping()
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
-        return ResponseEntity.ok(productService.findAllProducts());
-    }
+
 
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -55,32 +53,12 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateProduct(id, dto));
     }
 
-    @GetMapping("/category/{category}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<ProductResponseDto>> getProductByCategory(@PathVariable String category) {
-        List<ProductResponseDto> productResponseDto = productService.findByCategory(category);
-        return ResponseEntity.ok(productResponseDto);
-    }
 
     @PatchMapping("/changeAvailability/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ProductResponseDto> changeProductAvailability(@PathVariable Long id) {
         ProductResponseDto updatedProduct = productService.changeAvailability(id);
         return ResponseEntity.ok(updatedProduct);
-    }
-
-    @GetMapping("/available")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<ProductResponseDto>> getAvailableProducts() {
-        List<ProductResponseDto> availableProducts = productService.findAvailableProducts();
-        return ResponseEntity.ok(availableProducts);
-    }
-
-    @GetMapping("/rango/{rango}")
-        @PreAuthorize("hasRole('ROLE_CLIENT')")
-        public ResponseEntity<List<ProductResponseDto>> getProductsByClientRango(@PathVariable String rango) {
-            List<ProductResponseDto> productResponseDto = productService.findProductByClientRango(rango);
-            return ResponseEntity.ok(productResponseDto);
     }
 
     @GetMapping("/categories")
@@ -91,4 +69,35 @@ public class ProductController {
                 .toList();
         return ResponseEntity.ok(categories);
     }
+
+
+    @GetMapping("/available")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Page<ProductResponseDto>> getAvailableProducts(@RequestParam int page, @RequestParam int size) {
+        Page<ProductResponseDto> availableProducts = productService.findAvailableProducts(page, size);
+        return ResponseEntity.ok(availableProducts);
+    }
+
+    @GetMapping()
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Page<ProductResponseDto>> getAllProducts(@RequestParam int page, @RequestParam int size) {
+        Page<ProductResponseDto> allProducts = productService.findAllProducts(page, size);
+        return ResponseEntity.ok(allProducts);
+    }
+
+    @GetMapping("/category/{category}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Page<ProductResponseDto>> getProductByCategory(@PathVariable Category category, @RequestParam int page, @RequestParam int size) {
+        Page<ProductResponseDto> productResponseDto = productService.findByCategory(category, page, size);
+        return ResponseEntity.ok(productResponseDto);
+    }
+
+    @GetMapping("/rango/{rango}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<Page<ProductResponseDto>> getProductsByClientRango(@PathVariable Rango rango, @RequestParam int page, @RequestParam int size) {
+        Page<ProductResponseDto> productResponseDto = productService.findProductByClientRango(rango, page, size);
+        return ResponseEntity.ok(productResponseDto);
+    }
+
+
 }

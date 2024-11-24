@@ -5,6 +5,7 @@ import com.example.proydbp.reviewMesero.dto.ReviewMeseroRequestDto;
 import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,11 +30,7 @@ public class ReviewMeseroController {
         return ResponseEntity.ok(reviewMeseroService.findReviewMeseroById(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping
-    public ResponseEntity<List<ReviewMeseroResponseDto>> getAllReviewMeseros() {
-        return ResponseEntity.ok(reviewMeseroService.findAllReviewMeseros());
-    }
+
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
@@ -47,5 +44,11 @@ public class ReviewMeseroController {
     public ResponseEntity<ReviewMeseroResponseDto> createReviewMesero(@Valid @RequestBody ReviewMeseroRequestDto dto) {
         ReviewMeseroResponseDto createdReview = reviewMeseroService.createReviewMesero(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdReview);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping
+    public ResponseEntity<Page<ReviewMeseroResponseDto>> getAllReviewMeseros(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(reviewMeseroService.findAllReviewMeseros(page,size));
     }
 }

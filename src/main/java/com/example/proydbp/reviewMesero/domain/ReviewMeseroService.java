@@ -17,6 +17,9 @@ import com.example.proydbp.reviewMesero.infrastructure.ReviewMeseroRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -56,11 +59,17 @@ public class ReviewMeseroService {
         return modelMapper.map(reviewMesero, ReviewMeseroResponseDto.class);
     }
 
-    public List<ReviewMeseroResponseDto> findAllReviewMeseros() {
-        return reviewMeseroRepository.findAll().stream()
-                .map(review -> modelMapper.map(review, ReviewMeseroResponseDto.class))
-                .toList();
+    public Page<ReviewMeseroResponseDto> findAllReviewMeseros(int page, int size) {
+        // Crear el objeto Pageable con los parámetros de página y tamaño
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Obtener las reseñas de los meseros de forma paginada
+        Page<ReviewMesero> reviewsPage = reviewMeseroRepository.findAll(pageable);
+
+        // Convertir las reseñas a ReviewMeseroResponseDto y devolver el resultado paginado
+        return reviewsPage.map(review -> modelMapper.map(review, ReviewMeseroResponseDto.class));
     }
+
 
     public ReviewMeseroResponseDto createReviewMesero(ReviewMeseroRequestDto dto) {
 

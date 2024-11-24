@@ -25,6 +25,10 @@ import com.example.proydbp.reviewMesero.dto.ReviewMeseroResponseDto;
 import com.example.proydbp.user.domain.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -67,16 +71,11 @@ public class ClientService {
         return convertirADto(client);
     }
 
-    public List<ClientResponseDto> getAllClients() {
-        List<Client> clients = clientRepository.findAll();
-        List<ClientResponseDto> clientsResponse = new ArrayList<>();
+    public Page<ClientSelfResponseDto> getAllClients(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Client> clients = clientRepository.findAll(pageable);
 
-        for (Client client : clients) {
-            ClientResponseDto clientDto = convertirADto(client);
-            clientsResponse.add(clientDto);
-        }
-
-        return clientsResponse;
+        return clients.map(client -> modelMapper.map(client, ClientSelfResponseDto.class));
     }
 
     public ClientResponseDto saveClientDto(ClientRequestDto clientRequestDto) {
@@ -220,50 +219,84 @@ public class ClientService {
         return modelMapper.map(client, ClientSelfResponseDto.class);
     }
 
-    public List<PedidoLocalResponseDto> getAllPedidoLocal(){
+    public Page<PedidoLocalResponseDto> getAllPedidoLocal(int page, int size) {
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username " + username + " no encontrado."));
 
-        return client.getPedidosLocales()
-                .stream()
+        // Crear objeto Pageable
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Obtener pedidos como una lista y convertir a DTO
+        List<PedidoLocalResponseDto> pedidosDto = client.getPedidosLocales().stream()
                 .map(pedidoLocal -> modelMapper.map(pedidoLocal, PedidoLocalResponseDto.class))
                 .collect(Collectors.toList());
+
+        // Crear y devolver la página paginada
+        return new PageImpl<>(
+                pedidosDto.subList(
+                        Math.min((int) pageable.getOffset(), pedidosDto.size()),
+                        Math.min((int) pageable.getOffset() + pageable.getPageSize(), pedidosDto.size())
+                ),
+                pageable,
+                pedidosDto.size()
+        );
     }
 
-    public List<DeliveryResponseDto> getAllDelivery(){
+    public Page<DeliveryResponseDto> getAllDelivery(int page, int size) {
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
-
-        Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
-
-        List<DeliveryResponseDto> deliverys = new ArrayList<>();
-
-        for (Delivery delivery : client.getDeliveries()) {
-            DeliveryResponseDto deliveryDto = deliveryService.convertirADto(delivery);
-            deliverys.add(deliveryDto);
         }
-        return deliverys;
-    }
-
-    public List<ReservationResponseDto> getAllReservation(){
-        String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
-            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username " + username + " no encontrado."));
 
-        return client.getReservations()
-                .stream()
-                .map(reservation -> modelMapper.map(reservation, ReservationResponseDto.class))
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<DeliveryResponseDto> deliveryDtos = client.getDeliveries().stream()
+                .map(deliveryService::convertirADto)
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(
+                deliveryDtos.subList(
+                        Math.min((int) pageable.getOffset(), deliveryDtos.size()),
+                        Math.min((int) pageable.getOffset() + pageable.getPageSize(), deliveryDtos.size())
+                ),
+                pageable,
+                deliveryDtos.size()
+        );
     }
+
+    public Page<ReservationResponseDto> getAllReservation(int page, int size) {
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (username == null) {
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
+
+        Client client = clientRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username " + username + " no encontrado."));
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<ReservationResponseDto> reservationDtos = client.getReservations().stream()
+                .map(reservation -> modelMapper.map(reservation, ReservationResponseDto.class))
+                .toList();
+
+        return new PageImpl<>(
+                reservationDtos.stream()
+                        .skip(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .toList(),
+                pageable,
+                reservationDtos.size()
+        );
+    }
+
 
     public Void updateLoyaltyPoints(int point){
         String username = authorizationUtils.getCurrentUserEmail();
@@ -289,80 +322,141 @@ public class ClientService {
         return null;
     }
 
-    public List<PedidoLocalResponseDto> getActualPedidoLocal(){
-
+    public Page<PedidoLocalResponseDto> getActualPedidoLocal(int page, int size) {
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
-
-        Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
-
-        return client.getPedidosLocales().stream()
-                .filter(pedidoLocal -> pedidoLocal.getStatus() == StatusPedidoLocal.EN_PREPARACION || pedidoLocal.getStatus() == StatusPedidoLocal.LISTO || pedidoLocal.getStatus() == StatusPedidoLocal.RECIBIDO)  // Filtrar por estado enum
-                .map(delivery -> modelMapper.map(delivery, PedidoLocalResponseDto.class))  // Mapear usando ModelMapper
-                .collect(Collectors.toList());
-    }
-
-    public List<DeliveryResponseDto> getActualDelivery(){
-        String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
-            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
-
-        Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
-
-        List<DeliveryResponseDto> deliverys = new ArrayList<>();
-        for(Delivery delivery : client.getDeliveries()){
-            if(delivery.getStatus() != StatusDelivery.ENTREGADO && delivery.getStatus() != StatusDelivery.CANCELADO){
-                DeliveryResponseDto deliveryDto = deliveryService.convertirADto(delivery);
-                deliverys.add(deliveryDto);
-            }
         }
-        return deliverys;
-    }
-
-    public List<ReservationResponseDto> getActualReservation(){
-        String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
-            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username " + username + " no encontrado."));
 
-        return client.getReservations().stream()
-                .filter(reservation -> reservation.getStatusReservation() != StatusReservation.FINALIZADA && reservation.getStatusReservation() != StatusReservation.CANCELADO)  // Filtrar por estado enum
-                .map(delivery -> modelMapper.map(delivery, ReservationResponseDto.class))
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<PedidoLocalResponseDto> filteredPedidos = client.getPedidosLocales().stream()
+                .filter(pedido -> pedido.getStatus() == StatusPedidoLocal.EN_PREPARACION
+                        || pedido.getStatus() == StatusPedidoLocal.LISTO
+                        || pedido.getStatus() == StatusPedidoLocal.RECIBIDO)
+                .map(pedido -> modelMapper.map(pedido, PedidoLocalResponseDto.class))
+                .toList();
+
+        return new PageImpl<>(
+                filteredPedidos.stream()
+                        .skip(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .toList(),
+                pageable,
+                filteredPedidos.size()
+        );
     }
 
-    public List<ReviewMeseroResponseDto> getAllReviewMesero() {
+    public Page<DeliveryResponseDto> getActualDelivery(int page, int size) {
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username " + username + " no encontrado."));
 
-        return client.getReviewMeseros()
-                .stream()
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<DeliveryResponseDto> filteredDeliveries = client.getDeliveries().stream()
+                .filter(delivery -> delivery.getStatus() != StatusDelivery.ENTREGADO
+                        && delivery.getStatus() != StatusDelivery.CANCELADO)
+                .map(deliveryService::convertirADto)
+                .toList();
+
+        return new PageImpl<>(
+                filteredDeliveries.stream()
+                        .skip(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .toList(),
+                pageable,
+                filteredDeliveries.size()
+        );
+    }
+
+
+    public Page<ReservationResponseDto> getActualReservation(int page, int size) {
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (username == null) {
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
+
+        Client client = clientRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username " + username + " no encontrado."));
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<ReservationResponseDto> filteredReservations = client.getReservations().stream()
+                .filter(reservation -> reservation.getStatusReservation() != StatusReservation.FINALIZADA
+                        && reservation.getStatusReservation() != StatusReservation.CANCELADO)
+                .map(reservation -> modelMapper.map(reservation, ReservationResponseDto.class))
+                .toList();
+
+        return new PageImpl<>(
+                filteredReservations.stream()
+                        .skip(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .toList(),
+                pageable,
+                filteredReservations.size()
+        );
+    }
+
+    public Page<ReviewMeseroResponseDto> getAllReviewMesero(int page, int size) {
+        String username = authorizationUtils.getCurrentUserEmail();
+        if (username == null) {
+            throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
+
+        Client client = clientRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username " + username + " no encontrado."));
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<ReviewMeseroResponseDto> reviewMeseros = client.getReviewMeseros().stream()
                 .map(reviewMesero -> modelMapper.map(reviewMesero, ReviewMeseroResponseDto.class))
-                .collect(Collectors.toList());
+                .toList();
+
+        return new PageImpl<>(
+                reviewMeseros.stream()
+                        .skip(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .toList(),
+                pageable,
+                reviewMeseros.size()
+        );
     }
 
-    public List<ReviewDeliveryResponseDto> getAllReviewDelivery() {
+
+    public Page<ReviewDeliveryResponseDto> getAllReviewDelivery(int page, int size) {
         String username = authorizationUtils.getCurrentUserEmail();
-        if (username == null)
+        if (username == null) {
             throw new UnauthorizeOperationException("Usuario anónimo no tiene permitido acceder a este recurso");
+        }
 
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username "+ username +" no encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente con username " + username + " no encontrado."));
 
-        return client.getReviewDeliveries()
-                .stream()
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<ReviewDeliveryResponseDto> reviewDeliveries = client.getReviewDeliveries().stream()
                 .map(reviewDelivery -> modelMapper.map(reviewDelivery, ReviewDeliveryResponseDto.class))
-                .collect(Collectors.toList());
+                .toList();
+
+        return new PageImpl<>(
+                reviewDeliveries.stream()
+                        .skip(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .toList(),
+                pageable,
+                reviewDeliveries.size()
+        );
     }
+
+
 
     public ClientResponseDto convertirADto(Client client) {
 

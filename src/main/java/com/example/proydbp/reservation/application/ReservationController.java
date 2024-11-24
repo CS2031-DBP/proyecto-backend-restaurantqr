@@ -6,6 +6,7 @@ import com.example.proydbp.reservation.dto.ReservationRequestDto;
 import com.example.proydbp.reservation.dto.ReservationResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,12 +31,7 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping
-    public ResponseEntity<List<ReservationResponseDto>> getAllReservations() {
-        List<ReservationResponseDto> reservations = reservationService.findAllReservations();
-        return ResponseEntity.ok(reservations);
-    }
+
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
@@ -87,4 +83,20 @@ public class ReservationController {
         ReservationResponseDto finishedReservation = reservationService.finishedReservation(id);
         return ResponseEntity.ok(finishedReservation);
     }
+
+
+
+    //PAginacion
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping
+    public ResponseEntity<Page<ReservationResponseDto>> getAllReservations(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(reservationService.findAllReservations(page, size));
+    }
+
+
+
+
+
+
 }

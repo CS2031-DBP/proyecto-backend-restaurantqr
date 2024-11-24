@@ -24,6 +24,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -65,16 +68,11 @@ public class PedidoLocalService {
         return convertirADto(pedidoLocal);
     }
 
-    public List<PedidoLocalResponseDto> findAllPedidoLocals() {
-        List<PedidoLocalResponseDto> Pedidos = new ArrayList<>();
+    public Page<PedidoLocalResponseDto> findAllPedidoLocals(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PedidoLocal> pedidoLocalsPage = pedidoLocalRepository.findAll(pageable);
 
-        for (PedidoLocal pedidoLocal : pedidoLocalRepository.findAll()) {
-
-            PedidoLocalResponseDto responseDto =convertirADto(pedidoLocal);
-
-            Pedidos.add(responseDto);
-        }
-        return Pedidos;
+        return pedidoLocalsPage.map(this::convertirADto);
     }
 
     public PedidoLocalResponseDto createPedidoLocal(PedidoLocalRequestDto dto) {
@@ -203,19 +201,16 @@ public class PedidoLocalService {
     }
 
 
-    public List<PedidoLocalResponseDto> findPedidosLocalesActuales() {
+    public Page<PedidoLocalResponseDto> findPedidosLocalesActuales(int page, int size) {
+        // Creamos la lista de estados de tipo StatusPedidoLocal
+        List<StatusPedidoLocal> estados = List.of(StatusPedidoLocal.RECIBIDO, StatusPedidoLocal.EN_PREPARACION);
+        Pageable pageable = PageRequest.of(page, size);
 
-        List<String> estados = List.of(StatusPedidoLocal.RECIBIDO.toString(), StatusPedidoLocal.EN_PREPARACION.toString());
-        List<PedidoLocal> pedidosLocalesListos = pedidoLocalRepository.findByStatus(StatusPedidoLocal.RECIBIDO);
-        List<PedidoLocal> pedidosLocalesPreparados = pedidoLocalRepository.findByStatus(StatusPedidoLocal.EN_PREPARACION);
+        // Usamos findByStatusIn para filtrar por los estados y obtener una página de resultados
+        Page<PedidoLocal> pedidosLocalesPage = pedidoLocalRepository.findByStatusIn(estados, pageable);
 
-        List<PedidoLocal> todosLosPedidosLocales = new ArrayList<>(pedidosLocalesListos);
-        todosLosPedidosLocales.addAll(pedidosLocalesPreparados);
-
-        // Mapear los pedidos locales a PedidoLocalResponseDto utilizando ModelMapper
-        return todosLosPedidosLocales.stream()
-                .map(pedidoLocal -> modelMapper.map(pedidoLocal, PedidoLocalResponseDto.class))
-                .collect(Collectors.toList());
+        // Convertimos cada PedidoLocal a PedidoLocalResponseDto y lo devolvemos como una página
+        return pedidosLocalesPage.map(pedidoLocal -> modelMapper.map(pedidoLocal, PedidoLocalResponseDto.class));
     }
 
     public PedidoLocalResponseDto entregadoPedidoLocal(Long id) {
