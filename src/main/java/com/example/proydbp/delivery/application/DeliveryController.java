@@ -26,7 +26,7 @@ public class DeliveryController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<DeliveryResponseDto> findDeliveryById(@PathVariable Long id) {
         DeliveryResponseDto delivery = deliveryService.findDeliveryById(id);
         return ResponseEntity.ok(delivery);
