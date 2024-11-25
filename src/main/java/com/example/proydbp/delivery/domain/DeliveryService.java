@@ -107,10 +107,6 @@ public class DeliveryService {
             });
         }
 
-        if (!nombresProductosFueraDeRango.isEmpty()) {
-            throw new IllegalArgumentException("Los siguientes productos están fuera del rango permitido: " + String.join(", ", nombresProductosFueraDeRango));
-        }
-
         Delivery delivery = new Delivery();
         // Seteo de otros campos en el objeto Delivery
         delivery.setDireccion(dto.getDireccion());

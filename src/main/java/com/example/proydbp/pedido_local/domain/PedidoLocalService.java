@@ -101,10 +101,6 @@ public class PedidoLocalService {
             });
         }
 
-        if (!nombresProductosFueraDeRango.isEmpty()) {
-            throw new IllegalArgumentException("Los siguientes productos están fuera del rango permitido: " + String.join(", ", nombresProductosFueraDeRango));
-        }
-
         PedidoLocal pedidoLocal = new PedidoLocal();
         pedidoLocal.setMesa(mesa);
         pedidoLocal.setClient(client);

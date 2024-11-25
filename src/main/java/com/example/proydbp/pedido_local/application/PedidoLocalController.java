@@ -22,7 +22,7 @@ public class PedidoLocalController {
     @Autowired
     private PedidoLocalService pedidoLocalService;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
     @GetMapping("/{id}")
     public PedidoLocalResponseDto getPedidoLocalById(@PathVariable Long id) {
         return pedidoLocalService.findPedidoLocalById(id);
